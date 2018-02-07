@@ -1,0 +1,37 @@
+#LoginControl Config
+
+#MySQL Settings
+mysql:
+  host: localhost
+  port: 3306
+  database: LoginList
+  username: root
+  password: password
+
+#First Login TP
+OpJump: false
+FirstPoint: false
+world: world
+x: 0
+y: 0
+z: 0
+pitch: 0
+yaw: 0
+
+#Present Items
+Present:
+    - BED,1
+    - BREAD,32
+    - STONE_AXE,1
+    - STONE_PICKAXE,1
+
+#Known servers
+104.155.197.233: JapanMinecraftServer
+213.239.204.169: Minecraft-Statistic
+104.20.70.236: Minecraft-Server-List
+104.20.237.39: MinecraftServers.org
+72.52.216.181: MinecraftServers.net
+104.25.139.100: MinecraftServers.biz
+104.25.153.114: ServerPact.com
+104.20.7.164: Minecraft-mp.com
+104.31.90.225: mcserverstatus.com

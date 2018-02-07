@@ -1,0 +1,14 @@
+name: LoginControl
+version: 0.0.1
+main: com.mycompany.logincontrol.LoginControl
+description: login history plugins
+author: Kumaisu
+database: true
+commands:
+    loginlist:
+        description: Login History Print
+        aliases: ll
+        permission: LoginCtl.loginlist
+        permission-message: You do not have permission.
+        usage: /<command> [full]
+        
