@@ -18,9 +18,7 @@
         </repository>
     </repositories> 
 
-
     <dependencies>
-    <!--Spigot API-->
      <!--Bukkit API-->
         <dependency>
             <groupId>org.bukkit</groupId>
