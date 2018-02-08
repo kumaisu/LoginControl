@@ -41,7 +41,6 @@ public class StatusRecord {
     public void MsgPrt( Player player, String msg ) {
         if ( player == null ) {
             Bukkit.getServer().getConsoleSender().sendMessage( msg );
-            // getLogger().log( Level.INFO, msg );
         } else {
             player.sendMessage( msg );
         }

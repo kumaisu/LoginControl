@@ -15,21 +15,6 @@ import org.bukkit.plugin.Plugin;
  */
 public class Config {
 
-    /*
-    mysql:
-        host: 127.0.0.1
-        port: 3306
-        database: LoginList?useSSL=false
-        username: root
-        password: kumaisu_SQL_2525
-    FirstPoint:
-        x: 0
-        y: 128
-        z: 0
-        pitch: 0
-        yaw: 0
-    */
-    
     private final Plugin plugin;
     private FileConfiguration config = null;
     

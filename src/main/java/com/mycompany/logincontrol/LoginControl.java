@@ -74,18 +74,7 @@ public class LoginControl extends JavaPlugin implements Listener {
                     }
                 }
                 
-                //  True:Player向け
-                //  False:Console : sender.sendMessage(ChatColor.RED + "このコマンドはゲーム内から実行してください。");
 		statusRecord.LogPrint( ( sender instanceof Player ) ? (Player)sender:(Player)null, ( sender instanceof Player ) ? 15:30, FullFlag );
-
-                /*
-                if (!(sender instanceof Player)) {
-                    // sender.sendMessage(ChatColor.RED + "このコマンドはゲーム内から実行してください。");
-                    statusRecord.LogPrint( (Player)null, 30, FullFlag );
-		} else {
-                    statusRecord.LogPrint( (Player)sender, 15, FullFlag );
-                }
-                */
 
                 return true;
         }
@@ -113,14 +102,6 @@ public class LoginControl extends JavaPlugin implements Listener {
             }
 
             getLogger().info( player.getLocale().isEmpty() ? "Location Empty":"First Spawn Location" );
-
-            /*
-            if ( player.getLocale().isEmpty() ) {
-                getLogger().info( "Location Empty" );
-            } else {
-                getLogger().info( "First Spawn Location" );
-            }
-            */
 
             getLogger().info( "This player is first play to teleport");
             World world = getWorld( config.getWorld() );
