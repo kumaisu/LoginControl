@@ -25,6 +25,11 @@ Present:
     - STONE_AXE,1
     - STONE_PICKAXE,1
 
+#MotD Message
+MotD1st: "Welcome to Minecraft Server"
+MotD2nd-Unknown: "Let's play together"
+MotD2nd-Player: "{0}, We are waiting for you"
+    
 #Known servers
 104.155.197.233: JapanMinecraftServer
 213.239.204.169: Minecraft-Statistic

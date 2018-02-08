@@ -32,6 +32,9 @@ public class Config {
     private int fz;
     private int fpitch;
     private int fyaw;
+    private String MotD1stLine;
+    private String MotD2ndLineUnknown;
+    private String MotD2ndLinePlayer;
     
     public Config(Plugin plugin) {
         this.plugin = plugin;
@@ -64,6 +67,9 @@ public class Config {
         fpitch = config.getInt( "pitch" );
         fyaw = config.getInt( "yaw" );
         present = config.getStringList( "Present" );
+        MotD1stLine = config.getString( "MotD1st" );
+        MotD2ndLineUnknown = config.getString( "MotD2nd-Unknown" );
+        MotD2ndLinePlayer = config.getString( "MotD2nd-Player" );
     }
     
     public String getHost() {
@@ -125,4 +131,13 @@ public class Config {
     public List<String> getPresent() {
         return present;
     }
+
+    public String get1stLine() {
+        return MotD1stLine;
+    }
+    
+    public String get2ndLine( boolean flag ) {
+        return ( flag ? MotD2ndLinePlayer:MotD2ndLineUnknown );
+    }
+    
 }
