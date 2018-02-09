@@ -17,4 +17,3 @@ As for player login, it is a plug-in that supports variously
 /Loginlist full  
 /Loginlist [d yymmdd]  
 
-test  
