@@ -1,7 +1,7 @@
 <#if licenseFirst??>
 ${licenseFirst}
 </#if>
-${licensePrefix} Copyright ? ${date?date?string("yyyy")} ${user}
+${licensePrefix} Copyright (c) ${date?date?string("yyyy")} ${user}. All rights reserved.
 <#if licenseLast??>
 ${licenseLast}
 </#if>

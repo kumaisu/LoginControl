@@ -1,3 +1,6 @@
+/*
+ *  Copyright (c) 2018 sugichan. All rights reserved.
+ */
 package com.mycompany.logincontrol;
 
 import java.util.Date;
