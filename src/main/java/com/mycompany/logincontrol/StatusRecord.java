@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.mycompany.logincontrol;
 
 import java.sql.Connection;
@@ -191,15 +186,12 @@ public class StatusRecord {
 
     @SuppressWarnings("CallToPrintStackTrace")
     public void ChangeStatus( Date date, String status ) {
-        //  [例1]idカラムの値が10のデータのpriceカラムの値を1000に設定する
-        //  UPDATE uriage SET price = 1000 WHERE id = 10;
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
         try {
             openConnection();
 
             String sql = "UPDATE players SET status = '" + status + "' WHERE date = '" + sdf.format( date ) + "';";
-            //  getLogger().log( Level.INFO, sql );
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.executeUpdate();
             
@@ -256,7 +248,6 @@ public class StatusRecord {
             }
             Class.forName("com.mysql.jdbc.Driver");
             connection = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database, username, password);
-            // connection = DriverManager.getConnection( "jdbc:mysql://" + config.getHost() + ":" + config.getPort() + "/" + config.getDB(), config.getUsername(), config.getPassword() );
 
             //  mysql> create table players(id int auto_increment, date DATETIME,name varchar(20), uuid varchar(36), ip varchar(22), index(id));
             //  テーブルの作成
