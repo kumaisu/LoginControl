@@ -12,5 +12,8 @@ As for player login, it is a plug-in that supports variously
 5.History record and reference function of logged-in player and failed player.  
 6.Ability to display the list of users from the same IP to authorized player.  
 
-**Usage**
+**Usage**  
+
+/Loginlist full  
 /Loginlist [d yymmdd]  
+
