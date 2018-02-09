@@ -33,6 +33,8 @@ public class Config {
     private String MotD1stLine;
     private String MotD2ndLineUnknown;
     private String MotD2ndLinePlayer;
+    private List<String> IgnoreReportName;
+    private List<String> IgnoreReportIP;
     
     public Config(Plugin plugin) {
         this.plugin = plugin;
@@ -68,6 +70,8 @@ public class Config {
         MotD1stLine = config.getString( "MotD1st" );
         MotD2ndLineUnknown = config.getString( "MotD2nd-Unknown" );
         MotD2ndLinePlayer = config.getString( "MotD2nd-Player" );
+        IgnoreReportName = config.getStringList( "Ignore-Names" );
+        IgnoreReportIP = config.getStringList( "Ignore-IP" );
     }
     
     public String getHost() {
@@ -137,5 +141,12 @@ public class Config {
     public String get2ndLine( boolean flag ) {
         return ( flag ? MotD2ndLinePlayer:MotD2ndLineUnknown );
     }
-    
+
+    public List<String> getIgnoreName() {
+        return IgnoreReportName;
+    }
+
+    public List<String> getIgnoreIP() {
+        return IgnoreReportIP;
+    }
 }

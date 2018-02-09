@@ -10,5 +10,10 @@ commands:
         aliases: ll
         permission: LoginCtl.loginlist
         permission-message: You do not have permission.
-        usage: /<command> [full]
+        usage: /<command> [full] [d yymmdd]
+    loginlist reload:
+        description: Config file reload
+        permission: LoginCtl.admin
+        permission-message: You do not have permission.
+        usage: /<command>
         

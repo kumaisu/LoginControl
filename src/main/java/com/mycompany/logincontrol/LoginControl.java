@@ -70,6 +70,11 @@ public class LoginControl extends JavaPlugin implements Listener {
                         sender.sendMessage( ChatColor.GREEN + "ログをフル表示します" );
                         FullFlag = true;
                     }
+                    if ( args[0].equals( "reload" ) ) {
+                        config = new Config( this );
+                        sender.sendMessage( ChatColor.GREEN + "LoginList Config Reloaded." );
+                        return true;
+                    }
                 }
                 
 		statusRecord.LogPrint( ( sender instanceof Player ) ? (Player)sender:(Player)null, ( sender instanceof Player ) ? 15:30, FullFlag );
@@ -134,7 +139,10 @@ public class LoginControl extends JavaPlugin implements Listener {
 
         String msg = ChatColor.GREEN + "Ping from " + ChatColor.WHITE + Names + ChatColor.YELLOW + " [" + event.getAddress().getHostAddress() + "]";
         Bukkit.getServer().getConsoleSender().sendMessage( msg );
-        Bukkit.getOnlinePlayers().stream().filter( ( p ) -> ( p.hasPermission( "LoginCtl.view" ) || p.isOp() ) ).forEachOrdered( ( p ) -> { p.sendMessage( msg ); } );
+        if ( !config.getIgnoreName().contains( Names ) && !config.getIgnoreIP().contains( event.getAddress().getHostAddress() ) ) {
+            Bukkit.getOnlinePlayers().stream().filter( ( p ) -> ( p.hasPermission( "LoginCtl.view" ) || p.isOp() ) ).forEachOrdered( ( p ) -> { p.sendMessage( msg ); } );
+        }
+
         String MotdMsg = ChatColor.LIGHT_PURPLE + "スナック・クマイスサーバー(1.12.2)\n";
         // String MotdMsg = config.get1stLine() + "\n";
         if ( Names.equals( "Unknown" ) ) {

@@ -40,3 +40,9 @@ MotD2nd-Player: "{0}, We are waiting for you"
 104.25.153.114: ServerPact.com
 104.20.7.164: Minecraft-mp.com
 104.31.90.225: mcserverstatus.com
+
+#Ignore Report
+Ignore-Names:
+    - Kumaisu
+Ignore-IP:
+    - 127.0.0.0
