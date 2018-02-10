@@ -143,17 +143,13 @@ public class LoginControl extends JavaPlugin implements Listener {
             Bukkit.getOnlinePlayers().stream().filter( ( p ) -> ( p.hasPermission( "LoginCtl.view" ) || p.isOp() ) ).forEachOrdered( ( p ) -> { p.sendMessage( msg ); } );
         }
 
-        //  String MotdMsg = ChatColor.LIGHT_PURPLE + "スナック・クマイスサーバー(1.12.2)\n";
         String MotdMsg = config.get1stLine() + "\n";
         if ( Names.equals( "Unknown" ) ) {
-            //  MotdMsg += ChatColor.DARK_AQUA + "ゆっくりしていってね";
             MotdMsg += config.get2ndLine( false );
         } else {
-            //  MotdMsg += ChatColor.YELLOW + Names + ChatColor.GREEN + "さん、まってるよ";
-            MotdMsg += String.format( config.get2ndLine( true ),Names );
+            MotdMsg += config.get2ndLine( true );
         }
-        MotdMsg.replace( "%player%", Names );
-        event.setMotd( MotdMsg );
+        event.setMotd( MotdMsg.replace( "%player%", Names ) );
     }
 	
 }
