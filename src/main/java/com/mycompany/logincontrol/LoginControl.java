@@ -58,26 +58,47 @@ public class LoginControl extends JavaPlugin implements Listener {
         boolean FullFlag = false;
         if ( cmd.getName().equalsIgnoreCase( "LoginList" ) ) {
                 StatusRecord statusRecord = new StatusRecord( config.getHost(), config.getDB(), config.getPort(), config.getUsername(), config.getPassword() );
-                if ( args.length > 0 ) {
-                    if ( args[0].equals( "d" ) ) {
-                        if ( args.length > 1 ) {
-                            sender.sendMessage( "d = " + args[1] );
-                            statusRecord.DateLogPrint( sender, args[1] );
-                        }
-                        return true;
-                    }
-                    if ( args[0].equals( "full" ) ) {
-                        sender.sendMessage( ChatColor.GREEN + "ログをフル表示します" );
-                        FullFlag = true;
-                    }
-                    if ( args[0].equals( "reload" ) ) {
-                        config = new Config( this );
-                        sender.sendMessage( ChatColor.GREEN + "LoginList Config Reloaded." );
-                        return true;
+                int PrtF = 0;
+                String Param = "";
+                Player p = ( sender instanceof Player ) ? (Player)sender:(Player)null;
+                
+                for (String arg : args) {
+                    String[] param = arg.split(":");
+                    switch ( param[0] ) {
+                        case "d":
+                            PrtF = 1;
+                            Param = param[1];
+                            break;
+                        case "u":
+                            PrtF = 2;
+                            Param = param[1];
+                            break;
+                        case "full":
+                            sender.sendMessage( ChatColor.GREEN + "ログをフル表示します" );
+                            FullFlag = true;
+                            break;
+                        case "reload":
+                            config = new Config( this );
+                            sender.sendMessage( ChatColor.GREEN + "LoginList Config Reloaded." );
+                            return true;
+                        default:
+                            sender.sendMessage( ChatColor.RED + "引数指定の誤り：未知の引数が指定されました" );
                     }
                 }
-                
-		statusRecord.LogPrint( ( sender instanceof Player ) ? (Player)sender:(Player)null, ( sender instanceof Player ) ? 15:30, FullFlag );
+
+                switch ( PrtF ) {
+                    case 0:
+                        statusRecord.LogPrint( ( sender instanceof Player ) ? (Player)sender:(Player)null, ( sender instanceof Player ) ? 15:30, FullFlag );
+                        break;
+                    case 1:
+                        statusRecord.DateLogPrint( ( sender instanceof Player ) ? (Player)sender:(Player)null, Param, FullFlag );
+                        break;
+                    case 2:
+                        statusRecord.NameLogPrint( ( sender instanceof Player ) ? (Player)sender:(Player)null, Param, FullFlag );
+                        break;
+                    default:
+                        sender.sendMessage( ChatColor.RED + "ログ表示指定に誤りがあります" );
+                }
 
                 return true;
         }

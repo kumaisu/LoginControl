@@ -16,7 +16,6 @@ import java.util.Iterator;
 import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 /**
@@ -44,6 +43,16 @@ public class StatusRecord {
         }
     }
 
+    public void LineMsg( Player p, int id, Date date, String name, String ip , String status ) {
+        SimpleDateFormat sdf = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" );
+
+        String message = String.format( "%6d", id ) + ": " + sdf.format( date ) + " " + String.format( "%-20s", name );
+        if ( ( p == null ) || p.hasPermission( "KumaisuPlugin.view" ) || p.isOp() ) {
+            message += ChatColor.YELLOW + "[" + String.format( "%-15s", ip ) + "]" + ChatColor.RED + "(" + status + ")";
+        }
+        MsgPrt( p, message );
+    }
+            
     @SuppressWarnings("CallToPrintStackTrace")
     public void LogPrint( Player player, int lines, boolean FullFlag ) {
         
@@ -53,26 +62,17 @@ public class StatusRecord {
             openConnection();
             Statement stmt = connection.createStatement();
             String sql = "SELECT * FROM players ORDER BY date DESC;";
-            ResultSet rs = stmt.executeQuery(sql);
-            
-            SimpleDateFormat sdf = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" );
-            SimpleDateFormat cdf = new SimpleDateFormat( "yyyyMMdd" );
+            ResultSet rs = stmt.executeQuery( sql );
             
             int i = 0;
             String chk_name = "";
             
-            while(rs.next() && (i<lines)) {
-                int GetID = rs.getInt("id");
-                Date GetData = rs.getTimestamp("date");
-                String GetName = rs.getString("name");
+            while( rs.next() && ( i<lines ) ) {
+                String GetName = rs.getString( "name" );
                 
-                if ( ( !chk_name.equals(GetName) ) || ( FullFlag ) ) {
+                if ( ( !chk_name.equals( GetName ) ) || ( FullFlag ) ) {
                     i++;
-                    String message = String.format("%6d", GetID) + ": " + sdf.format(GetData) + " " + String.format("%-20s", GetName);
-                    if ( ( player == null ) || player.hasPermission("KumaisuPlugin.view") || player.isOp() ) {
-                        message += ChatColor.YELLOW + "[" + String.format("%-15s", rs.getString("ip") ) + "]" + ChatColor.RED + "(" + rs.getString( "status" ) + ")";
-                    }
-                    MsgPrt( player, message );
+                    LineMsg( player, rs.getInt( "id" ), rs.getTimestamp( "date" ), rs.getString( "name" ), rs.getString( "ip" ), rs.getString( "status" ) );
                     chk_name = GetName;
                 }
             }
@@ -85,36 +85,55 @@ public class StatusRecord {
     }
 
     @SuppressWarnings("CallToPrintStackTrace")
-    public void DateLogPrint( CommandSender sender, String ChkDate ) {
-        sender.sendMessage( "== Date Login List ==" );
+    public void DateLogPrint( Player player, String ChkDate, boolean FullFlag ) {
+        MsgPrt( player, "== Date Login List ==" );
 
         try {        
             openConnection();
             Statement stmt = connection.createStatement();
             String sql = "SELECT * FROM players ORDER BY date DESC;";
-            ResultSet rs = stmt.executeQuery(sql);
+            ResultSet rs = stmt.executeQuery( sql );
             
-            SimpleDateFormat sdf = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" );
             SimpleDateFormat cdf = new SimpleDateFormat( "yyyyMMdd" );
-            
             String chk_name = "";
             
             while( rs.next() ) {
-                int GetID = rs.getInt("id");
-                Date GetData = rs.getTimestamp("date");
-                String GetName = rs.getString("name");
-                
-                if ( ChkDate.equals( cdf.format( GetData ) ) ) {
-                    String message = String.format("%6d", GetID) + ": " + sdf.format(GetData) + " " + String.format("%-20s", GetName);
-                    if ( (!(sender instanceof Player) ) || sender.hasPermission("KumaisuPlugin.view") || sender.isOp() ) {
-                        message += ChatColor.YELLOW + "[" + String.format("%-15s", rs.getString("ip") ) + "]" + ChatColor.RED + "(" + rs.getString( "status" ) + ")";
-                    }
-                    sender.sendMessage( message );
-                    chk_name = GetName;
+                if ( ChkDate.equals( cdf.format( rs.getTimestamp( "date" ) ) ) && ( !chk_name.equals( rs.getString( "name" ) ) || ( FullFlag ) ) ) {
+                    LineMsg( player, rs.getInt( "id" ), rs.getTimestamp( "date" ), rs.getString( "name" ), rs.getString( "ip" ), rs.getString( "status" ) );
+                    chk_name = rs.getString( "name" );
                 }
             }
                     
-            sender.sendMessage( "================" );
+            MsgPrt( player, "================" );
+
+        } catch ( ClassNotFoundException | SQLException e ) {
+            e.printStackTrace();
+        }
+    }
+
+    @SuppressWarnings("CallToPrintStackTrace")
+    public void NameLogPrint( Player player, String ChkName, boolean FullFlag ) {
+        MsgPrt( player, "== [" + ChkName + "] Login List ==" );
+
+        try {        
+            openConnection();
+            Statement stmt = connection.createStatement();
+            String sql = "SELECT * FROM players ORDER BY date DESC;";
+            ResultSet rs = stmt.executeQuery( sql );
+            
+            SimpleDateFormat cdf = new SimpleDateFormat( "yyyyMMdd" );
+            String ChkDate = cdf.format( new Date() );
+            int i = 0;
+            
+            while( rs.next() && ( i<30 ) ) {
+                if ( ChkName.equals( rs.getString( "name" ) ) && ( !ChkDate.equals( cdf.format( rs.getTimestamp( "date" ) ) ) || FullFlag ) ) {
+                    i++;
+                    LineMsg( player, rs.getInt( "id" ), rs.getTimestamp( "date" ), rs.getString( "name" ), rs.getString( "ip" ), rs.getString( "status" ) );
+                    ChkDate = cdf.format( rs.getTimestamp( "date" ) );
+                }
+            }
+                    
+            MsgPrt( player, "================" );
 
         } catch ( ClassNotFoundException | SQLException e ) {
             e.printStackTrace();
@@ -128,7 +147,7 @@ public class StatusRecord {
             openConnection();
             Statement stmt = connection.createStatement();
             String sql = "SELECT * FROM players ORDER BY date DESC;";
-            ResultSet rs = stmt.executeQuery(sql);
+            ResultSet rs = stmt.executeQuery( sql );
             
             while( rs.next() ) {
                 if ( rs.getString("ip").equals( ip ) ) {
