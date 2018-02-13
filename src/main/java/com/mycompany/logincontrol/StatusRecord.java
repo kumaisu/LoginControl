@@ -122,7 +122,7 @@ public class StatusRecord {
             ResultSet rs = stmt.executeQuery( sql );
             
             SimpleDateFormat cdf = new SimpleDateFormat( "yyyyMMdd" );
-            String ChkDate = cdf.format( new Date() );
+            String ChkDate = "";
             int i = 0;
             
             while( rs.next() && ( i<30 ) ) {

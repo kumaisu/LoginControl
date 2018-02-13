@@ -88,13 +88,13 @@ public class LoginControl extends JavaPlugin implements Listener {
 
                 switch ( PrtF ) {
                     case 0:
-                        statusRecord.LogPrint( ( sender instanceof Player ) ? (Player)sender:(Player)null, ( sender instanceof Player ) ? 15:30, FullFlag );
+                        statusRecord.LogPrint( p, ( sender instanceof Player ) ? 15:30, FullFlag );
                         break;
                     case 1:
-                        statusRecord.DateLogPrint( ( sender instanceof Player ) ? (Player)sender:(Player)null, Param, FullFlag );
+                        statusRecord.DateLogPrint( p, Param, FullFlag );
                         break;
                     case 2:
-                        statusRecord.NameLogPrint( ( sender instanceof Player ) ? (Player)sender:(Player)null, Param, FullFlag );
+                        statusRecord.NameLogPrint( p, Param, FullFlag );
                         break;
                     default:
                         sender.sendMessage( ChatColor.RED + "ログ表示指定に誤りがあります" );
