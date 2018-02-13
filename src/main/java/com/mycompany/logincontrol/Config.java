@@ -149,4 +149,21 @@ public class Config {
     public List<String> getIgnoreIP() {
         return IgnoreReportIP;
     }
+
+    public String LogFull() {
+        return config.getString( "Message.LogFull" );
+    }
+
+    public String Reload() {
+        return config.getString( "Message.Reload" );
+    }
+
+    public String ArgsErr() {
+        return config.getString( "Message.ArgsErr" );
+    }
+
+    public String OptError() {
+        return config.getString( "Message.OptError" );
+    }
+    
 }

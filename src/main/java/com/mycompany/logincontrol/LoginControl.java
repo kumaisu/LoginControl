@@ -22,6 +22,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.server.ServerListPingEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
+
 /*
 import com.mcbans.firestar.mcbans.MCBans;
 import com.mcbans.firestar.mcbans.api.MCBansAPI;
@@ -74,15 +75,15 @@ public class LoginControl extends JavaPlugin implements Listener {
                             Param = param[1];
                             break;
                         case "full":
-                            sender.sendMessage( ChatColor.GREEN + "ログをフル表示します" );
+                            sender.sendMessage( config.LogFull() );
                             FullFlag = true;
                             break;
                         case "reload":
                             config = new Config( this );
-                            sender.sendMessage( ChatColor.GREEN + "LoginList Config Reloaded." );
+                            sender.sendMessage( config.Reload() );
                             return true;
                         default:
-                            sender.sendMessage( ChatColor.RED + "引数指定の誤り：未知の引数が指定されました" );
+                            sender.sendMessage( config.ArgsErr() );
                     }
                 }
 
@@ -97,7 +98,7 @@ public class LoginControl extends JavaPlugin implements Listener {
                         statusRecord.NameLogPrint( p, Param, FullFlag );
                         break;
                     default:
-                        sender.sendMessage( ChatColor.RED + "ログ表示指定に誤りがあります" );
+                        sender.sendMessage( config.OptError() );
                 }
 
                 return true;
@@ -125,9 +126,9 @@ public class LoginControl extends JavaPlugin implements Listener {
                 Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.AQUA + "Present Item : " + ChatColor.WHITE + itemdata[0] + "(" + itemdata[1] + ")" );
             }
 
-            getLogger().info( player.getLocale().isEmpty() ? "Location Empty":"First Spawn Location" );
+            // Bukkit.getServer().getConsoleSender().sendMessage( player.getLocale().isEmpty() ? "Location Empty":"First Spawn Location" );
 
-            getLogger().info( "This player is first play to teleport");
+            Bukkit.getServer().getConsoleSender().sendMessage( "This player is first play to teleport");
             World world = getWorld( config.getWorld() );
             Location loc = new Location( world, config.getX(), config.getY(), config.getZ() );
             loc.setPitch( config.getPitch() );
@@ -135,7 +136,7 @@ public class LoginControl extends JavaPlugin implements Listener {
             player.teleport( loc );
 
         } else {
-            getLogger().info( "The Repeat Login Player" );
+            Bukkit.getServer().getConsoleSender().sendMessage( "The Repeat Login Player" );
         }
     }
 
