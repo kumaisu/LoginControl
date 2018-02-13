@@ -95,13 +95,13 @@ public class LoginControl extends JavaPlugin implements Listener {
 
         if ( ( config.getJump() ) && ( ( !player.hasPlayedBefore() ) || config.OpJump( player.isOp() ) ) ) {
             Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.LIGHT_PURPLE + "The First Login Player" );
-            Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.LIGHT_PURPLE + "Present Item" );
 
             List<String> present = config.getPresent();
             for(Iterator it = present.iterator(); it.hasNext();) {
                 String item = (String)it.next();
                 String[] itemdata = item.split( ",", 0 );
                 player.getInventory().addItem( new ItemStack( Material.getMaterial( itemdata[0] ), Integer.parseInt( itemdata[1] ) ) );
+                Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.AQUA + "Present Item : " + ChatColor.WHITE + itemdata[0] + "(" + itemdata[1] + ")" );
             }
 
             getLogger().info( player.getLocale().isEmpty() ? "Location Empty":"First Spawn Location" );
@@ -144,11 +144,7 @@ public class LoginControl extends JavaPlugin implements Listener {
         }
 
         String MotdMsg = config.get1stLine() + "\n";
-        if ( Names.equals( "Unknown" ) ) {
-            MotdMsg += config.get2ndLine( false );
-        } else {
-            MotdMsg += config.get2ndLine( true );
-        }
+        MotdMsg += config.get2ndLine( !Names.equals( "Unknown" ) );
         event.setMotd( MotdMsg.replace( "%player%", Names ) );
     }
 	
