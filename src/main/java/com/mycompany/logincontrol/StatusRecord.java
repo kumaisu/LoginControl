@@ -47,7 +47,7 @@ public class StatusRecord {
         SimpleDateFormat sdf = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" );
 
         String message = String.format( "%6d", id ) + ": " + sdf.format( date ) + " " + String.format( "%-20s", name );
-        if ( ( p == null ) || p.hasPermission( "KumaisuPlugin.view" ) || p.isOp() ) {
+        if ( ( p == null ) || p.hasPermission( "LoginCtl.view" ) || p.isOp() ) {
             message += ChatColor.YELLOW + "[" + String.format( "%-15s", ip ) + "]" + ChatColor.RED + "(" + status + ")";
         }
         MsgPrt( p, message );
@@ -70,10 +70,12 @@ public class StatusRecord {
             while( rs.next() && ( i<lines ) ) {
                 String GetName = rs.getString( "name" );
                 
-                if ( ( !chk_name.equals( GetName ) ) || ( FullFlag ) ) {
-                    i++;
-                    LineMsg( player, rs.getInt( "id" ), rs.getTimestamp( "date" ), rs.getString( "name" ), rs.getString( "ip" ), rs.getString( "status" ) );
-                    chk_name = GetName;
+                if ( !rs.getString( "status" ).equals( "Attempted" ) || player.hasPermission( "LoginCtl.view" ) || player.isOp() ) {
+                    if ( ( !chk_name.equals( GetName ) ) || ( FullFlag ) ) {
+                        i++;
+                        LineMsg( player, rs.getInt( "id" ), rs.getTimestamp( "date" ), rs.getString( "name" ), rs.getString( "ip" ), rs.getString( "status" ) );
+                        chk_name = GetName;
+                    }
                 }
             }
 
@@ -86,7 +88,7 @@ public class StatusRecord {
 
     @SuppressWarnings("CallToPrintStackTrace")
     public void DateLogPrint( Player player, String ChkDate, boolean FullFlag ) {
-        MsgPrt( player, "== Date Login List ==" );
+        MsgPrt( player, "== [" + ChkDate + "] Login List ==" );
 
         try {        
             openConnection();

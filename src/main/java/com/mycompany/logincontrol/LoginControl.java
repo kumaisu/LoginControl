@@ -84,6 +84,7 @@ public class LoginControl extends JavaPlugin implements Listener {
                             return true;
                         default:
                             sender.sendMessage( config.ArgsErr() );
+                            return false;
                     }
                 }
 
@@ -99,8 +100,8 @@ public class LoginControl extends JavaPlugin implements Listener {
                         break;
                     default:
                         sender.sendMessage( config.OptError() );
+                        return false;
                 }
-
                 return true;
         }
         return false;
