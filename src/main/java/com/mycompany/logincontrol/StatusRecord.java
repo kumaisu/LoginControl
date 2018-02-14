@@ -70,7 +70,7 @@ public class StatusRecord {
             while( rs.next() && ( i<lines ) ) {
                 String GetName = rs.getString( "name" );
                 
-                if ( !rs.getString( "status" ).equals( "Attempted" ) || player.hasPermission( "LoginCtl.view" ) || player.isOp() ) {
+                if ( !rs.getString( "status" ).equals( "Attempted" ) || player == null || player.hasPermission( "LoginCtl.view" ) || player.isOp() ) {
                     if ( ( !chk_name.equals( GetName ) ) || ( FullFlag ) ) {
                         i++;
                         LineMsg( player, rs.getInt( "id" ), rs.getTimestamp( "date" ), rs.getString( "name" ), rs.getString( "ip" ), rs.getString( "status" ) );
