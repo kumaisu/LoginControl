@@ -43,13 +43,13 @@ Ignore-IP:
     - 127.0.0.0
 
 #MotD Message
-MotD1st: "Welcome to Minecraft Server"
-MotD2nd-Unknown: "Let's play together"
-MotD2nd-Player: "%player%, We are waiting for you"
+MotD1st: "§fようこそ§dMinecraft§fサーバーへ"
+MotD2nd-Unknown: "§3いっしょに遊びましょうよ"
+MotD2nd-Player: "§e%player%§aさん、まってますよ"
     
 #Program Inner Messages
 Message:
-    LogFull: "Display all logs"
-    Reload: "LoginList Config Reloaded."
-    ArgsErr: "Invalid argument specification, unknown argument specified"
-    OptError: "Incorrect log display specification"
+    LogFull: "§aログをフル表示します"
+    Reload: "§aコンフィグを再読込しました"
+    ArgsErr: "§4引数指定の誤り：未知の引数が指定されました"
+    OptError: "§4ログ表示指定に誤りがあります"
