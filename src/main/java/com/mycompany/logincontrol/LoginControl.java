@@ -153,10 +153,8 @@ public class LoginControl extends JavaPlugin implements Listener {
     @EventHandler
     public void onServerListPing( ServerListPingEvent event ) {
         StatusRecord statusRecord = new StatusRecord( config.getHost(), config.getDB(), config.getPort(), config.getUsername(), config.getPassword() );
-        String Names;
-        if ( config.KnownServers( event.getAddress().getHostAddress() ) == null ) {
-            Names = statusRecord.GetPlayerName( event.getAddress().getHostAddress() );
-        } else {
+        String Names = statusRecord.GetPlayerName( event.getAddress().getHostAddress() );
+        if ( Names.equals("Unknown") ) {
             Names = config.KnownServers( event.getAddress().getHostAddress() );
         }
 
@@ -170,5 +168,5 @@ public class LoginControl extends JavaPlugin implements Listener {
         MotdMsg += config.get2ndLine( !Names.equals( "Unknown" ) );
         event.setMotd( MotdMsg.replace( "%player%", Names ) );
     }
-	
 }
+
