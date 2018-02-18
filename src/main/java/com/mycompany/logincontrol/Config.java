@@ -3,8 +3,15 @@
  */
 package com.mycompany.logincontrol;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 
 /**
@@ -164,6 +171,27 @@ public class Config {
 
     public String OptError() {
         return config.getString( "Message.OptError" );
+    }
+
+    public boolean WriteUnknown( String IPS ) {
+        File UKfile = new File( plugin.getDataFolder(), "UnknownIP.yml" );
+        FileConfiguration UKData = YamlConfiguration.loadConfiguration( UKfile );
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+        // Player Data Initialize
+        UKData.set( "Date", sdf.format( new Date() ) );
+        UKData.set( "IP", IPS );
+        
+        try {
+            UKData.save( UKfile );
+        }
+        catch (IOException e) {
+            plugin.getServer().getLogger().log( Level.SEVERE, "{0}Could not save UnknownIP File.", ChatColor.RED );
+            return false;
+        }
+
+        return true;
     }
     
 }

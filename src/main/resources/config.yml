@@ -43,9 +43,9 @@ Ignore-IP:
     - 127.0.0.0
 
 #MotD Message
-MotD1st: "Welcome to Minecraft Server"
-MotD2nd-Unknown: "Let's play together"
-MotD2nd-Player: "%player%, We are waiting for you"
+MotD1st: "%$dWelcome to Minecraft Server"
+MotD2nd-Unknown: "%$3Let's play together"
+MotD2nd-Player: "%$e%player%%$a, We are waiting for you"
     
 #Program Inner Messages
 Message:

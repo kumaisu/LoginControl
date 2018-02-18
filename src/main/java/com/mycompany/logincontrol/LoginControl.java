@@ -75,15 +75,15 @@ public class LoginControl extends JavaPlugin implements Listener {
                             Param = param[1];
                             break;
                         case "full":
-                            sender.sendMessage( config.LogFull() );
+                            sender.sendMessage( config.LogFull().replace( "%$", "§" ) );
                             FullFlag = true;
                             break;
                         case "reload":
                             config = new Config( this );
-                            sender.sendMessage( config.Reload() );
+                            sender.sendMessage( config.Reload().replace( "%$", "§" ) );
                             return true;
                         default:
-                            sender.sendMessage( config.ArgsErr() );
+                            sender.sendMessage( config.ArgsErr().replace( "%$", "§" ) );
                             return false;
                     }
                 }
@@ -99,7 +99,7 @@ public class LoginControl extends JavaPlugin implements Listener {
                         statusRecord.NameLogPrint( p, Param, FullFlag );
                         break;
                     default:
-                        sender.sendMessage( config.OptError() );
+                        sender.sendMessage( config.OptError().replace( "%$", "§" ) );
                         return false;
                 }
                 return true;
@@ -114,7 +114,9 @@ public class LoginControl extends JavaPlugin implements Listener {
         StatusRecord statusRecord = new StatusRecord( config.getHost(), config.getDB(), config.getPort(), config.getUsername(), config.getPassword() );
         statusRecord.ChangeStatus( date, "Logged in" );
         statusRecord.LogPrint( player, 5, false );
-        statusRecord.CheckIP( player );
+        if ( !config.getIgnoreName().contains( player.getName() ) && !config.getIgnoreIP().contains( player.getAddress().getHostString() ) ) {
+            statusRecord.CheckIP( player );
+        }
 
         if ( ( config.getJump() ) && ( ( !player.hasPlayedBefore() ) || config.OpJump( player.isOp() ) ) ) {
             Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.LIGHT_PURPLE + "The First Login Player" );
@@ -150,12 +152,25 @@ public class LoginControl extends JavaPlugin implements Listener {
         statusRecord.PreSavePlayer( date, event.getName(), event.getUniqueId().toString(), event.getAddress().getHostAddress(), "Attempted" );
     }
     
+    public String ReplaceString( String data, String Names ) {
+        String RetStr;
+        RetStr = data.replace( "%player%", Names );
+        RetStr = RetStr.replace( "%$", "§" );
+        
+        return RetStr;
+    }
+    
     @EventHandler
     public void onServerListPing( ServerListPingEvent event ) {
         StatusRecord statusRecord = new StatusRecord( config.getHost(), config.getDB(), config.getPort(), config.getUsername(), config.getPassword() );
         String Names = statusRecord.GetPlayerName( event.getAddress().getHostAddress() );
         if ( Names.equals("Unknown") ) {
-            Names = config.KnownServers( event.getAddress().getHostAddress() );
+            if ( config.KnownServers( event.getAddress().getHostAddress() ) != null ) {
+                Names = config.KnownServers( event.getAddress().getHostAddress() );
+            } else {
+                //  Unknown Player を File に記録する
+                config.WriteUnknown( event.getAddress().getHostAddress() );
+            }
         }
 
         String msg = ChatColor.GREEN + "Ping from " + ChatColor.WHITE + Names + ChatColor.YELLOW + " [" + event.getAddress().getHostAddress() + "]";
@@ -164,9 +179,8 @@ public class LoginControl extends JavaPlugin implements Listener {
             Bukkit.getOnlinePlayers().stream().filter( ( p ) -> ( p.hasPermission( "LoginCtl.view" ) || p.isOp() ) ).forEachOrdered( ( p ) -> { p.sendMessage( msg ); } );
         }
 
-        String MotdMsg = config.get1stLine() + "\n";
-        MotdMsg += config.get2ndLine( !Names.equals( "Unknown" ) );
-        event.setMotd( MotdMsg.replace( "%player%", Names ) );
+        String MotdMsg = ReplaceString( config.get1stLine(),Names ) + "\n";
+        MotdMsg += ReplaceString( config.get2ndLine( !Names.equals( "Unknown" ) ), Names );
+        event.setMotd( ReplaceString( MotdMsg, Names ) );
     }
 }
-
