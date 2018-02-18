@@ -177,11 +177,10 @@ public class Config {
         File UKfile = new File( plugin.getDataFolder(), "UnknownIP.yml" );
         FileConfiguration UKData = YamlConfiguration.loadConfiguration( UKfile );
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
 
         // Player Data Initialize
-        UKData.set( "Date", sdf.format( new Date() ) );
-        UKData.set( "IP", IPS );
+        UKData.set( sdf.format( new Date() ),IPS );
         
         try {
             UKData.save( UKfile );
