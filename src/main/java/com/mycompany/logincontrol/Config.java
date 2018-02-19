@@ -5,10 +5,13 @@ package com.mycompany.logincontrol;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -173,24 +176,30 @@ public class Config {
         return config.getString( "Message.OptError" );
     }
 
-    public boolean WriteUnknown( String IPS ) {
+    public String WriteUnknown( String IPS ) throws UnknownHostException {
         File UKfile = new File( plugin.getDataFolder(), "UnknownIP.yml" );
         FileConfiguration UKData = YamlConfiguration.loadConfiguration( UKfile );
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
 
+        InetAddress inet = InetAddress.getByName( IPS );
+        //  Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "Write Unknown IP : " + IPS );
+        //  Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "Get Unknown Host : " + inet.getHostName() );
+        //  Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "Get Unknown Cano : " + inet.getCanonicalHostName() );
+        //  Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "Get Unknown Addr : " + inet.getHostAddress() );
+
         // Player Data Initialize
-        UKData.set( sdf.format( new Date() ),IPS );
+        UKData.set( sdf.format( new Date() ),IPS + "[" + inet.getHostName() + "]" );
         
         try {
             UKData.save( UKfile );
         }
         catch (IOException e) {
             plugin.getServer().getLogger().log( Level.SEVERE, "{0}Could not save UnknownIP File.", ChatColor.RED );
-            return false;
+            return "Unknown";
         }
 
-        return true;
+        return ( IPS.equals( inet.getHostName() ) ? "Unknown" : inet.getHostName() );
     }
     
 }

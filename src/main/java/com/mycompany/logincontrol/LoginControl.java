@@ -3,6 +3,7 @@
  */
 package com.mycompany.logincontrol;
 
+import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -161,19 +162,20 @@ public class LoginControl extends JavaPlugin implements Listener {
     }
     
     @EventHandler
-    public void onServerListPing( ServerListPingEvent event ) {
+    public void onServerListPing( ServerListPingEvent event ) throws UnknownHostException {
         StatusRecord statusRecord = new StatusRecord( config.getHost(), config.getDB(), config.getPort(), config.getUsername(), config.getPassword() );
         String Names = statusRecord.GetPlayerName( event.getAddress().getHostAddress() );
+        String Host = "";
         if ( Names.equals("Unknown") ) {
             if ( config.KnownServers( event.getAddress().getHostAddress() ) != null ) {
-                Names = config.KnownServers( event.getAddress().getHostAddress() );
+                Host = config.KnownServers( event.getAddress().getHostAddress() );
             } else {
-                //  Unknown Player を File に記録する
-                config.WriteUnknown( event.getAddress().getHostAddress() );
+                //  Unknown Player を File に記録してホストアドレスを取得する
+                Host = config.WriteUnknown( event.getAddress().getHostAddress() );
             }
         }
 
-        String msg = ChatColor.GREEN + "Ping from " + ChatColor.WHITE + Names + ChatColor.YELLOW + " [" + event.getAddress().getHostAddress() + "]";
+        String msg = ChatColor.GREEN + "Ping from " + ( Names.equals( "Unknown" ) ? ChatColor.DARK_PURPLE + Host : ChatColor.WHITE + "Player : " + Names ) + ChatColor.YELLOW + " [" + event.getAddress().getHostAddress() + "]";
         Bukkit.getServer().getConsoleSender().sendMessage( msg );
         if ( !config.getIgnoreName().contains( Names ) && !config.getIgnoreIP().contains( event.getAddress().getHostAddress() ) ) {
             Bukkit.getOnlinePlayers().stream().filter( ( p ) -> ( p.hasPermission( "LoginCtl.view" ) || p.isOp() ) ).forEachOrdered( ( p ) -> { p.sendMessage( msg ); } );
