@@ -176,20 +176,22 @@ public class Config {
         return config.getString( "Message.OptError" );
     }
 
-    public String WriteUnknown( String IPS ) throws UnknownHostException {
+    //  public String WriteUnknown( String IPS ) throws UnknownHostException {
+    public String WriteUnknown( String IPS ) {
         File UKfile = new File( plugin.getDataFolder(), "UnknownIP.yml" );
         FileConfiguration UKData = YamlConfiguration.loadConfiguration( UKfile );
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
 
-        InetAddress inet = InetAddress.getByName( IPS );
+        //  InetAddress inet = InetAddress.getByName( IPS );
         //  Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "Write Unknown IP : " + IPS );
         //  Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "Get Unknown Host : " + inet.getHostName() );
         //  Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "Get Unknown Cano : " + inet.getCanonicalHostName() );
         //  Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "Get Unknown Addr : " + inet.getHostAddress() );
 
-        // Player Data Initialize
-        UKData.set( sdf.format( new Date() ),IPS + "[" + inet.getHostName() + "]" );
+        //  Player Data Initialize
+        //  UKData.set( sdf.format( new Date() ),IPS + "[" + inet.getHostName() + "]" );
+        UKData.set( sdf.format( new Date() ),IPS );
         
         try {
             UKData.save( UKfile );
@@ -199,7 +201,8 @@ public class Config {
             return "Unknown";
         }
 
-        return ( IPS.equals( inet.getHostName() ) ? "Unknown" : inet.getHostName() );
+        //  return ( IPS.equals( inet.getHostName() ) ? "Unknown" : inet.getHostName() );
+        return "Unknown";
     }
     
 }
