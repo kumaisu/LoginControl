@@ -168,14 +168,14 @@ public class LoginControl extends JavaPlugin implements Listener {
         String Host = "";
         if ( Names.equals("Unknown") ) {
             if ( config.KnownServers( event.getAddress().getHostAddress() ) != null ) {
-                Host = config.KnownServers( event.getAddress().getHostAddress() );
+                Host = ChatColor.GRAY + config.KnownServers( event.getAddress().getHostAddress() );
             } else {
                 //  Unknown Player を File に記録してホストアドレスを取得する
-                Host = config.WriteUnknown( event.getAddress().getHostAddress() );
+                Host = ChatColor.DARK_PURPLE + config.WriteUnknown( event.getAddress().getHostAddress() );
             }
         }
 
-        String msg = ChatColor.GREEN + "Ping from " + ( Names.equals( "Unknown" ) ? ChatColor.DARK_PURPLE + Host : ChatColor.WHITE + "Player : " + Names ) + ChatColor.YELLOW + " [" + event.getAddress().getHostAddress() + "]";
+        String msg = ChatColor.GREEN + "Ping from " + ( Names.equals( "Unknown" ) ? Host : ChatColor.WHITE + "Player(" + Names + ")" ) + ChatColor.YELLOW + " [" + event.getAddress().getHostAddress() + "]";
         Bukkit.getServer().getConsoleSender().sendMessage( msg );
         if ( !config.getIgnoreName().contains( Names ) && !config.getIgnoreIP().contains( event.getAddress().getHostAddress() ) ) {
             Bukkit.getOnlinePlayers().stream().filter( ( p ) -> ( p.hasPermission( "LoginCtl.view" ) || p.isOp() ) ).forEachOrdered( ( p ) -> { p.sendMessage( msg ); } );
