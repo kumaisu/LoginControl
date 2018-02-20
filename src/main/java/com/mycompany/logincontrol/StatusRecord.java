@@ -3,6 +3,8 @@
  */
 package com.mycompany.logincontrol;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -270,15 +272,92 @@ public class StatusRecord {
             if (connection != null && !connection.isClosed()) {
                 return;
             }
-            Class.forName("com.mysql.jdbc.Driver");
-            connection = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database, username, password);
+            Class.forName( "com.mysql.jdbc.Driver" );
+            connection = DriverManager.getConnection( "jdbc:mysql://" + host + ":" + port + "/" + database, username, password );
 
             //  mysql> create table players(id int auto_increment, date DATETIME,name varchar(20), uuid varchar(36), ip varchar(22), index(id));
             //  テーブルの作成
             //  存在すれば、無視される
             String sql = "CREATE TABLE IF NOT EXISTS players(id int auto_increment, date DATETIME,name varchar(20), uuid varchar(36), ip varchar(22), status varchar(10), index(id))";
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            PreparedStatement preparedStatement = connection.prepareStatement( sql );
             preparedStatement.executeUpdate();
+
+            //  mysql> create table IF NOT EXISTS unknowns (ip varchar(22) not null primary, host varchar(40), count int, lastdate DATETIME );
+            //  Unknowns テーブルの作成
+            //  存在すれば、無視される
+            sql = "CREATE TABLE IF NOT EXISTS unknowns (ip varchar(22) not null primary, host varchar(40), count int, lastdate DATETIME )";
+            preparedStatement = connection.prepareStatement( sql );
+            preparedStatement.executeUpdate();
+        }
+    }
+
+    @SuppressWarnings("CallToPrintStackTrace")
+    public String getUnknownHost( String IP ) {
+        try {
+            openConnection();
+            Statement stmt = connection.createStatement();
+            String sql = "SELECT * FROM unknowns ORDER BY ip DESC;";
+            ResultSet rs = stmt.executeQuery( sql );
+            
+            while ( rs.next() ) {
+                if ( IP.equals( rs.getString( "ip" ) ) ) { return rs.getString( "host" ); }
+            }
+        } catch ( ClassNotFoundException | SQLException e ) {
+            e.printStackTrace();
+        }
+        return "Unknown";
+    }
+
+    @SuppressWarnings("CallToPrintStackTrace")
+    public void setUnnownHost( String IP, String host ) throws UnknownHostException {
+        String GetHost = getUnknownHost( IP );
+        SimpleDateFormat sdf = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" );
+
+        if ( GetHost.equals( "Unknown" ) ) {
+            
+            InetAddress inet = InetAddress.getByName( IP );
+            //  テーブルへ追加
+            //  sql = "CREATE TABLE IF NOT EXISTS unknowns (ip varchar(22) not null primary, host varchar(40), count int, lastdate DATETIME )";
+            try {
+                openConnection();
+
+                String sql = "INSERT INTO unknowns ( ip, host, count, lastdate ) VALUES ( ?, ?, ?, ? );";
+                PreparedStatement preparedStatement = connection.prepareStatement(sql);
+                preparedStatement.setString(1, IP );
+                preparedStatement.setString(2, inet.getHostName() );
+                preparedStatement.setInt( 3, 1 );
+                preparedStatement.setString(4, sdf.format( new Date() ) );
+
+                preparedStatement.executeUpdate();
+            
+                return;
+        } catch ( ClassNotFoundException | SQLException e ) {
+            e.printStackTrace();
+        }
+            return;
+        }
+        try {
+            openConnection();
+            Statement stmt = connection.createStatement();
+            String sql = "SELECT * FROM unknowns ORDER BY ip DESC;";
+            ResultSet rs = stmt.executeQuery( sql );
+            
+            //  sql = "CREATE TABLE IF NOT EXISTS unknowns (ip varchar(22) not null primary, host varchar(40), count int, lastdate DATETIME )";
+            while ( rs.next() ) {
+                if ( IP.equals( rs.getString( "ip" ) ) ) {
+                    int count = rs.getInt( "count" ) + 1;
+                    
+                    String chg_sql = "UPDATE unknowns SET count = " + count +
+                            ", lastdate = '" + sdf.format( new Date() ) +
+                            "' WHERE ip = '" + IP + "';";
+                    PreparedStatement preparedStatement = connection.prepareStatement(chg_sql);
+                    preparedStatement.executeUpdate();
+                    return;
+                }
+            }
+
+        } catch ( ClassNotFoundException | SQLException e ) {
+            e.printStackTrace();
         }
     }
 
