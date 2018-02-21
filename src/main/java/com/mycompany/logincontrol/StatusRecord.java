@@ -282,10 +282,10 @@ public class StatusRecord {
             PreparedStatement preparedStatement = connection.prepareStatement( sql );
             preparedStatement.executeUpdate();
 
-            //  mysql> create table IF NOT EXISTS unknowns (ip varchar(22) not null primary, host varchar(40), count int, lastdate DATETIME );
+            //  mysql> create table IF NOT EXISTS unknowns (ip varchar(22), host varchar(70), count int, lastdate DATETIME );
             //  Unknowns テーブルの作成
             //  存在すれば、無視される
-            sql = "CREATE TABLE IF NOT EXISTS unknowns (ip varchar(22) not null primary, host varchar(40), count int, lastdate DATETIME )";
+            sql = "CREATE TABLE IF NOT EXISTS unknowns (ip varchar(22), host varchar(70), count int, lastdate DATETIME )";
             preparedStatement = connection.prepareStatement( sql );
             preparedStatement.executeUpdate();
         }
@@ -309,33 +309,45 @@ public class StatusRecord {
     }
 
     @SuppressWarnings("CallToPrintStackTrace")
-    public void setUnnownHost( String IP, String host ) throws UnknownHostException {
+    public String setUnknownHost( String IP ) throws UnknownHostException {
         String GetHost = getUnknownHost( IP );
         SimpleDateFormat sdf = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" );
 
         if ( GetHost.equals( "Unknown" ) ) {
             
+            Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "Ping [Debug] Unknown New Record" );
             InetAddress inet = InetAddress.getByName( IP );
+            String HostName = inet.getHostName();
+            if ( HostName.equals( IP ) ) { HostName = "Unknown"; }
+
+            //  Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "Write Unknown IP : " + IP );
+            //  Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "Get Unknown Host : " + inet.getHostName() );
+            //  Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "Get Unknown Cano : " + inet.getCanonicalHostName() );
+            //  Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "Get Unknown Addr : " + inet.getHostAddress() );
+
             //  テーブルへ追加
-            //  sql = "CREATE TABLE IF NOT EXISTS unknowns (ip varchar(22) not null primary, host varchar(40), count int, lastdate DATETIME )";
+            //  sql = "CREATE TABLE IF NOT EXISTS unknowns (ip varchar(22), host varchar(70), count int, lastdate DATETIME )";
+
+            if ( HostName.length()>70 ) { HostName = String.format( "%-70s", HostName ); }
+
             try {
                 openConnection();
 
                 String sql = "INSERT INTO unknowns ( ip, host, count, lastdate ) VALUES ( ?, ?, ?, ? );";
                 PreparedStatement preparedStatement = connection.prepareStatement(sql);
-                preparedStatement.setString(1, IP );
-                preparedStatement.setString(2, inet.getHostName() );
+                preparedStatement.setString( 1, IP );
+                preparedStatement.setString( 2, HostName );
                 preparedStatement.setInt( 3, 1 );
-                preparedStatement.setString(4, sdf.format( new Date() ) );
+                preparedStatement.setString( 4, sdf.format( new Date() ) );
 
                 preparedStatement.executeUpdate();
             
-                return;
-        } catch ( ClassNotFoundException | SQLException e ) {
-            e.printStackTrace();
+            } catch ( ClassNotFoundException | SQLException e ) {
+                e.printStackTrace();
+            }
+            return HostName;
         }
-            return;
-        }
+        Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "Ping [Debug] Unknown Modify Record" );
         try {
             openConnection();
             Statement stmt = connection.createStatement();
@@ -352,13 +364,14 @@ public class StatusRecord {
                             "' WHERE ip = '" + IP + "';";
                     PreparedStatement preparedStatement = connection.prepareStatement(chg_sql);
                     preparedStatement.executeUpdate();
-                    return;
+                    return rs.getString( "host" );
                 }
             }
 
         } catch ( ClassNotFoundException | SQLException e ) {
             e.printStackTrace();
         }
+        return "Unknown";
     }
 
     /*

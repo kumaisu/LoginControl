@@ -177,21 +177,23 @@ public class Config {
     }
 
     //  public String WriteUnknown( String IPS ) throws UnknownHostException {
-    public String WriteUnknown( String IPS ) {
+    public String WriteUnknown( String IPS ) throws UnknownHostException {
         File UKfile = new File( plugin.getDataFolder(), "UnknownIP.yml" );
         FileConfiguration UKData = YamlConfiguration.loadConfiguration( UKfile );
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
 
-        //  InetAddress inet = InetAddress.getByName( IPS );
-        //  Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "Write Unknown IP : " + IPS );
-        //  Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "Get Unknown Host : " + inet.getHostName() );
-        //  Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "Get Unknown Cano : " + inet.getCanonicalHostName() );
-        //  Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "Get Unknown Addr : " + inet.getHostAddress() );
+        StatusRecord statusRecord = new StatusRecord( host, database, port, username, password );
+        String HostName = statusRecord.getUnknownHost( IPS );
+
+        if ( HostName.equals( "Unknown" ) ) {
+            Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "Ping [Debug] Database Check" );
+            HostName = statusRecord.setUnknownHost( IPS );
+        }
 
         //  Player Data Initialize
-        //  UKData.set( sdf.format( new Date() ),IPS + "[" + inet.getHostName() + "]" );
-        UKData.set( sdf.format( new Date() ),IPS );
+        UKData.set( sdf.format( new Date() ),IPS + "[" + HostName + "]" );
+        //  UKData.set( sdf.format( new Date() ),IPS );
         
         try {
             UKData.save( UKfile );
@@ -202,7 +204,7 @@ public class Config {
         }
 
         //  return ( IPS.equals( inet.getHostName() ) ? "Unknown" : inet.getHostName() );
-        return "Unknown";
+        //  return "Unknown";
+        return HostName;
     }
-    
 }

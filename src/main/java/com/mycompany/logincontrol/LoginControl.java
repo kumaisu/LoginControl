@@ -165,7 +165,7 @@ public class LoginControl extends JavaPlugin implements Listener {
     public void onServerListPing( ServerListPingEvent event ) throws UnknownHostException {
         StatusRecord statusRecord = new StatusRecord( config.getHost(), config.getDB(), config.getPort(), config.getUsername(), config.getPassword() );
         String Names = statusRecord.GetPlayerName( event.getAddress().getHostAddress() );
-        String Host = "";
+        String Host = ChatColor.WHITE + "Player(" + Names + ")";
         if ( Names.equals("Unknown") ) {
             if ( config.KnownServers( event.getAddress().getHostAddress() ) != null ) {
                 Host = ChatColor.GRAY + config.KnownServers( event.getAddress().getHostAddress() );
@@ -175,7 +175,7 @@ public class LoginControl extends JavaPlugin implements Listener {
             }
         }
 
-        String msg = ChatColor.GREEN + "Ping from " + ( Names.equals( "Unknown" ) ? Host : ChatColor.WHITE + "Player(" + Names + ")" ) + ChatColor.YELLOW + " [" + event.getAddress().getHostAddress() + "]";
+        String msg = ChatColor.GREEN + "Ping from " + Host + ChatColor.YELLOW + " [" + event.getAddress().getHostAddress() + "]";
         Bukkit.getServer().getConsoleSender().sendMessage( msg );
         if ( !config.getIgnoreName().contains( Names ) && !config.getIgnoreIP().contains( event.getAddress().getHostAddress() ) ) {
             Bukkit.getOnlinePlayers().stream().filter( ( p ) -> ( p.hasPermission( "LoginCtl.view" ) || p.isOp() ) ).forEachOrdered( ( p ) -> { p.sendMessage( msg ); } );
