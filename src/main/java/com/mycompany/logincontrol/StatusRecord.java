@@ -282,10 +282,10 @@ public class StatusRecord {
             PreparedStatement preparedStatement = connection.prepareStatement( sql );
             preparedStatement.executeUpdate();
 
-            //  mysql> create table IF NOT EXISTS unknowns (ip varchar(22), host varchar(70), count int, lastdate DATETIME );
+            //  mysql> create table IF NOT EXISTS unknowns (ip varchar(22), host varchar(60), count int, lastdate DATETIME );
             //  Unknowns テーブルの作成
             //  存在すれば、無視される
-            sql = "CREATE TABLE IF NOT EXISTS unknowns (ip varchar(22), host varchar(70), count int, lastdate DATETIME )";
+            sql = "CREATE TABLE IF NOT EXISTS unknowns (ip varchar(22), host varchar(60), count int, lastdate DATETIME )";
             preparedStatement = connection.prepareStatement( sql );
             preparedStatement.executeUpdate();
         }
@@ -326,9 +326,9 @@ public class StatusRecord {
             //  Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "Get Unknown Addr : " + inet.getHostAddress() );
 
             //  テーブルへ追加
-            //  sql = "CREATE TABLE IF NOT EXISTS unknowns (ip varchar(22), host varchar(70), count int, lastdate DATETIME )";
+            //  sql = "CREATE TABLE IF NOT EXISTS unknowns (ip varchar(22), host varchar(60), count int, lastdate DATETIME )";
 
-            if ( HostName.length()>70 ) { HostName = String.format( "%-70s", HostName ); }
+            if ( HostName.length()>60 ) { HostName = String.format( "%-60s", HostName ); }
 
             try {
                 openConnection();
