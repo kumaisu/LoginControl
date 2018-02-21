@@ -347,7 +347,9 @@ public class StatusRecord {
             }
             return HostName;
         }
-        Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "Ping [Debug] Unknown Modify Record" );
+
+        //  Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "Ping [Debug] Unknown Modify Record" );
+
         try {
             openConnection();
             Statement stmt = connection.createStatement();
@@ -364,7 +366,7 @@ public class StatusRecord {
                             "' WHERE ip = '" + IP + "';";
                     PreparedStatement preparedStatement = connection.prepareStatement(chg_sql);
                     preparedStatement.executeUpdate();
-                    return rs.getString( "host" );
+                    return rs.getString( "host" ) + "(" + count + ")";
                 }
             }
 
@@ -372,6 +374,55 @@ public class StatusRecord {
             e.printStackTrace();
         }
         return "Unknown";
+    }
+
+    @SuppressWarnings("CallToPrintStackTrace")
+    public boolean chgUnknownHost( String IP, String Hostname ) {
+        try {
+            openConnection();
+            Statement stmt = connection.createStatement();
+            String sql = "SELECT * FROM unknowns ORDER BY ip DESC;";
+            ResultSet rs = stmt.executeQuery( sql );
+            
+            //  sql = "CREATE TABLE IF NOT EXISTS unknowns (ip varchar(22) not null primary, host varchar(40), count int, lastdate DATETIME )";
+            while ( rs.next() ) {
+                if ( IP.equals( rs.getString( "ip" ) ) ) {
+                    String chg_sql = "UPDATE unknowns SET host = '" + Hostname + "' WHERE ip = '" + IP + "';";
+                    PreparedStatement preparedStatement = connection.prepareStatement(chg_sql);
+                    preparedStatement.executeUpdate();
+                    return true;
+                }
+            }
+        } catch ( ClassNotFoundException | SQLException e ) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    @SuppressWarnings("CallToPrintStackTrace")
+    public void infoUnknownHost( Player p, String IP ) {
+        SimpleDateFormat sdf = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" );
+
+        try {
+            openConnection();
+            Statement stmt = connection.createStatement();
+            String sql = "SELECT * FROM unknowns ORDER BY ip DESC;";
+            ResultSet rs = stmt.executeQuery( sql );
+            
+            //  sql = "CREATE TABLE IF NOT EXISTS unknowns (ip varchar(22) not null primary, host varchar(40), count int, lastdate DATETIME )";
+            while ( rs.next() ) {
+                if ( IP.equals( rs.getString( "ip" ) ) ) {
+                    MsgPrt( p, ChatColor.YELLOW + "Check Unknown IP Information......." );
+                    MsgPrt( p, ChatColor.GREEN + "IP Address  : " + ChatColor.WHITE + rs.getString( "ip" ) );
+                    MsgPrt( p, ChatColor.GREEN + "Host Name   : " + ChatColor.WHITE + rs.getString( "host" ) );
+                    MsgPrt( p, ChatColor.GREEN + "AccessCount : " + ChatColor.WHITE + String.valueOf( rs.getInt( "count" ) ) );
+                    MsgPrt( p, ChatColor.GREEN + "Last Date   : " + ChatColor.WHITE + sdf.format( rs.getTimestamp( "lastdate" ) ) );
+                    return;
+                }
+            }
+        } catch ( ClassNotFoundException | SQLException e ) {
+            e.printStackTrace();
+        }
     }
 
     /*

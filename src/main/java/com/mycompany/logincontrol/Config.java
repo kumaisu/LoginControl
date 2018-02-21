@@ -5,7 +5,6 @@ package com.mycompany.logincontrol;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -184,16 +183,11 @@ public class Config {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
 
         StatusRecord statusRecord = new StatusRecord( host, database, port, username, password );
-        String HostName = statusRecord.getUnknownHost( IPS );
 
-        if ( HostName.equals( "Unknown" ) ) {
-            Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "Ping [Debug] Database Check" );
-            HostName = statusRecord.setUnknownHost( IPS );
-        }
+        //  Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "Ping [Debug] Database Check" );
+        String HostName = statusRecord.setUnknownHost( IPS );
 
-        //  Player Data Initialize
         UKData.set( sdf.format( new Date() ),IPS + "[" + HostName + "]" );
-        //  UKData.set( sdf.format( new Date() ),IPS );
         
         try {
             UKData.save( UKfile );

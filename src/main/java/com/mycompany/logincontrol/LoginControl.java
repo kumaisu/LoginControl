@@ -58,52 +58,73 @@ public class LoginControl extends JavaPlugin implements Listener {
     @Override
     public boolean onCommand(CommandSender sender,Command cmd, String commandLabel, String[] args) {
         boolean FullFlag = false;
-        if ( cmd.getName().equalsIgnoreCase( "LoginList" ) ) {
-                StatusRecord statusRecord = new StatusRecord( config.getHost(), config.getDB(), config.getPort(), config.getUsername(), config.getPassword() );
-                int PrtF = 0;
-                String Param = "";
-                Player p = ( sender instanceof Player ) ? (Player)sender:(Player)null;
-                
-                for (String arg : args) {
-                    String[] param = arg.split(":");
-                    switch ( param[0] ) {
-                        case "d":
-                            PrtF = 1;
-                            Param = param[1];
-                            break;
-                        case "u":
-                            PrtF = 2;
-                            Param = param[1];
-                            break;
-                        case "full":
-                            sender.sendMessage( config.LogFull().replace( "%$", "§" ) );
-                            FullFlag = true;
-                            break;
-                        case "reload":
-                            config = new Config( this );
-                            sender.sendMessage( config.Reload().replace( "%$", "§" ) );
-                            return true;
-                        default:
-                            sender.sendMessage( config.ArgsErr().replace( "%$", "§" ) );
-                            return false;
-                    }
-                }
+        StatusRecord statusRecord = new StatusRecord( config.getHost(), config.getDB(), config.getPort(), config.getUsername(), config.getPassword() );
+        Player p = ( sender instanceof Player ) ? (Player)sender:(Player)null;
 
-                switch ( PrtF ) {
-                    case 0:
-                        statusRecord.LogPrint( p, ( sender instanceof Player ) ? 15:30, FullFlag );
+        if ( cmd.getName().toLowerCase().equalsIgnoreCase( "loginlist" ) ) {
+            int PrtF = 0;
+            String Param = "";
+                
+            for (String arg : args) {
+                String[] param = arg.split(":");
+                switch ( param[0] ) {
+                    case "d":
+                        PrtF = 1;
+                        Param = param[1];
                         break;
-                    case 1:
-                        statusRecord.DateLogPrint( p, Param, FullFlag );
+                    case "u":
+                        PrtF = 2;
+                        Param = param[1];
                         break;
-                    case 2:
-                        statusRecord.NameLogPrint( p, Param, FullFlag );
+                    case "full":
+                        sender.sendMessage( config.LogFull().replace( "%$", "§" ) );
+                        FullFlag = true;
                         break;
                     default:
-                        sender.sendMessage( config.OptError().replace( "%$", "§" ) );
+                        sender.sendMessage( config.ArgsErr().replace( "%$", "§" ) );
                         return false;
                 }
-                return true;
+            }
+
+            switch ( PrtF ) {
+                case 0:
+                    statusRecord.LogPrint( p, ( sender instanceof Player ) ? 15:30, FullFlag );
+                    break;
+                case 1:
+                    statusRecord.DateLogPrint( p, Param, FullFlag );
+                    break;
+                case 2:
+                    statusRecord.NameLogPrint( p, Param, FullFlag );
+                    break;
+                default:
+                    sender.sendMessage( config.OptError().replace( "%$", "§" ) );
+                    return false;
+            }
+            return true;
+        }
+        
+        if ( cmd.getName().toLowerCase().equalsIgnoreCase( "loginctl" ) ) {
+            for (String arg : args) {
+                String[] param = arg.split( ":" );
+                switch ( param[0] ) {
+                    case "reload":
+                        config = new Config( this );
+                        sender.sendMessage( config.Reload().replace( "%$", "§" ) );
+                        return true;
+                    case "chg":
+                        if ( statusRecord.chgUnknownHost( param[1], param[2] ) ) {
+                            statusRecord.infoUnknownHost( p, param[1] );
+                        }
+                        break;
+                    case "info":
+                        Bukkit.getServer().getConsoleSender().sendMessage( "Check Unknown IP Information [" + param[1] + "]" );
+                        statusRecord.infoUnknownHost( p, param[1] );
+                        break;
+                    default:
+                        return false;
+                }
+            }
+            return true;
         }
         return false;
     }
