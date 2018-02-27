@@ -120,6 +120,9 @@ public class LoginControl extends JavaPlugin implements Listener {
                         Bukkit.getServer().getConsoleSender().sendMessage( "Check Unknown IP Information [" + param[1] + "]" );
                         statusRecord.infoUnknownHost( p, param[1] );
                         break;
+                    case "conv":
+                        statusRecord.DataConv( sender );
+                        break;
                     default:
                         return false;
                 }
@@ -130,11 +133,11 @@ public class LoginControl extends JavaPlugin implements Listener {
     }
 
     @EventHandler
-    public void onPlayerLogin( PlayerJoinEvent event ) {
+    public void onPlayerLogin( PlayerJoinEvent event ) throws UnknownHostException {
 
         Player player = event.getPlayer();
         StatusRecord statusRecord = new StatusRecord( config.getHost(), config.getDB(), config.getPort(), config.getUsername(), config.getPassword() );
-        statusRecord.ChangeStatus( date, "Logged in" );
+        statusRecord.ChangeStatus( date, 1 );
         statusRecord.LogPrint( player, 5, false );
         if ( !config.getIgnoreName().contains( player.getName() ) && !config.getIgnoreIP().contains( player.getAddress().getHostString() ) ) {
             statusRecord.CheckIP( player );
@@ -171,7 +174,7 @@ public class LoginControl extends JavaPlugin implements Listener {
         date = new Date();
 
         StatusRecord statusRecord = new StatusRecord( config.getHost(), config.getDB(), config.getPort(), config.getUsername(), config.getPassword() );
-        statusRecord.PreSavePlayer( date, event.getName(), event.getUniqueId().toString(), event.getAddress().getHostAddress(), "Attempted" );
+        statusRecord.PreSavePlayer( date, event.getName(), event.getUniqueId().toString(), event.getAddress().getHostAddress(), 0 );
     }
     
     public String ReplaceString( String data, String Names ) {
