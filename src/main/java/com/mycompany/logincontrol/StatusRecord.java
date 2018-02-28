@@ -3,7 +3,6 @@
  */
 package com.mycompany.logincontrol;
 
-import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.sql.Connection;
@@ -65,7 +64,7 @@ public class StatusRecord {
         return addr;
     }
 
-public void LineMsg( Player p, int id, Date date, String name, long ip , int status ) {
+    public void LineMsg( Player p, int id, Date date, String name, long ip , int status ) {
         SimpleDateFormat sdf = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" );
 
         String message = String.format( "%6d", id ) + ": " + sdf.format( date ) + " " + String.format( "%-20s", name );
@@ -298,6 +297,13 @@ public void LineMsg( Player p, int id, Date date, String name, long ip , int sta
             PreparedStatement preparedStatement = connection.prepareStatement( sql );
             preparedStatement.executeUpdate();
 
+            //  mysql> create table IF NOT EXISTS unknowns (ip varchar(22), host varchar(60), count int, lastdate DATETIME );
+            //  Unknowns テーブルの作成
+            //  存在すれば、無視される
+            sql = "CREATE TABLE IF NOT EXISTS unknowns (ip varchar(22), host varchar(60), count int, lastdate DATETIME )";
+            preparedStatement = connection.prepareStatement( sql );
+            preparedStatement.executeUpdate();
+
             //  mysql> create table list(id int auto_increment, date DATETIME,name varchar(20), uuid varchar(36), ip INTEGER UNSIGNED, status byte, index(id));
             //  テーブルの作成
             //  存在すれば、無視される
@@ -308,7 +314,7 @@ public void LineMsg( Player p, int id, Date date, String name, long ip , int sta
             //  mysql> create table IF NOT EXISTS unknowns (ip varchar(22), host varchar(60), count int, lastdate DATETIME );
             //  Unknowns テーブルの作成
             //  存在すれば、無視される
-            sql = "CREATE TABLE IF NOT EXISTS unknowns (ip varchar(22), host varchar(60), count int, lastdate DATETIME )";
+            sql = "CREATE TABLE IF NOT EXISTS hosts (ip INTEGER UNSIGNED, host varchar(60), count int, lastdate DATETIME )";
             preparedStatement = connection.prepareStatement( sql );
             preparedStatement.executeUpdate();
         }
@@ -319,12 +325,13 @@ public void LineMsg( Player p, int id, Date date, String name, long ip , int sta
         try {
             openConnection();
             Statement stmt = connection.createStatement();
-            String sql = "SELECT * FROM unknowns ORDER BY ip DESC;";
+            String sql = "SELECT * FROM hosts ORDER BY ip DESC;";
             ResultSet rs = stmt.executeQuery( sql );
             
             while ( rs.next() ) {
-                if ( IP.equals( rs.getString( "ip" ) ) ) { return rs.getString( "host" ); }
+                if ( IP.equals( toInetAddress( rs.getLong( "ip" ) ) ) ) { return rs.getString( "host" ); }
             }
+
         } catch ( ClassNotFoundException | SQLException e ) {
             e.printStackTrace();
         }
@@ -341,7 +348,7 @@ public void LineMsg( Player p, int id, Date date, String name, long ip , int sta
             Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "Ping [Debug] Unknown New Record" );
             InetAddress inet = InetAddress.getByName( IP );
             String HostName = inet.getHostName();
-            if ( HostName.equals( IP ) ) { HostName = "Unknown"; }
+            if ( HostName.equals( IP ) ) { HostName = "Unknown(IP)"; }
 
             //  Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "Write Unknown IP : " + IP );
             //  Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "Get Unknown Host : " + inet.getHostName() );
@@ -356,7 +363,7 @@ public void LineMsg( Player p, int id, Date date, String name, long ip , int sta
             try {
                 openConnection();
 
-                String sql = "INSERT INTO unknowns ( ip, host, count, lastdate ) VALUES ( ?, ?, ?, ? );";
+                String sql = "INSERT INTO hosts ( ip, host, count, lastdate ) VALUES ( INET_ATON( ? ), ?, ?, ? );";
                 PreparedStatement preparedStatement = connection.prepareStatement(sql);
                 preparedStatement.setString( 1, IP );
                 preparedStatement.setString( 2, HostName );
@@ -376,17 +383,17 @@ public void LineMsg( Player p, int id, Date date, String name, long ip , int sta
         try {
             openConnection();
             Statement stmt = connection.createStatement();
-            String sql = "SELECT * FROM unknowns ORDER BY ip DESC;";
+            String sql = "SELECT * FROM hosts ORDER BY ip DESC;";
             ResultSet rs = stmt.executeQuery( sql );
             
             //  sql = "CREATE TABLE IF NOT EXISTS unknowns (ip varchar(22) not null primary, host varchar(40), count int, lastdate DATETIME )";
             while ( rs.next() ) {
-                if ( IP.equals( rs.getString( "ip" ) ) ) {
+                if ( IP.equals( toInetAddress( rs.getLong( "ip" ) ) ) ) {
                     int count = rs.getInt( "count" ) + 1;
                     
-                    String chg_sql = "UPDATE unknowns SET count = " + count +
+                    String chg_sql = "UPDATE hosts SET count = " + count +
                             ", lastdate = '" + sdf.format( new Date() ) +
-                            "' WHERE ip = '" + IP + "';";
+                            "' WHERE INET_NTOA( ip ) = '" + IP + "';";
                     PreparedStatement preparedStatement = connection.prepareStatement(chg_sql);
                     preparedStatement.executeUpdate();
                     return rs.getString( "host" ) + "(" + count + ")";
@@ -404,13 +411,13 @@ public void LineMsg( Player p, int id, Date date, String name, long ip , int sta
         try {
             openConnection();
             Statement stmt = connection.createStatement();
-            String sql = "SELECT * FROM unknowns ORDER BY ip DESC;";
+            String sql = "SELECT * FROM hosts ORDER BY ip DESC;";
             ResultSet rs = stmt.executeQuery( sql );
             
             //  sql = "CREATE TABLE IF NOT EXISTS unknowns (ip varchar(22) not null primary, host varchar(40), count int, lastdate DATETIME )";
             while ( rs.next() ) {
-                if ( IP.equals( rs.getString( "ip" ) ) ) {
-                    String chg_sql = "UPDATE unknowns SET host = '" + Hostname + "' WHERE ip = '" + IP + "';";
+                if ( IP.equals( toInetAddress( rs.getLong( "ip" ) ) ) ) {
+                    String chg_sql = "UPDATE hosts SET host = '" + Hostname + "' WHERE INET_NTOA( ip ) = '" + IP + "';";
                     PreparedStatement preparedStatement = connection.prepareStatement(chg_sql);
                     preparedStatement.executeUpdate();
                     return true;
@@ -429,14 +436,14 @@ public void LineMsg( Player p, int id, Date date, String name, long ip , int sta
         try {
             openConnection();
             Statement stmt = connection.createStatement();
-            String sql = "SELECT * FROM unknowns ORDER BY ip DESC;";
+            String sql = "SELECT * FROM hosts ORDER BY ip DESC;";
             ResultSet rs = stmt.executeQuery( sql );
             
             //  sql = "CREATE TABLE IF NOT EXISTS unknowns (ip varchar(22) not null primary, host varchar(40), count int, lastdate DATETIME )";
             while ( rs.next() ) {
-                if ( IP.equals( rs.getString( "ip" ) ) ) {
+                if ( IP.equals( toInetAddress( rs.getLong( "ip" ) ) ) ) {
                     MsgPrt( p, ChatColor.YELLOW + "Check Unknown IP Information......." );
-                    MsgPrt( p, ChatColor.GREEN + "IP Address  : " + ChatColor.WHITE + rs.getString( "ip" ) );
+                    MsgPrt( p, ChatColor.GREEN + "IP Address  : " + ChatColor.WHITE + toInetAddress( rs.getLong( "ip" ) ) );
                     MsgPrt( p, ChatColor.GREEN + "Host Name   : " + ChatColor.WHITE + rs.getString( "host" ) );
                     MsgPrt( p, ChatColor.GREEN + "AccessCount : " + ChatColor.WHITE + String.valueOf( rs.getInt( "count" ) ) );
                     MsgPrt( p, ChatColor.GREEN + "Last Date   : " + ChatColor.WHITE + sdf.format( rs.getTimestamp( "lastdate" ) ) );
