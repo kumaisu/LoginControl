@@ -14,6 +14,9 @@ As for player login, it is a plug-in that supports variously
 
 **Usage**  
 
-/Loginlist full  
-/Loginlist [d yymmdd]  
+/Loginlist [d:yymmdd] [u:player name] [full]
 
+/LoginCtl reload
+/LoginCtl info:[ip address]
+/LoginCtl chg:[ip address]:[host name]
+/LoginCtl PingTop

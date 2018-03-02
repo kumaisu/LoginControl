@@ -120,9 +120,14 @@ public class LoginControl extends JavaPlugin implements Listener {
                         Bukkit.getServer().getConsoleSender().sendMessage( "Check Unknown IP Information [" + param[1] + "]" );
                         statusRecord.infoUnknownHost( p, param[1] );
                         break;
+                    case "pingtop":
+                        statusRecord.PingTop( p );
+                        break;
+                    /*
                     case "conv":
                         statusRecord.DataConv( sender );
                         break;
+                    */
                     default:
                         return false;
                 }

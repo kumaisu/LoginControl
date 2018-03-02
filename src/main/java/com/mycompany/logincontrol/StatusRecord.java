@@ -27,6 +27,7 @@ import org.bukkit.entity.Player;
  */
 public class StatusRecord {
 
+    SimpleDateFormat sdf = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" );
     private Connection connection;
     private final String host, database, port, username, password;
     
@@ -65,7 +66,6 @@ public class StatusRecord {
     }
 
     public void LineMsg( Player p, int id, Date date, String name, long ip , int status ) {
-        SimpleDateFormat sdf = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" );
 
         String message = String.format( "%6d", id ) + ": " + sdf.format( date ) + " " + String.format( "%-20s", name );
         if ( ( p == null ) || p.hasPermission( "LoginCtl.view" ) || p.isOp() ) {
@@ -197,8 +197,6 @@ public class StatusRecord {
         PrtData.add( ChatColor.RED + "=== Check IP Address ===" + ChatColor.YELLOW + "[" + player.getAddress().getHostString() + "]" );
         
         try {        
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
             openConnection();
             Statement stmt = connection.createStatement();
             String sql = "SELECT * FROM list WHERE INET_NTOA(ip) = '" + player.getAddress().getHostString() + "' ORDER BY date DESC;";
@@ -233,8 +231,6 @@ public class StatusRecord {
 
     @SuppressWarnings("CallToPrintStackTrace")
     public void ChangeStatus( Date date, int status ) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
         try {
             openConnection();
 
@@ -249,7 +245,6 @@ public class StatusRecord {
     
     @SuppressWarnings("CallToPrintStackTrace")
     public void PreSavePlayer( Date date, String name, String UUID, String IP, int Status ) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
         /*
         getLogger().log( Level.INFO, "Date   : {0}", sdf.format( date ) );
@@ -290,25 +285,29 @@ public class StatusRecord {
             Class.forName( "com.mysql.jdbc.Driver" );
             connection = DriverManager.getConnection( "jdbc:mysql://" + host + ":" + port + "/" + database, username, password );
 
+            /*
+            //  旧タイプデータテーブルに付き、その内削除
+            //
             //  mysql> create table players(id int auto_increment, date DATETIME,name varchar(20), uuid varchar(36), ip varchar(22), index(id));
             //  テーブルの作成
             //  存在すれば、無視される
-            String sql = "CREATE TABLE IF NOT EXISTS players(id int auto_increment, date DATETIME,name varchar(20), uuid varchar(36), ip varchar(22), status varchar(10), index(id))";
-            PreparedStatement preparedStatement = connection.prepareStatement( sql );
-            preparedStatement.executeUpdate();
+            //  String sql = "CREATE TABLE IF NOT EXISTS players(id int auto_increment, date DATETIME,name varchar(20), uuid varchar(36), ip varchar(22), status varchar(10), index(id))";
+            //  PreparedStatement preparedStatement = connection.prepareStatement( sql );
+            //  preparedStatement.executeUpdate();
 
             //  mysql> create table IF NOT EXISTS unknowns (ip varchar(22), host varchar(60), count int, lastdate DATETIME );
             //  Unknowns テーブルの作成
             //  存在すれば、無視される
-            sql = "CREATE TABLE IF NOT EXISTS unknowns (ip varchar(22), host varchar(60), count int, lastdate DATETIME )";
-            preparedStatement = connection.prepareStatement( sql );
-            preparedStatement.executeUpdate();
+            //  sql = "CREATE TABLE IF NOT EXISTS unknowns (ip varchar(22), host varchar(60), count int, lastdate DATETIME )";
+            //  preparedStatement = connection.prepareStatement( sql );
+            //  preparedStatement.executeUpdate();
+            */
 
             //  mysql> create table list(id int auto_increment, date DATETIME,name varchar(20), uuid varchar(36), ip INTEGER UNSIGNED, status byte, index(id));
             //  テーブルの作成
             //  存在すれば、無視される
-            sql = "CREATE TABLE IF NOT EXISTS list(id int auto_increment, date DATETIME,name varchar(20), uuid varchar(36), ip INTEGER UNSIGNED, status int, index(id))";
-            preparedStatement = connection.prepareStatement( sql );
+            String sql = "CREATE TABLE IF NOT EXISTS list(id int auto_increment, date DATETIME,name varchar(20), uuid varchar(36), ip INTEGER UNSIGNED, status int, index(id))";
+            PreparedStatement preparedStatement = connection.prepareStatement( sql );
             preparedStatement.executeUpdate();
 
             //  mysql> create table IF NOT EXISTS unknowns (ip varchar(22), host varchar(60), count int, lastdate DATETIME );
@@ -341,7 +340,6 @@ public class StatusRecord {
     @SuppressWarnings("CallToPrintStackTrace")
     public String setUnknownHost( String IP ) throws UnknownHostException {
         String GetHost = getUnknownHost( IP );
-        SimpleDateFormat sdf = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" );
 
         if ( GetHost.equals( "Unknown" ) ) {
             
@@ -431,8 +429,6 @@ public class StatusRecord {
 
     @SuppressWarnings("CallToPrintStackTrace")
     public void infoUnknownHost( Player p, String IP ) {
-        SimpleDateFormat sdf = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" );
-
         try {
             openConnection();
             Statement stmt = connection.createStatement();
@@ -456,6 +452,39 @@ public class StatusRecord {
         }
     }
 
+    public void PingTop( Player p ) {
+        MsgPrt( p, ChatColor.GREEN + "== Ping Count Top10 ==" );
+
+        try {        
+            openConnection();
+            Statement stmt = connection.createStatement();
+            String sql = "SELECT * FROM hosts ORDER BY count DESC;";
+            ResultSet rs = stmt.executeQuery( sql );
+            
+            int i = 0;
+            String chk_name = "";
+            
+            while( rs.next() && ( i<10 ) ) {
+                String GetName = rs.getString( "host" );
+                
+                if ( !chk_name.equals( GetName ) ) {
+                    i++;
+                    MsgPrt( p, 
+                            ChatColor.YELLOW + String.format( "%-15s", toInetAddress( rs.getLong( "ip" ) ) ) +
+                            ChatColor.WHITE + String.format( "%-40s", rs.getString( "host" ) ) +
+                            ChatColor.AQUA + String.valueOf( rs.getInt("count" ) ) +
+                            ChatColor.WHITE + sdf.format( rs.getTimestamp( "lastdate" ) )
+                    );
+                    chk_name = GetName;
+                }
+            }
+
+            MsgPrt( p, ChatColor.GREEN + "================" );
+        } catch ( ClassNotFoundException | SQLException e ) {
+            Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "Error Pingtop Listing ..." );
+        }
+    }
+
     @SuppressWarnings("CallToPrintStackTrace")
     public void DataConv( CommandSender sender ) {
         sender.sendMessage( "== Data Convert List ==" );
@@ -465,8 +494,6 @@ public class StatusRecord {
             Statement stmt = connection.createStatement();
             String sql = "SELECT * FROM players ORDER BY date ASC;";
             ResultSet rs = stmt.executeQuery(sql);
-
-            SimpleDateFormat sdf = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" );
 
             while( rs.next() ) {
                 //  String sql = "CREATE TABLE IF NOT EXISTS players(id int auto_increment, date DATETIME,name varchar(20), uuid varchar(36), ip varchar(22), status varchar(10), index(id))";
