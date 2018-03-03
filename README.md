@@ -13,8 +13,9 @@ As for player login, it is a plug-in that supports variously
 6.Ability to display the list of users from the same IP to authorized player.  
   
 LoginControlは、プレイヤーログインに付いて、サポートをするプラグインです  
+  
 1.クライアントのサーバーリストを更新した際に、ホストに対して行われる参照をコンソールまたは許可されたプレイヤー画面にリアルタイムに表示します  
-2.参照されたプレイヤーに対し、MotD内容を成形し送信します
+2.参照されたプレイヤーに対し、MotD内容を成形し送信します  
 3.新規ログインプレイヤーに対して、特定場所へテレポートする機能  
 4.新規ログインプレイヤーに特定のアイテムをプレゼントする機能  
 5.ログイン時にデータベース記録し、参照する機能（直近５人）またはコマンドによって１０人  

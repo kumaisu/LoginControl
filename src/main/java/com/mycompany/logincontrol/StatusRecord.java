@@ -470,9 +470,9 @@ public class StatusRecord {
                 if ( !chk_name.equals( GetName ) ) {
                     i++;
                     MsgPrt( p, 
+                            ChatColor.AQUA + String.format( "%4d", rs.getInt("count" ) ) + ": " +
                             ChatColor.YELLOW + String.format( "%-15s", toInetAddress( rs.getLong( "ip" ) ) ) +
                             ChatColor.WHITE + String.format( "%-40s", rs.getString( "host" ) ) +
-                            ChatColor.AQUA + String.valueOf( rs.getInt("count" ) ) +
                             ChatColor.WHITE + sdf.format( rs.getTimestamp( "lastdate" ) )
                     );
                     chk_name = GetName;
