@@ -200,7 +200,7 @@ public class LoginControl extends JavaPlugin implements Listener {
                 Host = ChatColor.GRAY + config.KnownServers( event.getAddress().getHostAddress() );
             } else {
                 //  Unknown Player を File に記録してホストアドレスを取得する
-                Host = ChatColor.DARK_PURPLE + config.WriteUnknown( event.getAddress().getHostAddress() );
+                Host = config.WriteUnknown( event.getAddress().getHostAddress() );
             }
         }
 

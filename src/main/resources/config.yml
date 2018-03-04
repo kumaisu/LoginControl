@@ -46,10 +46,17 @@ Ignore-IP:
 MotD1st: "%$dWelcome to Minecraft Server"
 MotD2nd-Unknown: "%$3Let's play together"
 MotD2nd-Player: "%$e%player%%$a, We are waiting for you"
+# MotD1st: "%$fようこそ%$dMinecraft%$fサーバーへ"
+# MotD2nd-Unknown: "%$3いっしょに遊びましょうよ"
+# MotD2nd-Player: "%$e%player%%$aさん、まってますよ"
     
 #Program Inner Messages
 Message:
-    LogFull: "Display all logs"
-    Reload: "LoginList Config Reloaded."
-    ArgsErr: "Invalid argument specification, unknown argument specified"
-    OptError: "Incorrect log display specification"
+    LogFull: "%$aDisplay all logs"
+    Reload: "%$aLoginList Config Reloaded."
+    ArgsErr: "%$4Invalid argument specification, unknown argument specified"
+    OptError: "%$4Incorrect log display specification"
+#    LogFull: "%$aログをフル表示します"
+#    Reload: "%$aコンフィグを再読込しました"
+#    ArgsErr: "%$4引数指定の誤り：未知の引数が指定されました"
+#    OptError: "%$4ログ表示指定に誤りがあります"

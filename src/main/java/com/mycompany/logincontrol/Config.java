@@ -174,7 +174,6 @@ public class Config {
         return config.getString( "Message.OptError" );
     }
 
-    //  public String WriteUnknown( String IPS ) throws UnknownHostException {
     public String WriteUnknown( String IPS ) throws UnknownHostException {
         File UKfile = new File( plugin.getDataFolder(), "UnknownIP.yml" );
         FileConfiguration UKData = YamlConfiguration.loadConfiguration( UKfile );
@@ -183,21 +182,28 @@ public class Config {
 
         StatusRecord statusRecord = new StatusRecord( host, database, port, username, password );
 
-        //  Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "Ping [Debug] Database Check" );
-        String HostName = statusRecord.setUnknownHost( IPS );
-
-        UKData.set( sdf.format( new Date() ),IPS + "[" + HostName + "]" );
+        String HostName = statusRecord.getUnknownHost( IPS );
+        ChatColor NameColor;
         
-        try {
-            UKData.save( UKfile );
-        }
-        catch (IOException e) {
-            plugin.getServer().getLogger().log( Level.SEVERE, "{0}Could not save UnknownIP File.", ChatColor.RED );
-            return "Unknown";
+        if ( HostName.equals( "Unknown" ) ) {
+            HostName = statusRecord.setUnknownHost( IPS );
+            NameColor = ChatColor.DARK_PURPLE;
+            UKData.set( sdf.format( new Date() ),IPS + "[" + HostName + "]" );
+
+            try {
+                UKData.save( UKfile );
+            }
+            catch (IOException e) {
+                plugin.getServer().getLogger().log( Level.SEVERE, "{0}Could not save UnknownIP File.", ChatColor.RED );
+                return "Unknown";
+            }
+
+        } else {
+            int count = statusRecord.countUnknownHost( IPS );
+            HostName += "(" + String.valueOf( count ) + ")";
+            NameColor = ChatColor.LIGHT_PURPLE;
         }
 
-        //  return ( IPS.equals( inet.getHostName() ) ? "Unknown" : inet.getHostName() );
-        //  return "Unknown";
-        return HostName;
+        return NameColor + HostName;
     }
 }

@@ -208,7 +208,7 @@ public class StatusRecord {
 
                 if ( !NameData.contains( GetName ) ) {
                     i++;
-                    PrtF = ( i>1 );
+                    PrtF = true; // ( i>1 );
                     NameData.add( GetName );
                     PrtData.add( ChatColor.WHITE + String.format( "%6d", rs.getInt( "id" ) ) + ": " + ChatColor.GREEN + sdf.format( rs.getTimestamp( "date" ) ) + " " + String.format( "%-20s", GetName ) );
                 }
@@ -285,24 +285,6 @@ public class StatusRecord {
             Class.forName( "com.mysql.jdbc.Driver" );
             connection = DriverManager.getConnection( "jdbc:mysql://" + host + ":" + port + "/" + database, username, password );
 
-            /*
-            //  旧タイプデータテーブルに付き、その内削除
-            //
-            //  mysql> create table players(id int auto_increment, date DATETIME,name varchar(20), uuid varchar(36), ip varchar(22), index(id));
-            //  テーブルの作成
-            //  存在すれば、無視される
-            //  String sql = "CREATE TABLE IF NOT EXISTS players(id int auto_increment, date DATETIME,name varchar(20), uuid varchar(36), ip varchar(22), status varchar(10), index(id))";
-            //  PreparedStatement preparedStatement = connection.prepareStatement( sql );
-            //  preparedStatement.executeUpdate();
-
-            //  mysql> create table IF NOT EXISTS unknowns (ip varchar(22), host varchar(60), count int, lastdate DATETIME );
-            //  Unknowns テーブルの作成
-            //  存在すれば、無視される
-            //  sql = "CREATE TABLE IF NOT EXISTS unknowns (ip varchar(22), host varchar(60), count int, lastdate DATETIME )";
-            //  preparedStatement = connection.prepareStatement( sql );
-            //  preparedStatement.executeUpdate();
-            */
-
             //  mysql> create table list(id int auto_increment, date DATETIME,name varchar(20), uuid varchar(36), ip INTEGER UNSIGNED, status byte, index(id));
             //  テーブルの作成
             //  存在すれば、無視される
@@ -339,45 +321,41 @@ public class StatusRecord {
 
     @SuppressWarnings("CallToPrintStackTrace")
     public String setUnknownHost( String IP ) throws UnknownHostException {
-        String GetHost = getUnknownHost( IP );
+        Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "Ping [Debug] Unknown New Record" );
+        InetAddress inet = InetAddress.getByName( IP );
+        String HostName = inet.getHostName();
+        if ( HostName.equals( IP ) ) { HostName = "Unknown(IP)"; }
 
-        if ( GetHost.equals( "Unknown" ) ) {
+        //  Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "Write Unknown IP : " + IP );
+        //  Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "Get Unknown Host : " + inet.getHostName() );
+        //  Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "Get Unknown Cano : " + inet.getCanonicalHostName() );
+        //  Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "Get Unknown Addr : " + inet.getHostAddress() );
+
+        //  テーブルへ追加
+        //  sql = "CREATE TABLE IF NOT EXISTS unknowns (ip varchar(22), host varchar(60), count int, lastdate DATETIME )";
+
+        if ( HostName.length()>60 ) { HostName = String.format( "%-60s", HostName ); }
+
+        try {
+            openConnection();
+
+            String sql = "INSERT INTO hosts ( ip, host, count, lastdate ) VALUES ( INET_ATON( ? ), ?, ?, ? );";
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setString( 1, IP );
+            preparedStatement.setString( 2, HostName );
+            preparedStatement.setInt( 3, 1 );
+            preparedStatement.setString( 4, sdf.format( new Date() ) );
+
+            preparedStatement.executeUpdate();
             
-            Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "Ping [Debug] Unknown New Record" );
-            InetAddress inet = InetAddress.getByName( IP );
-            String HostName = inet.getHostName();
-            if ( HostName.equals( IP ) ) { HostName = "Unknown(IP)"; }
-
-            //  Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "Write Unknown IP : " + IP );
-            //  Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "Get Unknown Host : " + inet.getHostName() );
-            //  Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "Get Unknown Cano : " + inet.getCanonicalHostName() );
-            //  Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "Get Unknown Addr : " + inet.getHostAddress() );
-
-            //  テーブルへ追加
-            //  sql = "CREATE TABLE IF NOT EXISTS unknowns (ip varchar(22), host varchar(60), count int, lastdate DATETIME )";
-
-            if ( HostName.length()>60 ) { HostName = String.format( "%-60s", HostName ); }
-
-            try {
-                openConnection();
-
-                String sql = "INSERT INTO hosts ( ip, host, count, lastdate ) VALUES ( INET_ATON( ? ), ?, ?, ? );";
-                PreparedStatement preparedStatement = connection.prepareStatement(sql);
-                preparedStatement.setString( 1, IP );
-                preparedStatement.setString( 2, HostName );
-                preparedStatement.setInt( 3, 1 );
-                preparedStatement.setString( 4, sdf.format( new Date() ) );
-
-                preparedStatement.executeUpdate();
-            
-            } catch ( ClassNotFoundException | SQLException e ) {
-                e.printStackTrace();
-            }
-            return HostName;
+        } catch ( ClassNotFoundException | SQLException e ) {
+            e.printStackTrace();
         }
+        return HostName;
+    }
 
-        //  Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "Ping [Debug] Unknown Modify Record" );
-
+    @SuppressWarnings("CallToPrintStackTrace")
+    public int countUnknownHost( String IP ) throws UnknownHostException {
         try {
             openConnection();
             Statement stmt = connection.createStatement();
@@ -394,14 +372,14 @@ public class StatusRecord {
                             "' WHERE INET_NTOA( ip ) = '" + IP + "';";
                     PreparedStatement preparedStatement = connection.prepareStatement(chg_sql);
                     preparedStatement.executeUpdate();
-                    return rs.getString( "host" ) + "(" + count + ")";
+                    return count;
                 }
             }
 
         } catch ( ClassNotFoundException | SQLException e ) {
             e.printStackTrace();
         }
-        return "Unknown";
+        return 0;
     }
 
     @SuppressWarnings("CallToPrintStackTrace")
