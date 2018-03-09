@@ -25,17 +25,6 @@ Present:
     - STONE_AXE,1
     - STONE_PICKAXE,1
 
-#Known servers
-104.155.197.233: JapanMinecraftServer
-213.239.204.169: Minecraft-Statistic
-104.20.70.236: Minecraft-Server-List
-104.20.237.39: MinecraftServers.org
-72.52.216.181: MinecraftServers.net
-104.25.139.100: MinecraftServers.biz
-104.25.153.114: ServerPact.com
-104.20.7.164: Minecraft-mp.com
-104.31.90.225: mcserverstatus.com
-
 #Ignore Report
 Ignore-Names:
     - Kumaisu
@@ -60,3 +49,18 @@ Message:
 #    Reload: "%$aコンフィグを再読込しました"
 #    ArgsErr: "%$4引数指定の誤り：未知の引数が指定されました"
 #    OptError: "%$4ログ表示指定に誤りがあります"
+
+#Known servers
+104.155.197.233: JapanMinecraftServer
+213.239.204.169: Minecraft-Statistic
+104.20.70.236: Minecraft-Server-List
+104.20.237.39: MinecraftServers.org
+72.52.216.181: MinecraftServers.net
+104.25.139.100: MinecraftServers.biz
+104.25.153.114: ServerPact.com
+104.20.7.164: Minecraft-mp.com
+104.31.90.225: mcserverstatus.com
+
+#CDIR Host List
+107.178.192.0/18: GoogleIncUS,MountainView)
+54.216.0.0/15: AmazonCom(Ireland,Dublin)

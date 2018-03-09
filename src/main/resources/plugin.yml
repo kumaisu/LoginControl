@@ -17,6 +17,7 @@ commands:
         permission-message: You do not have permission.
         usage: |
             /<command> reload
+            /<command> status
             /<command> info:[IP]
             /<command> chg:[IP]:[HostName]
             /<command> pingtop

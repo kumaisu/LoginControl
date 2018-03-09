@@ -7,12 +7,16 @@ import java.io.File;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 /**
@@ -57,9 +61,14 @@ public class Config {
         // 設定ファイルを保存
         plugin.saveDefaultConfig();
         if (config != null) { // configが非null == リロードで呼び出された
+            plugin.getLogger().info( "Config Reloading now..." );
             plugin.reloadConfig();
         }
         config = plugin.getConfig();
+
+        present = new ArrayList<>();
+        IgnoreReportName = new ArrayList<>();
+        IgnoreReportIP = new ArrayList<>();
 
         host = config.getString( "mysql.host" );
         port = config.getString( "mysql.port" );
@@ -80,6 +89,50 @@ public class Config {
         MotD2ndLinePlayer = config.getString( "MotD2nd-Player" );
         IgnoreReportName = config.getStringList( "Ignore-Names" );
         IgnoreReportIP = config.getStringList( "Ignore-IP" );
+    }
+    
+    public void Prt( Player p, String s ) {
+        if ( p == null ) {
+            Bukkit.getServer().getConsoleSender().sendMessage( s );
+        } else {
+            p.sendMessage( s );
+        }
+    }
+    
+    public void Status( Player p ) {
+        Prt( p, "=== LoginContrl Status ===" );
+        Prt( p, "Mysql : " + host + ":" + port );
+        Prt( p, "DB Name : " + database );
+        Prt( p, "FirstJump : " + ( ( JumpStats ) ? "True":"None" ) );
+        if ( JumpStats ) {
+            Prt( p, "  world:" + fworld );
+            Prt( p, "  x:" + String.valueOf( fx ) );
+            Prt( p, "  y:" + String.valueOf( fy ) );
+            Prt( p, "  z:" + String.valueOf( fz ) );
+            Prt( p, "  p:" + String.valueOf( fpitch ) );
+            Prt( p, "  y:" + String.valueOf( fyaw ) );
+        }
+        Prt( p, "Present Items" );
+        for(Iterator it = present.iterator(); it.hasNext();) {
+            String item = (String)it.next();
+            String[] itemdata = item.split( ",", 0 );
+            Prt( p, " - " + itemdata[0] + "(" + itemdata[1] + ")" );
+        }
+        Prt( p, "Ignore Names" );
+        for(Iterator it = IgnoreReportName.iterator(); it.hasNext();) {
+            String item = (String)it.next();
+            Prt( p, " - " + item );
+        }
+        Prt( p, "Ignore IPs" );
+        for(Iterator it = IgnoreReportIP.iterator(); it.hasNext();) {
+            String item = (String)it.next();
+            Prt( p, " - " + item );
+        }
+        Prt( p, "MotD 1 Line : " + MotD1stLine );
+        Prt( p, "MotD 2 Line(Unknown) : " + MotD2ndLineUnknown );
+        Prt( p, "MotD 2 Line(Player ) : " + MotD2ndLinePlayer );
+        Prt( p, "==========================" );
+        
     }
     
     public String getHost() {
@@ -187,7 +240,7 @@ public class Config {
         
         if ( HostName.equals( "Unknown" ) ) {
             HostName = statusRecord.setUnknownHost( IPS );
-            NameColor = ChatColor.DARK_PURPLE;
+            NameColor = ChatColor.RED;
             UKData.set( sdf.format( new Date() ),IPS + "[" + HostName + "]" );
 
             try {

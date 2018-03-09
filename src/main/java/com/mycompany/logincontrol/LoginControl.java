@@ -111,6 +111,9 @@ public class LoginControl extends JavaPlugin implements Listener {
                         config = new Config( this );
                         sender.sendMessage( config.Reload().replace( "%$", "§" ) );
                         return true;
+                    case "status":
+                        config.Status( ( sender instanceof Player ) ? ( Player )sender:null );
+                        return true;
                     case "chg":
                         if ( statusRecord.chgUnknownHost( param[1], param[2] ) ) {
                             statusRecord.infoUnknownHost( p, param[1] );

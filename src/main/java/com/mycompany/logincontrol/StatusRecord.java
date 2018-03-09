@@ -206,11 +206,16 @@ public class StatusRecord {
             while( rs.next() ) {
                 String GetName = rs.getString( "name" );
 
-                if ( !NameData.contains( GetName ) ) {
+                if ( ( i == 0 ) && ( GetName.equals( player.getName() ) ) ) {
+                    // pass                    
                     i++;
-                    PrtF = true; // ( i>1 );
-                    NameData.add( GetName );
-                    PrtData.add( ChatColor.WHITE + String.format( "%6d", rs.getInt( "id" ) ) + ": " + ChatColor.GREEN + sdf.format( rs.getTimestamp( "date" ) ) + " " + String.format( "%-20s", GetName ) );
+                } else {
+                    if ( !NameData.contains( GetName ) ) {
+                        i++;
+                        PrtF = true; // ( i>1 );
+                        NameData.add( GetName );
+                        PrtData.add( ChatColor.WHITE + String.format( "%6d", rs.getInt( "id" ) ) + ": " + ChatColor.GREEN + sdf.format( rs.getTimestamp( "date" ) ) + " " + String.format( "%-20s", GetName ) );
+                    }
                 }
             }
                     
