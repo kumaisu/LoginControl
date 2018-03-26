@@ -155,7 +155,7 @@ public class LoginControl extends JavaPlugin implements Listener {
             Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.LIGHT_PURPLE + "The First Login Player" );
 
             List<String> present = config.getPresent();
-            for(Iterator it = present.iterator(); it.hasNext();) {
+            for( Iterator it = present.iterator(); it.hasNext(); ) {
                 String item = (String)it.next();
                 String[] itemdata = item.split( ",", 0 );
                 player.getInventory().addItem( new ItemStack( Material.getMaterial( itemdata[0] ), Integer.parseInt( itemdata[1] ) ) );
