@@ -20,6 +20,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.server.ServerListPingEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -55,6 +56,14 @@ public class LoginControl extends JavaPlugin implements Listener {
         super.onLoad(); //To change body of generated methods, choose Tools | Templates.
     }
 
+    public String ReplaceString( String data, String Names ) {
+        String RetStr;
+        RetStr = data.replace( "%player%", Names );
+        RetStr = RetStr.replace( "%$", "§" );
+        
+        return RetStr;
+    }
+    
     @Override
     public boolean onCommand(CommandSender sender,Command cmd, String commandLabel, String[] args) {
         boolean FullFlag = false;
@@ -142,7 +151,8 @@ public class LoginControl extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onPlayerLogin( PlayerJoinEvent event ) throws UnknownHostException {
-
+        
+        event.setJoinMessage( null );
         Player player = event.getPlayer();
         StatusRecord statusRecord = new StatusRecord( config.getHost(), config.getDB(), config.getPort(), config.getUsername(), config.getPassword() );
         statusRecord.ChangeStatus( date, 1 );
@@ -170,9 +180,37 @@ public class LoginControl extends JavaPlugin implements Listener {
             loc.setPitch( config.getPitch() );
             loc.setYaw( config.getYaw() );
             player.teleport( loc );
+            
+            if( config.NewJoin() ) {
+                //  String[] MsgStr = ReplaceString( config.NewJoinMessage(), player.getDisplayName() ).split( "/n" );
+                //  player.sendMessage( MsgStr );
+                Bukkit.broadcastMessage( ReplaceString( config.NewJoinMessage(), player.getDisplayName() ) );
+            }
 
         } else {
             Bukkit.getServer().getConsoleSender().sendMessage( "The Repeat Login Player" );
+            if( config.ReturnJoin() && !player.hasPermission( "LoginCtl.silent" ) ) {
+                //  String[] MsgStr = ReplaceString( config.ReturnJoinMessage(), player.getDisplayName() ).split( "/n" );
+                //  player.sendMessage( MsgStr );
+                Bukkit.broadcastMessage( ReplaceString( config.ReturnJoinMessage(), player.getDisplayName() ) );
+            }
+        }
+        
+        if ( config.Announce() ) {
+            String[] MsgStr = ReplaceString( config.AnnounceMessage(), player.getDisplayName() ).split( "/n" );
+            player.sendMessage( MsgStr );
+        }
+                    
+    }
+
+    @EventHandler
+    public void onPlayerQuit( PlayerQuitEvent event ) {
+        if ( event.getPlayer().hasPermission( "LoginCtl.silent" ) ) {
+            event.setQuitMessage( null );
+            return;
+        }
+        if ( config.PlayerQuti() ) {
+            event.setQuitMessage( ReplaceString( config.PlayerQuitMessage(), event.getPlayer().getDisplayName() ) );
         }
     }
 
@@ -183,14 +221,6 @@ public class LoginControl extends JavaPlugin implements Listener {
 
         StatusRecord statusRecord = new StatusRecord( config.getHost(), config.getDB(), config.getPort(), config.getUsername(), config.getPassword() );
         statusRecord.PreSavePlayer( date, event.getName(), event.getUniqueId().toString(), event.getAddress().getHostAddress(), 0 );
-    }
-    
-    public String ReplaceString( String data, String Names ) {
-        String RetStr;
-        RetStr = data.replace( "%player%", Names );
-        RetStr = RetStr.replace( "%$", "§" );
-        
-        return RetStr;
     }
     
     @EventHandler

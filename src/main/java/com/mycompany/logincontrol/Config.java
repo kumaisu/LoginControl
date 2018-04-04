@@ -259,4 +259,36 @@ public class Config {
 
         return NameColor + HostName;
     }
+    
+    public boolean Announce() {
+        return config.getBoolean( "ANNOUNCE.Enabled" );
+    }
+    
+    public String AnnounceMessage() {
+        return config.getString( "ANNOUNCE.Message" );
+    }
+
+    public boolean NewJoin() {
+        return config.getBoolean( "New_Join_Message.Enabled" );
+    }
+    
+    public String NewJoinMessage() {
+        return config.getString( "New_Join_Message.Message" );
+    }
+    
+    public boolean ReturnJoin() {
+        return config.getBoolean( "Returning_Join_Message.Enabled" );
+    }
+
+    public String ReturnJoinMessage() {
+        return config.getString( "Returning_Join_Message.Message" );
+    }
+    
+    public boolean PlayerQuti() {
+        return config.getBoolean( "Quit_Message.enabled" );
+    }
+
+    public String PlayerQuitMessage() {
+        return config.getString( "Quit_Message.Message" );
+    }
 }

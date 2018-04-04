@@ -38,6 +38,29 @@ MotD2nd-Player: "%$e%player%%$a, We are waiting for you"
 # MotD1st: "%$fようこそ%$dMinecraft%$fサーバーへ"
 # MotD2nd-Unknown: "%$3いっしょに遊びましょうよ"
 # MotD2nd-Player: "%$e%player%%$aさん、まってますよ"
+
+#   Login時の案内表示用
+#   /n で改行が可能、複数行の表示に対応
+ANNOUNCE:
+  Enabled: true
+  Message: '%$e－－－  おしらせ  －－－/nDynmap URL[ %$4http://kumaisu.dip.jp:8123%$f ]/nHome Page
+    [ %$4http://wikiwiki.jp/kumaisu/%$7 ]/nJMS Vote  [ %$4https://minecraft.jp/servers/kumaisu.dip.jp
+    %$f]'
+
+#   Login/Logout時のコメント表示用
+#   複数行の表示には引対応
+New_Join_Message:
+  Enabled: true
+  Message: '%$d%player% さん、スナック・クマイスサーバーへ、ようこそ'
+Returning_Join_Message:
+  Enabled: true
+  Message: '%$b%player% %$dさん、おかえりなさい！ゆっくりしていってね！'
+Quit_Message:
+  Enabled: true
+  Message: '%$b%player% %$dさんがログアウトしました'
+Kick_Message:
+  Enabled: true
+  Message: '%$e%player% さんをサーバーからキックしました'
     
 #Program Inner Messages
 Message:
