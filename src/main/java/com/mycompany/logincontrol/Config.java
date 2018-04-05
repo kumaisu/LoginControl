@@ -285,10 +285,18 @@ public class Config {
     }
     
     public boolean PlayerQuti() {
-        return config.getBoolean( "Quit_Message.enabled" );
+        return config.getBoolean( "Quit_Message.Enabled" );
     }
 
     public String PlayerQuitMessage() {
         return config.getString( "Quit_Message.Message" );
+    }
+    
+    public boolean PlayerKick() {
+        return config.getBoolean( "Kick_Message.Enabled" );
+    }
+    
+    public String KickMessage() {
+        return config.getString( "Kick_Message.Message" );
     }
 }

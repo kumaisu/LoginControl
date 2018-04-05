@@ -20,6 +20,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.server.ServerListPingEvent;
 import org.bukkit.inventory.ItemStack;
@@ -211,6 +212,19 @@ public class LoginControl extends JavaPlugin implements Listener {
         }
         if ( config.PlayerQuti() ) {
             event.setQuitMessage( ReplaceString( config.PlayerQuitMessage(), event.getPlayer().getDisplayName() ) );
+        }
+    }
+    
+    @EventHandler
+    public void onKickMessage( PlayerKickEvent event ) {
+        if ( config.PlayerKick() ) {
+            String msg = ReplaceString( config.KickMessage(),event.getPlayer().getDisplayName() );
+            if ( !event.getReason().equals( "" ) ) {
+                msg = msg.replace( "%Reason%", event.getReason() );
+            } else {
+                msg = msg.replace( "%Reason%", "事由不明" );
+            }
+            Bukkit.broadcastMessage( msg );
         }
     }
 

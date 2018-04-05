@@ -60,7 +60,7 @@ Quit_Message:
   Message: '%$b%player% %$dさんがログアウトしました'
 Kick_Message:
   Enabled: true
-  Message: '%$e%player% さんをサーバーからキックしました'
+  Message: '%$e%player% さんを$%4[%Reason%]$%eにより、サーバーからキックしました'
     
 #Program Inner Messages
 Message:
