@@ -25,6 +25,7 @@ import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.event.server.ServerListPingEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -68,27 +69,35 @@ public class LoginControl extends JavaPlugin implements Listener {
         return RetStr;
     }
     
+    public void FlightMode( Player p, boolean flag ) {
+        if ( flag ) {
+            p.sendMessage( ChatColor.AQUA + "You can FLY !!" );
+            // 飛行許可
+            p.setAllowFlight( true );
+            p.setFlySpeed( 0.1F );
+        } else {
+            p.sendMessage( ChatColor.LIGHT_PURPLE + "Stop your FLY Mode." );
+            // 無効化
+            p.setFlying( false );
+            p.setAllowFlight( false );
+        }
+    }
+
     @Override
     public boolean onCommand(CommandSender sender,Command cmd, String commandLabel, String[] args) {
         boolean FullFlag = false;
         StatusRecord statusRecord = new StatusRecord( config.getHost(), config.getDB(), config.getPort(), config.getUsername(), config.getPassword() );
         Player p = ( sender instanceof Player ) ? (Player)sender:(Player)null;
 
-        if ( cmd.getName().toLowerCase().equalsIgnoreCase( "fly" ) ) {
+        if ( cmd.getName().toLowerCase().equalsIgnoreCase( "flight" ) ) {
             if ( p == null ) return false;
             for ( String arg:args ) {
                 switch ( arg ) {
                     case "on":
-                        p.sendMessage( ChatColor.AQUA + "You can FLY !!" );
-                        // 飛行許可
-                        p.setAllowFlight( true );
-                        p.setFlySpeed( 0.1F );
+                        FlightMode( p, true );
                         break;
                     case "off":
-                        p.sendMessage( ChatColor.LIGHT_PURPLE + "Stop your FLY Mode." );
-                        // 無効化
-                        p.setFlying( false );
-                        p.setAllowFlight( false );
+                        FlightMode( p, false );
                         break;
                     default:
                         p.sendMessage( ChatColor.GREEN + "Fly (on/off)" );
@@ -215,7 +224,7 @@ public class LoginControl extends JavaPlugin implements Listener {
 
         } else {
             Bukkit.getServer().getConsoleSender().sendMessage( "The Repeat Login Player" );
-            if( config.ReturnJoin() && !player.hasPermission( "LoginCtl.silent" ) ) {
+            if( config.ReturnJoin() && !player.hasPermission( "LoginCtl.silentjoin" ) ) {
                 //  String[] MsgStr = ReplaceString( config.ReturnJoinMessage(), player.getDisplayName() ).split( "/n" );
                 //  player.sendMessage( MsgStr );
                 Bukkit.broadcastMessage( ReplaceString( config.ReturnJoinMessage(), player.getDisplayName() ) );
@@ -231,7 +240,7 @@ public class LoginControl extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onPlayerQuit( PlayerQuitEvent event ) {
-        if ( event.getPlayer().hasPermission( "LoginCtl.silent" ) ) {
+        if ( event.getPlayer().hasPermission( "LoginCtl.silentquit" ) ) {
             event.setQuitMessage( null );
             return;
         }
@@ -273,6 +282,13 @@ public class LoginControl extends JavaPlugin implements Listener {
         }
     }
 
+    @EventHandler
+    public void onFlight( PlayerToggleFlightEvent event ) {
+        Player p = event.getPlayer();
+        // p.sendMessage( "Catch Flight mode " + p.getDisplayName() );
+        if ( !p.hasPermission( "LoginCtl.flight" ) ) FlightMode( p, false );
+    }
+    
     @EventHandler
     public void prePlayerLogin( AsyncPlayerPreLoginEvent event ) {
 

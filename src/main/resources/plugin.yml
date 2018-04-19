@@ -5,8 +5,10 @@ description: login history plugins
 author: Kumaisu
 database: true
 commands:
-    fly:
+    flight:
         description: Fly Switch
+        permission: LoginCtl.fly
+        permission-message: You do not have permission.
         usage: /<command> [on/off]
     loginlist:
         description: Login History Print
@@ -25,6 +27,10 @@ commands:
             /<command> chg:[IP]:[HostName]
             /<command> pingtop
 permissions:
-    LoginCtl.silent:
-        description: Silent Login non Messages
+    LoginCtl.silentjoin:
+        description: Silent Login non Message
         default: false
+    LoginCtl.silentquit:
+        description: Silent Quit non Message
+        default: false
+
