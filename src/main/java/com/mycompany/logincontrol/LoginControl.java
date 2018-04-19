@@ -13,20 +13,26 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.block.Sign;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.event.server.ServerListPingEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -322,4 +328,24 @@ public class LoginControl extends JavaPlugin implements Listener {
         MotdMsg += ReplaceString( config.get2ndLine( !Names.equals( "Unknown" ) ), Names );
         event.setMotd( ReplaceString( MotdMsg, Names ) );
     }
+
+    @EventHandler //    看板ブロックを右クリック
+    public void onSignClick( PlayerInteractEvent event ) {
+               
+        if ( event.getAction() != Action.RIGHT_CLICK_BLOCK ) return;
+        
+        Player player = event.getPlayer();
+        Block clickedBlock = event.getClickedBlock();
+        Material material = clickedBlock.getType();
+        if ( material == Material.SIGN_POST || material == Material.WALL_SIGN ) {
+            Sign sign = (Sign) clickedBlock.getState();
+            if ( sign.getLine(0).equals( "[TrashCan]" ) ) {
+                Inventory inv;
+                inv = Bukkit.createInventory( null, 54, "Trash Can" );
+                player.openInventory( inv );
+            }
+        }
+    }
+
+
 }
