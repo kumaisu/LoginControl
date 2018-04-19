@@ -15,9 +15,12 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
@@ -70,6 +73,28 @@ public class LoginControl extends JavaPlugin implements Listener {
         boolean FullFlag = false;
         StatusRecord statusRecord = new StatusRecord( config.getHost(), config.getDB(), config.getPort(), config.getUsername(), config.getPassword() );
         Player p = ( sender instanceof Player ) ? (Player)sender:(Player)null;
+
+        if ( cmd.getName().toLowerCase().equalsIgnoreCase( "fly" ) ) {
+            if ( p == null ) return false;
+            for ( String arg:args ) {
+                switch ( arg ) {
+                    case "on":
+                        p.sendMessage( ChatColor.AQUA + "You can FLY !!" );
+                        // 飛行許可
+                        p.setAllowFlight( true );
+                        p.setFlySpeed( 0.1F );
+                        break;
+                    case "off":
+                        p.sendMessage( ChatColor.LIGHT_PURPLE + "Stop your FLY Mode." );
+                        // 無効化
+                        p.setFlying( false );
+                        p.setAllowFlight( false );
+                        break;
+                    default:
+                        p.sendMessage( ChatColor.GREEN + "Fly (on/off)" );
+                }
+            }
+        }
 
         if ( cmd.getName().toLowerCase().equalsIgnoreCase( "loginlist" ) ) {
             int PrtF = 0;
@@ -225,6 +250,26 @@ public class LoginControl extends JavaPlugin implements Listener {
                 msg = msg.replace( "%Reason%", "事由不明" );
             }
             Bukkit.broadcastMessage( msg );
+        }
+    }
+    
+    @EventHandler
+    public void onPlayerDeath( PlayerDeathEvent event ) {
+        if ( config.DeathMessageFlag() ) {
+            Bukkit.getServer().getConsoleSender().sendMessage( "DeathMessage: " + event.getDeathMessage() );
+            Bukkit.getServer().getConsoleSender().sendMessage( "DisplayName : " + event.getEntity().getDisplayName() );
+            if (event.getEntity().getLastDamageCause() instanceof EntityDamageByEntityEvent) {
+                EntityDamageByEntityEvent lastcause =  (EntityDamageByEntityEvent) event.getEntity().getLastDamageCause();
+                Entity entity = lastcause.getDamager();
+                Bukkit.getServer().getConsoleSender().sendMessage( "Killer Name : " + entity.getName() );
+                String msg = config.DeathMessage( entity.getName().toUpperCase() );
+                msg = ReplaceString( msg, event.getEntity().getDisplayName() );
+                msg = msg.replace( "%mob%", entity.getName() );
+                event.setDeathMessage( null );
+                Bukkit.broadcastMessage( msg );
+            } else {
+                Bukkit.getServer().getConsoleSender().sendMessage( "Other Death" );
+            }
         }
     }
 

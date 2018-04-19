@@ -299,4 +299,14 @@ public class Config {
     public String KickMessage() {
         return config.getString( "Kick_Message.Message" );
     }
+
+    public boolean DeathMessageFlag() {
+        return config.getBoolean( "Death_Message.Enabled" );
+    }
+    
+    public String DeathMessage( String mob ) {
+        String msg = config.getString( "Death_Message.Messages." + mob );
+        if ( msg == null ) msg = config.getString( "Death_Message.Messages.DEFAULT" );
+        return msg;
+    }
 }

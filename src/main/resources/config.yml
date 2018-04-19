@@ -62,6 +62,86 @@ Kick_Message:
   Enabled: true
   Message: '%$e%player% さんを$%4[%Reason%]$%eにより、サーバーからキックしました'
     
+AutoMessages:
+  Enabled: true
+  UseBarAPI: true
+  Interval: 20
+  Prefix: '%$f[%$Server-INFO%$f]'
+  NewLinePrefix: false
+  Messages:
+    global:
+      interval: 5000
+      use_permission: true
+      permission: LegendaryMessages.AutoMessages.global
+      list:
+      - '%$7メインワールドでの建築などの作業は許可された場所のみになります'
+      - '%$7難易度は%$4HARD%$7です、餓死に注意してね'
+      - '%$7資源ﾜｰﾙﾄﾞでのTT作成は禁止しませんが、%$eﾜｰﾙﾄﾞﾘｾｯﾄ%$7時保護されません'
+      - '%$7地下透視や能力向上系のﾂｰﾙ等の利用は禁止、%$4GlobalBAN%$7対象です'
+      - '%$7ﾒｲﾝﾜｰﾙﾄﾞ以外は死亡時に%$eｱｲﾃﾑﾄﾞﾛｯﾌﾟ%$7するので注意してください'
+      - '%$7ジョブに就いて、資金を稼ぎましょう/n%$4/jobs browse %$7で職種が確認できます'
+      - '%$7鯖の情報用に %$eDiscord %$7を運用しています/n[ %$bhttps://discord.gg/AgX3UxR%$7 ]'
+      - '%$7ｴﾚﾍﾞｰﾀは看板を右ｸﾘｯｸで行きたい階を選べるよ'
+      - '%$3send&7や%$3tell%$7コマンドは相手が不在でもメールとして届くよ'
+      - '%$7ルールやコマンドなどは%$ewiki%$7で確認してください/n[ %$bhttp://wikiwiki.jp/kumaisu/%$7 ]'
+      - '%$7鯖発展のため、是非投票をお願いします/n[ %$bhttps://minecraft.jp/servers/kumaisu.dip.jp%$7 ]'
+      - '%$e注意:%$f大規模な%$4窃盗行為%$fがありました、/n無料アパートにお住まいの方は、各自部屋を確認してください'
+    vip:
+      interval: 8000
+      use_permission: true
+      permission: LegendaryMessages.AutoMessages.vip
+      list:
+      - '%$f運営メンバー募集、詳しくは%$eKumaisu%$fまで問合せください'
+      - '%$fプラグイン開発協力者募集中です、詳細は個別対応になります'
+      - '%$3send&7や%$3tell%$fコマンドは相手が不在でもメールとして届くよ'
+      - '%$f鯖の情報用に %$eDiscord %$fを運用しています/n[ %$bhttps://discord.gg/AgX3UxR%$f ]'
+      - '%$fItemShopのﾁｪｽﾄは破壊可能、ｶﾞﾗｽ部分に看板も設置可能です'
+      - '%$fルールやコマンドなどは%$ewiki%$fで確認してください/n[ %$bhttp://wikiwiki.jp/kumaisu/%$f ]'
+      - '%$f鯖発展のため、是非投票をお願いします/n[ %$bhttps://minecraft.jp/servers/kumaisu.dip.jp%$f ]'
+
+#   死亡時のメッセージ類
+Death_Message:
+  Enabled: true
+  Messages:
+    Player: "%$9%world% %$cで%$player% %$cさんを%$9%killer% %$cさんが%$9%weapon% %$cで殺しました"
+    DEFAULT: "%$c%player% %$7was killed by a %$c%mob%"
+    ZOMBIE: "%$b%player%%$f は%$c %mob% %$7に殺された"
+    CREEPER: "%$b%player% %$7は%$c %mob% %$7のリフォームの巻き添えになってしまった"
+    HUSK: "%$b%player%%$f は%$c %mob% %$7に殺された"
+    SHULKER: "%$c%player% %$7was shot by a %$c%mob%"
+    PIG_ZOMBIE: "%$b%player%%$f は%$c %mob% %$7に殺された"
+    SKELETON: "%$b%player%%$f は%$c %mob% %$7に殺された"
+    GHAST: "%$b%player%%$f は%$c %mob% %$7に殺された"
+    MAGMA_CUBE: "%$b%player%%$f は%$c %mob% %$7に殺された"
+    SLIME: "%$b%player%%$f は%$c %mob% %$7に殺された"
+    WOLF: "%$c%player% %$7はかわいい%$c%mob% %$7に復讐された"
+    SPIDER: "%$b%player%%$f は%$c %mob% %$7に殺された"
+    CAVE_SPIDER: "%$b%player%%$f は%$c %mob% %$7に殺された"
+    GIANT: "%$c%player% %$7はとっても大きい%$c%mob% %$7に殺された!"
+    BLAZE: "%$b%player%%$f は%$c %mob% %$7に殺された"
+    SILVERFISH: "%$b%player%%$f は%$c %mob% %$7に殺された"
+    ENDERMAN: "%$b%player%%$f は%$c %mob% %$7に殺された"
+    ENDER_DRAGON: "%$b%player%%$f は%$c %mob% %$7に殺された"
+    WITHER: "%$b%player%%$f は%$c %mob% %$7に殺された"
+    WITHER_BOSS: "%$b%player%%$f は%$c %mob% %$7に殺された"
+    IRON_GOLEM: "%$b%player%%$f は%$c %mob% %$7に殺された"
+    DROWNING: "%$c%player% %$7は夢中になりすぎて溺れてしまった・・・"
+    FALL: "%$c%player% %$7はピーターパンにはなれなかった・・・"
+    FIRE: "%$c%player% %$7燃え尽きてしまった"
+    SUFFOCATION: "%$c%player% %$7suffocated"
+    VOID: "%$c%player% %$7Fell into the Void"
+    STARVATION: "%$c%player% %$7Starved To Death"
+    SUICIDE: "%$c%player% %$7Decided To End It All"
+    MAGIC: "%$c%player% %$7was killed by magic"
+    POISON: "%$c%player% %$7was poisoned to death!"
+    LIGHTENING: "%$c%player% %$7was struck by lightening!"
+    LAVA: "%$c%player% %$7は、マグマダイブを試みた"
+    FIRE_TICK: "%$c%player% %$7died from the burns of fire"
+    ENDER_PEARL: "%$c%player% %$7died from throwing an ender pearl"
+    CONTACT: "%$c%player% %$7was pricked by a %$cCactus"
+    BLOCK_EXPLOSION: "%$c%player% %$7blew up"
+    UnknownReason: "%player% Just Died... (Cause: %cause%)"
+
 #Program Inner Messages
 Message:
     LogFull: "%$aDisplay all logs"

@@ -5,6 +5,9 @@ description: login history plugins
 author: Kumaisu
 database: true
 commands:
+    fly:
+        description: Fly Switch
+        usage: /<command> [on/off]
     loginlist:
         description: Login History Print
         aliases: ll
