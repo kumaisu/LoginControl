@@ -24,7 +24,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -90,10 +89,10 @@ public class LoginControl extends JavaPlugin implements Listener {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender,Command cmd, String commandLabel, String[] args) {
+    public boolean onCommand( CommandSender sender,Command cmd, String commandLabel, String[] args ) {
         boolean FullFlag = false;
         StatusRecord statusRecord = new StatusRecord( config.getHost(), config.getDB(), config.getPort(), config.getUsername(), config.getPassword() );
-        Player p = ( sender instanceof Player ) ? (Player)sender:(Player)null;
+        Player p = ( sender instanceof Player ) ? ( Player )sender:( Player )null;
 
         if ( cmd.getName().toLowerCase().equalsIgnoreCase( "flight" ) ) {
             if ( p == null ) return false;
@@ -115,8 +114,8 @@ public class LoginControl extends JavaPlugin implements Listener {
             int PrtF = 0;
             String Param = "";
                 
-            for (String arg : args) {
-                String[] param = arg.split(":");
+            for ( String arg : args ) {
+                String[] param = arg.split( ":" );
                 switch ( param[0] ) {
                     case "d":
                         PrtF = 1;
@@ -154,7 +153,7 @@ public class LoginControl extends JavaPlugin implements Listener {
         }
         
         if ( cmd.getName().toLowerCase().equalsIgnoreCase( "loginctl" ) ) {
-            for (String arg : args) {
+            for ( String arg : args ) {
                 String[] param = arg.split( ":" );
                 switch ( param[0] ) {
                     case "reload":
@@ -273,8 +272,8 @@ public class LoginControl extends JavaPlugin implements Listener {
         if ( config.DeathMessageFlag() ) {
             Bukkit.getServer().getConsoleSender().sendMessage( "DeathMessage: " + event.getDeathMessage() );
             Bukkit.getServer().getConsoleSender().sendMessage( "DisplayName : " + event.getEntity().getDisplayName() );
-            if (event.getEntity().getLastDamageCause() instanceof EntityDamageByEntityEvent) {
-                EntityDamageByEntityEvent lastcause =  (EntityDamageByEntityEvent) event.getEntity().getLastDamageCause();
+            if ( event.getEntity().getLastDamageCause() instanceof EntityDamageByEntityEvent ) {
+                EntityDamageByEntityEvent lastcause = ( EntityDamageByEntityEvent ) event.getEntity().getLastDamageCause();
                 Entity entity = lastcause.getDamager();
                 Bukkit.getServer().getConsoleSender().sendMessage( "Killer Name : " + entity.getName() );
                 String msg = config.DeathMessage( entity.getName().toUpperCase() );
@@ -341,7 +340,7 @@ public class LoginControl extends JavaPlugin implements Listener {
             Sign sign = (Sign) clickedBlock.getState();
             if ( sign.getLine(0).equals( "[TrashCan]" ) ) {
                 Inventory inv;
-                inv = Bukkit.createInventory( null, 54, "Trash Can" );
+                inv = Bukkit.createInventory( null, 36, "Trash Can" );
                 player.openInventory( inv );
             }
         }
