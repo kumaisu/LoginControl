@@ -153,6 +153,9 @@ Message:
 #    ArgsErr: "%$4引数指定の誤り：未知の引数が指定されました"
 #    OptError: "%$4ログ表示指定に誤りがあります"
 
+#   Unknown IP Address Check Flag
+CheckIP: false
+
 #Known servers
 104.155.197.233: JapanMinecraftServer
 213.239.204.169: Minecraft-Statistic

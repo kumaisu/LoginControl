@@ -325,11 +325,13 @@ public class StatusRecord {
     }
 
     @SuppressWarnings("CallToPrintStackTrace")
-    public String setUnknownHost( String IP ) throws UnknownHostException {
+    public String setUnknownHost( String IP, boolean CheckFlag ) throws UnknownHostException {
         Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "Ping [Debug] Unknown New Record" );
-        InetAddress inet = InetAddress.getByName( IP );
-        String HostName = inet.getHostName();
-        if ( HostName.equals( IP ) ) { HostName = "Unknown(IP)"; }
+        String HostName = "Unknown(IP)";
+        if ( CheckFlag ) {
+            InetAddress inet = InetAddress.getByName( IP );
+            if ( !inet.getHostName().equals( IP ) ) HostName = inet.getHostName();
+        }
 
         //  Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "Write Unknown IP : " + IP );
         //  Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "Get Unknown Host : " + inet.getHostName() );

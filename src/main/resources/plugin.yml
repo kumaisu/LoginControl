@@ -26,6 +26,7 @@ commands:
             /<command> info:[IP]
             /<command> chg:[IP]:[HostName]
             /<command> pingtop
+            /<command> checkIP
 permissions:
     LoginCtl.silentjoin:
         description: Silent Login non Message

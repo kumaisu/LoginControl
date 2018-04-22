@@ -36,6 +36,7 @@ public class Config {
     private String fworld;
     private boolean JumpStats;
     private boolean OpJumpStats;
+    private boolean CheckIPAddress;
     private List<String> present;
     private int fx;
     private int fy;
@@ -89,6 +90,7 @@ public class Config {
         MotD2ndLinePlayer = config.getString( "MotD2nd-Player" );
         IgnoreReportName = config.getStringList( "Ignore-Names" );
         IgnoreReportIP = config.getStringList( "Ignore-IP" );
+        CheckIPAddress = config.getBoolean( "CheckIP" );
     }
     
     public void Prt( Player p, String s ) {
@@ -239,7 +241,7 @@ public class Config {
         ChatColor NameColor;
         
         if ( HostName.equals( "Unknown" ) ) {
-            HostName = statusRecord.setUnknownHost( IPS );
+            HostName = statusRecord.setUnknownHost( IPS, CheckIPAddress );
             NameColor = ChatColor.RED;
             UKData.set( sdf.format( new Date() ),IPS + "[" + HostName + "]" );
 
@@ -308,5 +310,13 @@ public class Config {
         String msg = config.getString( "Death_Message.Messages." + mob );
         if ( msg == null ) msg = config.getString( "Death_Message.Messages.DEFAULT" );
         return msg;
+    }
+    
+    public boolean getCheckIP() {
+        return CheckIPAddress;
+    }
+    
+    public void setCheckIP( boolean flag ) {
+        CheckIPAddress = flag;
     }
 }

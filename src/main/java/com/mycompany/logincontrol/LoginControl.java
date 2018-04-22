@@ -180,6 +180,10 @@ public class LoginControl extends JavaPlugin implements Listener {
                         statusRecord.DataConv( sender );
                         break;
                     */
+                    case "CheckIP":
+                        config.setCheckIP( config.getCheckIP() );
+                        Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.GREEN + "Unknown IP Address Check Flag is " + ChatColor.YELLOW + ( config.getCheckIP() ? "True":"False" ) );
+                        break;
                     default:
                         return false;
                 }
