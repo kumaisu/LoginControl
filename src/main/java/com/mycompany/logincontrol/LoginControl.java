@@ -7,6 +7,8 @@ import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.bukkit.Bukkit;
 import static org.bukkit.Bukkit.getWorld;
 import org.bukkit.ChatColor;
@@ -152,6 +154,17 @@ public class LoginControl extends JavaPlugin implements Listener {
             return true;
         }
         
+        if ( cmd.getName().toLowerCase().equalsIgnoreCase( "ping" ) ) {
+            try {
+                String msg = "Check Ping is " + statusRecord.ping( args[0] );
+                Bukkit.getServer().getConsoleSender().sendMessage( msg );
+                if ( !( p==null ) ) p.sendMessage( msg );
+                return true;
+            } catch ( UnknownHostException ex ) {
+                Logger.getLogger( LoginControl.class.getName() ).log( Level.SEVERE, null, ex );
+            }
+        }
+        
         if ( cmd.getName().toLowerCase().equalsIgnoreCase( "loginctl" ) ) {
             for ( String arg : args ) {
                 String[] param = arg.split( ":" );
@@ -181,8 +194,10 @@ public class LoginControl extends JavaPlugin implements Listener {
                         break;
                     */
                     case "CheckIP":
-                        config.setCheckIP( config.getCheckIP() );
-                        Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.GREEN + "Unknown IP Address Check Flag is " + ChatColor.YELLOW + ( config.getCheckIP() ? "True":"False" ) );
+                        config.setCheckIP( !config.getCheckIP() );
+                        String msg = ChatColor.GREEN + "Unknown IP Address Check Change to " + ChatColor.YELLOW + ( config.getCheckIP() ? "True":"False" );
+                        Bukkit.getServer().getConsoleSender().sendMessage( msg );
+                        if ( !( p==null ) ) p.sendMessage( msg );
                         break;
                     default:
                         return false;

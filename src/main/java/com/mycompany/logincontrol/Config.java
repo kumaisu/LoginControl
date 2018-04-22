@@ -130,6 +130,7 @@ public class Config {
             String item = (String)it.next();
             Prt( p, " - " + item );
         }
+        Prt( p, "Unknown IP Check : " + ( CheckIPAddress ? "True":"False" ) );
         Prt( p, "MotD 1 Line : " + MotD1stLine );
         Prt( p, "MotD 2 Line(Unknown) : " + MotD2ndLineUnknown );
         Prt( p, "MotD 2 Line(Player ) : " + MotD2ndLinePlayer );

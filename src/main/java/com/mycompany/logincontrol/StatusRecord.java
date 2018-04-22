@@ -3,7 +3,7 @@
  */
 package com.mycompany.logincontrol;
 
-import java.net.InetAddress;
+import java.net.Inet4Address;
 import java.net.UnknownHostException;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -47,7 +47,7 @@ public class StatusRecord {
         }
     }
 
-    public static long ipToInt( InetAddress ipAddr )
+    public static long ipToInt( Inet4Address ipAddr )
     {
         long compacted = 0;
         byte[] bytes = ipAddr.getAddress();
@@ -60,7 +60,7 @@ public class StatusRecord {
     private static String toInetAddress(long ipAddress)
     {
         long ip = ( ipAddress < 0 ) ? (long)Math.pow(2,32)+ipAddress : ipAddress;
-        InetAddress inetAddress = null;
+        Inet4Address inetAddress = null;
         String addr =  String.valueOf((ip >> 24)+"."+((ip >> 16) & 255)+"."+((ip >> 8) & 255)+"."+(ip & 255));
         return addr;
     }
@@ -329,7 +329,7 @@ public class StatusRecord {
         Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "Ping [Debug] Unknown New Record" );
         String HostName = "Unknown(IP)";
         if ( CheckFlag ) {
-            InetAddress inet = InetAddress.getByName( IP );
+            Inet4Address inet = ( Inet4Address ) Inet4Address.getByName( IP );
             if ( !inet.getHostName().equals( IP ) ) HostName = inet.getHostName();
         }
 
@@ -359,6 +359,11 @@ public class StatusRecord {
             e.printStackTrace();
         }
         return HostName;
+    }
+
+    public String ping( String IP ) throws UnknownHostException {
+        Inet4Address inet = ( Inet4Address ) Inet4Address.getByName( IP );
+        return inet.getHostName();
     }
 
     @SuppressWarnings("CallToPrintStackTrace")

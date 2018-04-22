@@ -10,6 +10,10 @@ commands:
         permission: LoginCtl.fly
         permission-message: You do not have permission.
         usage: /<command> [on/off]
+    ping:
+        description: Inet Ping Command
+        default: op
+        usage: /<command> [ip address]
     loginlist:
         description: Login History Print
         aliases: ll
