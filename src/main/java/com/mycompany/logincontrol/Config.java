@@ -9,7 +9,6 @@ import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import org.bukkit.Bukkit;
@@ -115,21 +114,17 @@ public class Config {
             Prt( p, "  y:" + String.valueOf( fyaw ) );
         }
         Prt( p, "Present Items" );
-        for(Iterator it = present.iterator(); it.hasNext();) {
-            String item = (String)it.next();
-            String[] itemdata = item.split( ",", 0 );
+        present.stream().forEach( pr -> {
+            String[] itemdata = pr.split( ",", 0 );
             Prt( p, " - " + itemdata[0] + "(" + itemdata[1] + ")" );
-        }
+        } );
+
         Prt( p, "Ignore Names" );
-        for(Iterator it = IgnoreReportName.iterator(); it.hasNext();) {
-            String item = (String)it.next();
-            Prt( p, " - " + item );
-        }
+        IgnoreReportName.stream().forEach( IRN -> { Prt( p, " - " + IRN ); } );
+
         Prt( p, "Ignore IPs" );
-        for(Iterator it = IgnoreReportIP.iterator(); it.hasNext();) {
-            String item = (String)it.next();
-            Prt( p, " - " + item );
-        }
+        IgnoreReportIP.stream().forEach( IRI -> { Prt( p, " - " + IRI ); } );
+        
         Prt( p, "Unknown IP Check : " + ( CheckIPAddress ? "True":"False" ) );
         Prt( p, "MotD 1 Line : " + MotD1stLine );
         Prt( p, "MotD 2 Line(Unknown) : " + MotD2ndLineUnknown );

@@ -14,9 +14,7 @@ import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
-import java.util.stream.IntStream;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -306,11 +304,11 @@ public class StatusRecord {
             Statement stmt = connection.createStatement();
             String sql = "SELECT * FROM hosts WHERE INET_NTOA(ip) = '" + IP + "' ORDER BY ip DESC;";
             ResultSet rs = stmt.executeQuery( sql );
-            return ( rs.next() ? rs.getString("host"):"Unknown" );
+            if ( rs.next() ) return rs.getString( "host" );
         } catch ( ClassNotFoundException | SQLException e ) {
             e.printStackTrace();
         }
-        return "Error";
+        return "Unknown";
     }
 
     @SuppressWarnings("CallToPrintStackTrace")

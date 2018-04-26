@@ -5,7 +5,6 @@ package com.mycompany.logincontrol;
 
 import java.net.UnknownHostException;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -224,12 +223,11 @@ public class LoginControl extends JavaPlugin implements Listener {
             Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.LIGHT_PURPLE + "The First Login Player" );
 
             List<String> present = config.getPresent();
-            for( Iterator it = present.iterator(); it.hasNext(); ) {
-                String item = (String)it.next();
-                String[] itemdata = item.split( ",", 0 );
+            present.stream().forEach( PR -> {
+                String[] itemdata = PR.split( ",", 0 );
                 player.getInventory().addItem( new ItemStack( Material.getMaterial( itemdata[0] ), Integer.parseInt( itemdata[1] ) ) );
                 Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.AQUA + "Present Item : " + ChatColor.WHITE + itemdata[0] + "(" + itemdata[1] + ")" );
-            }
+            } );
 
             // Bukkit.getServer().getConsoleSender().sendMessage( player.getLocale().isEmpty() ? "Location Empty":"First Spawn Location" );
 
