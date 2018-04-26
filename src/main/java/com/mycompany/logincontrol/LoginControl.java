@@ -327,6 +327,7 @@ public class LoginControl extends JavaPlugin implements Listener {
         StatusRecord statusRecord = new StatusRecord( config.getHost(), config.getDB(), config.getPort(), config.getUsername(), config.getPassword() );
         String Names = statusRecord.GetPlayerName( event.getAddress().getHostAddress() );
         String Host = ChatColor.WHITE + "Player(" + Names + ")";
+
         if ( Names.equals("Unknown") ) {
             if ( config.KnownServers( event.getAddress().getHostAddress() ) != null ) {
                 Host = ChatColor.GRAY + config.KnownServers( event.getAddress().getHostAddress() );

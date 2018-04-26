@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.IntStream;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -112,16 +113,15 @@ public class StatusRecord {
         MsgPrt( player, "== [" + ChkDate + "] Login List ==" );
 
         try {        
+            String chk_name = "";
+
             openConnection();
             Statement stmt = connection.createStatement();
-            String sql = "SELECT * FROM list ORDER BY date DESC;";
+            String sql = "SELECT * FROM list WHERE date BETWEEN '" + ChkDate + " 00:00:00' AND '" + ChkDate + " 23:59:59' ORDER BY date DESC;";
             ResultSet rs = stmt.executeQuery( sql );
-            
-            SimpleDateFormat cdf = new SimpleDateFormat( "yyyyMMdd" );
-            String chk_name = "";
-            
+
             while( rs.next() ) {
-                if ( ChkDate.equals( cdf.format( rs.getTimestamp( "date" ) ) ) && ( !chk_name.equals( rs.getString( "name" ) ) || ( FullFlag ) ) ) {
+                if ( !chk_name.equals( rs.getString( "name" ) ) || ( FullFlag ) ) {
                     LineMsg( player, rs.getInt( "id" ), rs.getTimestamp( "date" ), rs.getString( "name" ), rs.getLong( "ip" ), rs.getInt( "status" ) );
                     chk_name = rs.getString( "name" );
                 }
@@ -141,7 +141,7 @@ public class StatusRecord {
         try {        
             openConnection();
             Statement stmt = connection.createStatement();
-            String sql = "SELECT * FROM list ORDER BY date DESC;";
+            String sql = "SELECT * FROM list WHERE name = '" + ChkName + "' ORDER BY date DESC;";
             ResultSet rs = stmt.executeQuery( sql );
             
             SimpleDateFormat cdf = new SimpleDateFormat( "yyyyMMdd" );
@@ -149,7 +149,7 @@ public class StatusRecord {
             int i = 0;
             
             while( rs.next() && ( i<30 ) ) {
-                if ( ChkName.equals( rs.getString( "name" ) ) && ( !ChkDate.equals( cdf.format( rs.getTimestamp( "date" ) ) ) || FullFlag ) ) {
+                if ( !ChkDate.equals( cdf.format( rs.getTimestamp( "date" ) ) ) || FullFlag ) {
                     i++;
                     LineMsg( player, rs.getInt( "id" ), rs.getTimestamp( "date" ), rs.getString( "name" ), rs.getLong( "ip" ), rs.getInt( "status" ) );
                     ChkDate = cdf.format( rs.getTimestamp( "date" ) );
@@ -169,16 +169,9 @@ public class StatusRecord {
         try {        
             openConnection();
             Statement stmt = connection.createStatement();
-            String sql = "SELECT * FROM list ORDER BY date DESC;";
+            String sql = "SELECT * FROM list WHERE INET_NTOA(ip) = '" + ip + "' ORDER BY date DESC;";
             ResultSet rs = stmt.executeQuery( sql );
-            
-            while( rs.next() ) {
-                if ( ip.equals( toInetAddress( rs.getLong( "ip" ) ) ) ) {
-                    return rs.getString("name");
-                }
-            }
-            return "Unknown";
-
+            return ( rs.next() ? rs.getString("name"):"Unknown" );
         } catch ( ClassNotFoundException | SQLException e ) {
             e.printStackTrace();
         }
@@ -226,11 +219,11 @@ public class StatusRecord {
         PrtData.add( ChatColor.RED + "=== end ===" );
         
         if ( PrtF ) {
-            for(Iterator it = PrtData.iterator(); it.hasNext();) {
-                String msg = (String)it.next();
+            PrtData.stream().forEach( PD -> {
+                String msg = PD;
                 Bukkit.getServer().getConsoleSender().sendMessage( msg );
                 Bukkit.getOnlinePlayers().stream().filter( ( p ) -> ( p.hasPermission( "LoginCtl.view" ) || p.isOp() ) ).forEachOrdered( ( p ) -> { p.sendMessage( msg ); } );
-            }
+            } );
         }
     }
 
@@ -311,17 +304,13 @@ public class StatusRecord {
         try {
             openConnection();
             Statement stmt = connection.createStatement();
-            String sql = "SELECT * FROM hosts ORDER BY ip DESC;";
+            String sql = "SELECT * FROM hosts WHERE INET_NTOA(ip) = '" + IP + "' ORDER BY ip DESC;";
             ResultSet rs = stmt.executeQuery( sql );
-            
-            while ( rs.next() ) {
-                if ( IP.equals( toInetAddress( rs.getLong( "ip" ) ) ) ) { return rs.getString( "host" ); }
-            }
-
+            return ( rs.next() ? rs.getString("host"):"Unknown" );
         } catch ( ClassNotFoundException | SQLException e ) {
             e.printStackTrace();
         }
-        return "Unknown";
+        return "Error";
     }
 
     @SuppressWarnings("CallToPrintStackTrace")
@@ -371,21 +360,19 @@ public class StatusRecord {
         try {
             openConnection();
             Statement stmt = connection.createStatement();
-            String sql = "SELECT * FROM hosts ORDER BY ip DESC;";
+            String sql = "SELECT * FROM hosts WHERE INET_NTOA(ip) = '" + IP + "' ORDER BY ip DESC;";
             ResultSet rs = stmt.executeQuery( sql );
             
             //  sql = "CREATE TABLE IF NOT EXISTS unknowns (ip varchar(22) not null primary, host varchar(40), count int, lastdate DATETIME )";
-            while ( rs.next() ) {
-                if ( IP.equals( toInetAddress( rs.getLong( "ip" ) ) ) ) {
-                    int count = rs.getInt( "count" ) + 1;
+            if ( rs.next() ) {
+                int count = rs.getInt( "count" ) + 1;
                     
-                    String chg_sql = "UPDATE hosts SET count = " + count +
-                            ", lastdate = '" + sdf.format( new Date() ) +
-                            "' WHERE INET_NTOA( ip ) = '" + IP + "';";
-                    PreparedStatement preparedStatement = connection.prepareStatement(chg_sql);
-                    preparedStatement.executeUpdate();
-                    return count;
-                }
+                String chg_sql = "UPDATE hosts SET count = " + count +
+                        ", lastdate = '" + sdf.format( new Date() ) +
+                        "' WHERE INET_NTOA( ip ) = '" + IP + "';";
+                PreparedStatement preparedStatement = connection.prepareStatement(chg_sql);
+                preparedStatement.executeUpdate();
+                return count;
             }
 
         } catch ( ClassNotFoundException | SQLException e ) {
@@ -399,17 +386,15 @@ public class StatusRecord {
         try {
             openConnection();
             Statement stmt = connection.createStatement();
-            String sql = "SELECT * FROM hosts ORDER BY ip DESC;";
+            String sql = "SELECT * FROM hosts WHERE INET_NTOA(ip) = '" + IP + "' ORDER BY ip DESC;";
             ResultSet rs = stmt.executeQuery( sql );
             
             //  sql = "CREATE TABLE IF NOT EXISTS unknowns (ip varchar(22) not null primary, host varchar(40), count int, lastdate DATETIME )";
-            while ( rs.next() ) {
-                if ( IP.equals( toInetAddress( rs.getLong( "ip" ) ) ) ) {
-                    String chg_sql = "UPDATE hosts SET host = '" + Hostname + "' WHERE INET_NTOA( ip ) = '" + IP + "';";
-                    PreparedStatement preparedStatement = connection.prepareStatement(chg_sql);
-                    preparedStatement.executeUpdate();
-                    return true;
-                }
+            if ( rs.next() ) {
+                String chg_sql = "UPDATE hosts SET host = '" + Hostname + "' WHERE INET_NTOA( ip ) = '" + IP + "';";
+                PreparedStatement preparedStatement = connection.prepareStatement(chg_sql);
+                preparedStatement.executeUpdate();
+                return true;
             }
         } catch ( ClassNotFoundException | SQLException e ) {
             e.printStackTrace();
@@ -422,20 +407,16 @@ public class StatusRecord {
         try {
             openConnection();
             Statement stmt = connection.createStatement();
-            String sql = "SELECT * FROM hosts ORDER BY ip DESC;";
+            String sql = "SELECT * FROM hosts WHERE INET_NTOA(ip) = '" + IP + "' ORDER BY ip DESC;";
             ResultSet rs = stmt.executeQuery( sql );
             
             //  sql = "CREATE TABLE IF NOT EXISTS unknowns (ip varchar(22) not null primary, host varchar(40), count int, lastdate DATETIME )";
-            while ( rs.next() ) {
-                if ( IP.equals( toInetAddress( rs.getLong( "ip" ) ) ) ) {
-                    MsgPrt( p, ChatColor.YELLOW + "Check Unknown IP Information......." );
-                    MsgPrt( p, ChatColor.GREEN + "IP Address  : " + ChatColor.WHITE + toInetAddress( rs.getLong( "ip" ) ) );
-                    MsgPrt( p, ChatColor.GREEN + "Host Name   : " + ChatColor.WHITE + rs.getString( "host" ) );
-                    MsgPrt( p, ChatColor.GREEN + "AccessCount : " + ChatColor.WHITE + String.valueOf( rs.getInt( "count" ) ) );
-                    MsgPrt( p, ChatColor.GREEN + "Last Date   : " + ChatColor.WHITE + sdf.format( rs.getTimestamp( "lastdate" ) ) );
-                    
-                    return;
-                }
+            if ( rs.next() ) {
+                MsgPrt( p, ChatColor.YELLOW + "Check Unknown IP Information......." );
+                MsgPrt( p, ChatColor.GREEN + "IP Address  : " + ChatColor.WHITE + toInetAddress( rs.getLong( "ip" ) ) );
+                MsgPrt( p, ChatColor.GREEN + "Host Name   : " + ChatColor.WHITE + rs.getString( "host" ) );
+                MsgPrt( p, ChatColor.GREEN + "AccessCount : " + ChatColor.WHITE + String.valueOf( rs.getInt( "count" ) ) );
+                MsgPrt( p, ChatColor.GREEN + "Last Date   : " + ChatColor.WHITE + sdf.format( rs.getTimestamp( "lastdate" ) ) );
             }
         } catch ( ClassNotFoundException | SQLException e ) {
             e.printStackTrace();
