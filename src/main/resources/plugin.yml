@@ -13,7 +13,7 @@ commands:
     ping:
         description: Inet Ping Command
         default: op
-        usage: /<command> [ip address]
+        usage: /<command> IPAddress or HostName
     loginlist:
         description: Login History Print
         aliases: ll
@@ -27,8 +27,10 @@ commands:
         usage: |
             /<command> reload
             /<command> status
-            /<command> info:[IP]
-            /<command> chg:[IP]:[HostName]
+            /<command> info IPAddress
+            /<command> chg IPAddress HostName
+            /<command> add IPAddress [HostName]
+            /<command> del IPAddress
             /<command> pingtop
             /<command> checkIP
 permissions:

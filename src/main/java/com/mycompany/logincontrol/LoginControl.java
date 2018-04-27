@@ -75,6 +75,11 @@ public class LoginControl extends JavaPlugin implements Listener {
         return RetStr;
     }
     
+    public void Prt( Player player, String msg ) {
+        Bukkit.getServer().getConsoleSender().sendMessage( msg );
+        if ( player != null ) player.sendMessage( msg );
+    }
+    
     public void FlightMode( Player p, boolean flag ) {
         if ( flag ) {
             p.sendMessage( ChatColor.AQUA + "You can FLY !!" );
@@ -156,8 +161,7 @@ public class LoginControl extends JavaPlugin implements Listener {
         if ( cmd.getName().toLowerCase().equalsIgnoreCase( "ping" ) ) {
             try {
                 String msg = "Check Ping is " + statusRecord.ping( args[0] );
-                Bukkit.getServer().getConsoleSender().sendMessage( msg );
-                if ( !( p==null ) ) p.sendMessage( msg );
+                Prt( p, msg );
                 return true;
             } catch ( UnknownHostException ex ) {
                 Logger.getLogger( LoginControl.class.getName() ).log( Level.SEVERE, null, ex );
@@ -165,42 +169,84 @@ public class LoginControl extends JavaPlugin implements Listener {
         }
         
         if ( cmd.getName().toLowerCase().equalsIgnoreCase( "loginctl" ) ) {
-            for ( String arg : args ) {
-                String[] param = arg.split( ":" );
-                switch ( param[0] ) {
-                    case "reload":
-                        config = new Config( this );
-                        sender.sendMessage( config.Reload().replace( "%$", "§" ) );
-                        return true;
-                    case "status":
-                        config.Status( ( sender instanceof Player ) ? ( Player )sender:null );
-                        return true;
-                    case "chg":
-                        if ( statusRecord.chgUnknownHost( param[1], param[2] ) ) {
-                            statusRecord.infoUnknownHost( p, param[1] );
+            String msg;
+            String IP = "127.0.0.0";
+            String HostName = "";
+            String CtlCmd = "None";
+
+            if ( args.length > 0 ) CtlCmd = args[0];
+            if ( args.length > 1 ) IP = args[1];
+            if ( args.length > 2 ) HostName = args[2];
+            
+            switch ( CtlCmd ) {
+                case "reload":
+                    config = new Config( this );
+                    sender.sendMessage( config.Reload().replace( "%$", "§" ) );
+                    return true;
+                case "status":
+                    config.Status( ( sender instanceof Player ) ? ( Player )sender:null );
+                    return true;
+                case "chg":
+                    if ( statusRecord.chgUnknownHost( IP, HostName ) ) {
+                        statusRecord.infoUnknownHost( p, IP );
+                    }
+                    break;
+                case "info":
+                    if ( !IP.equals( "" ) ) {
+                        Prt( p, "Check Unknown IP Information [" + IP + "]" );
+                        statusRecord.infoUnknownHost( p, IP );
+                    } else {
+                        Prt( p, "usage: info IPAddress" );
+                    }
+                    break;
+                case "add":
+                    if ( !IP.equals( "" ) ) {
+                        if ( statusRecord.getUnknownHost( IP ).equals( "Unknown" ) ) {
+                            if ( !HostName.equals( "" ) ) {
+                                statusRecord.AddHostToSQL( IP, HostName );
+                            } else {
+                                try {
+                                    statusRecord.setUnknownHost( IP, true );
+                                } catch ( UnknownHostException ex ) {
+                                    Logger.getLogger( LoginControl.class.getName() ).log( Level.SEVERE, null, ex );
+                                }
+                            }
+                        } else {
+                            Prt( p, ChatColor.RED + IP + " is already exists" );
                         }
-                        break;
-                    case "info":
-                        Bukkit.getServer().getConsoleSender().sendMessage( "Check Unknown IP Information [" + param[1] + "]" );
-                        statusRecord.infoUnknownHost( p, param[1] );
-                        break;
-                    case "pingtop":
-                        statusRecord.PingTop( p );
-                        break;
-                    /*
-                    case "conv":
-                        statusRecord.DataConv( sender );
-                        break;
-                    */
-                    case "CheckIP":
-                        config.setCheckIP( !config.getCheckIP() );
-                        String msg = ChatColor.GREEN + "Unknown IP Address Check Change to " + ChatColor.YELLOW + ( config.getCheckIP() ? "True":"False" );
-                        Bukkit.getServer().getConsoleSender().sendMessage( msg );
-                        if ( !( p==null ) ) p.sendMessage( msg );
-                        break;
-                    default:
-                        return false;
-                }
+                        statusRecord.infoUnknownHost( p, IP );
+                    } else {
+                        Prt( p, "usage: add IPAddress [HostName]" );
+                    }
+                    break;
+                case "del":
+                    if ( !IP.equals( "" ) ) {
+                        if ( statusRecord.DelHostFromSQL( IP ) ) {
+                            msg = ChatColor.GREEN + "Data Deleted [";
+                        } else {
+                            msg = ChatColor.RED + "Failed to Delete Data [";
+                        }
+                        msg += IP + "]";
+                        Prt( p, msg );
+                    } else {
+                        Prt( p, "usage: del IPAddress" );
+                    }
+                    break;
+                case "pingtop":
+                    statusRecord.PingTop( p );
+                    break;
+                /*
+                case "conv":
+                    statusRecord.DataConv( sender );
+                    break;
+                */
+                case "CheckIP":
+                    config.setCheckIP( !config.getCheckIP() );
+                    msg = ChatColor.GREEN + "Unknown IP Address Check Change to " + ChatColor.YELLOW + ( config.getCheckIP() ? "True":"False" );
+                    Prt( p, msg );
+                    break;
+                default:
+                    return false;
             }
             return true;
         }

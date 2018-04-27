@@ -254,7 +254,7 @@ public class StatusRecord {
             openConnection();
 
             String sql = "INSERT INTO list (date, name, uuid, ip, status) VALUES (?, ?, ?, INET_ATON( ? ), ?);";
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            PreparedStatement preparedStatement = connection.prepareStatement( sql );
             preparedStatement.setString(1, sdf.format( date ) );
             preparedStatement.setString(2, name );
             preparedStatement.setString(3, UUID );
@@ -312,8 +312,40 @@ public class StatusRecord {
     }
 
     @SuppressWarnings("CallToPrintStackTrace")
+    public void AddHostToSQL( String IP, String Host ) {
+        try {
+            openConnection();
+
+            String sql = "INSERT INTO hosts ( ip, host, count, lastdate ) VALUES ( INET_ATON( ? ), ?, ?, ? );";
+            PreparedStatement preparedStatement = connection.prepareStatement( sql );
+            preparedStatement.setString( 1, IP );
+            preparedStatement.setString( 2, Host );
+            preparedStatement.setInt( 3, 1 );
+            preparedStatement.setString( 4, sdf.format( new Date() ) );
+
+            preparedStatement.executeUpdate();
+            
+        } catch ( ClassNotFoundException | SQLException e ) {
+            e.printStackTrace();
+        }
+    }
+
+    @SuppressWarnings("CallToPrintStackTrace")
+    public boolean DelHostFromSQL( String IP ) {
+        try {
+            openConnection();
+            String sql = "DELETE FROM hosts WHERE INET_NTOA(ip) = '" + IP + "'";
+            PreparedStatement preparedStatement = connection.prepareStatement( sql );
+            preparedStatement.executeUpdate();
+            return true;
+        } catch ( ClassNotFoundException | SQLException e ) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public String setUnknownHost( String IP, boolean CheckFlag ) throws UnknownHostException {
-        Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "Ping [Debug] Unknown New Record" );
+        Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "[Debug] Unknown New Record" );
         String HostName = "Unknown(IP)";
         if ( CheckFlag ) {
             Inet4Address inet = ( Inet4Address ) Inet4Address.getByName( IP );
@@ -330,21 +362,7 @@ public class StatusRecord {
 
         if ( HostName.length()>60 ) { HostName = String.format( "%-60s", HostName ); }
 
-        try {
-            openConnection();
-
-            String sql = "INSERT INTO hosts ( ip, host, count, lastdate ) VALUES ( INET_ATON( ? ), ?, ?, ? );";
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setString( 1, IP );
-            preparedStatement.setString( 2, HostName );
-            preparedStatement.setInt( 3, 1 );
-            preparedStatement.setString( 4, sdf.format( new Date() ) );
-
-            preparedStatement.executeUpdate();
-            
-        } catch ( ClassNotFoundException | SQLException e ) {
-            e.printStackTrace();
-        }
+        AddHostToSQL( IP, HostName );
         return HostName;
     }
 
@@ -354,7 +372,7 @@ public class StatusRecord {
     }
 
     @SuppressWarnings("CallToPrintStackTrace")
-    public int countUnknownHost( String IP ) throws UnknownHostException {
+    public int countUnknownHost( String IP, boolean ZeroF ) throws UnknownHostException {
         try {
             openConnection();
             Statement stmt = connection.createStatement();
@@ -363,7 +381,8 @@ public class StatusRecord {
             
             //  sql = "CREATE TABLE IF NOT EXISTS unknowns (ip varchar(22) not null primary, host varchar(40), count int, lastdate DATETIME )";
             if ( rs.next() ) {
-                int count = rs.getInt( "count" ) + 1;
+                //  int count = rs.getInt( "count" ) + 1;
+                int count = ( ZeroF ? 0 : rs.getInt( "count" ) + 1 );
                     
                 String chg_sql = "UPDATE hosts SET count = " + count +
                         ", lastdate = '" + sdf.format( new Date() ) +
@@ -415,12 +434,14 @@ public class StatusRecord {
                 MsgPrt( p, ChatColor.GREEN + "Host Name   : " + ChatColor.WHITE + rs.getString( "host" ) );
                 MsgPrt( p, ChatColor.GREEN + "AccessCount : " + ChatColor.WHITE + String.valueOf( rs.getInt( "count" ) ) );
                 MsgPrt( p, ChatColor.GREEN + "Last Date   : " + ChatColor.WHITE + sdf.format( rs.getTimestamp( "lastdate" ) ) );
+            } else {
+                MsgPrt( p, ChatColor.RED + "No data for [" + IP + "]" );
             }
         } catch ( ClassNotFoundException | SQLException e ) {
             e.printStackTrace();
         }
     }
-
+    
     public void PingTop( Player p ) {
         MsgPrt( p, ChatColor.GREEN + "== Ping Count Top10 ==" );
 

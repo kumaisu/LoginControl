@@ -250,7 +250,7 @@ public class Config {
             }
 
         } else {
-            int count = statusRecord.countUnknownHost( IPS );
+            int count = statusRecord.countUnknownHost( IPS, false );
             HostName += "(" + String.valueOf( count ) + ")";
             NameColor = ChatColor.LIGHT_PURPLE;
         }
