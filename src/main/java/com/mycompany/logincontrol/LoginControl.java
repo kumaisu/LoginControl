@@ -50,11 +50,13 @@ public class LoginControl extends JavaPlugin implements Listener {
 
     private Config config;
     private Date date;
+    private StatusRecord StatRec;
     
     @Override
     public void onEnable() {
         this.getServer().getPluginManager().registerEvents( this, this );
         config = new Config( this );
+        StatRec = new StatusRecord( config.getHost(), config.getDB(), config.getPort(), config.getUsername(), config.getPassword(), this );
     }
 
     @Override
@@ -97,7 +99,6 @@ public class LoginControl extends JavaPlugin implements Listener {
     @Override
     public boolean onCommand( CommandSender sender,Command cmd, String commandLabel, String[] args ) {
         boolean FullFlag = false;
-        StatusRecord statusRecord = new StatusRecord( config.getHost(), config.getDB(), config.getPort(), config.getUsername(), config.getPassword() );
         Player p = ( sender instanceof Player ) ? ( Player )sender:( Player )null;
 
         if ( cmd.getName().toLowerCase().equalsIgnoreCase( "flight" ) ) {
@@ -143,13 +144,13 @@ public class LoginControl extends JavaPlugin implements Listener {
 
             switch ( PrtF ) {
                 case 0:
-                    statusRecord.LogPrint( p, ( sender instanceof Player ) ? 15:30, FullFlag );
+                    StatRec.LogPrint( p, ( sender instanceof Player ) ? 15:30, FullFlag );
                     break;
                 case 1:
-                    statusRecord.DateLogPrint( p, Param, FullFlag );
+                    StatRec.DateLogPrint( p, Param, FullFlag );
                     break;
                 case 2:
-                    statusRecord.NameLogPrint( p, Param, FullFlag );
+                    StatRec.NameLogPrint( p, Param, FullFlag );
                     break;
                 default:
                     sender.sendMessage( config.OptError().replace( "%$", "§" ) );
@@ -159,12 +160,14 @@ public class LoginControl extends JavaPlugin implements Listener {
         }
         
         if ( cmd.getName().toLowerCase().equalsIgnoreCase( "ping" ) ) {
-            try {
-                String msg = "Check Ping is " + statusRecord.ping( args[0] );
-                Prt( p, msg );
-                return true;
-            } catch ( UnknownHostException ex ) {
-                Logger.getLogger( LoginControl.class.getName() ).log( Level.SEVERE, null, ex );
+            if ( args.length > 0 ) {
+                try {
+                    String msg = "Check Ping is " + StatRec.ping( args[0] );
+                    Prt( p, msg );
+                    return true;
+                } catch ( UnknownHostException ex ) {
+                    Logger.getLogger( LoginControl.class.getName() ).log( Level.SEVERE, null, ex );
+                }
             }
         }
         
@@ -187,26 +190,26 @@ public class LoginControl extends JavaPlugin implements Listener {
                     config.Status( ( sender instanceof Player ) ? ( Player )sender:null );
                     return true;
                 case "chg":
-                    if ( statusRecord.chgUnknownHost( IP, HostName ) ) {
-                        statusRecord.infoUnknownHost( p, IP );
+                    if ( StatRec.chgUnknownHost( IP, HostName ) ) {
+                        StatRec.infoUnknownHost( p, IP );
                     }
                     break;
                 case "info":
                     if ( !IP.equals( "" ) ) {
                         Prt( p, "Check Unknown IP Information [" + IP + "]" );
-                        statusRecord.infoUnknownHost( p, IP );
+                        StatRec.infoUnknownHost( p, IP );
                     } else {
                         Prt( p, "usage: info IPAddress" );
                     }
                     break;
                 case "add":
                     if ( !IP.equals( "" ) ) {
-                        if ( statusRecord.getUnknownHost( IP ).equals( "Unknown" ) ) {
+                        if ( StatRec.getUnknownHost( IP ).equals( "Unknown" ) ) {
                             if ( !HostName.equals( "" ) ) {
-                                statusRecord.AddHostToSQL( IP, HostName );
+                                StatRec.AddHostToSQL( IP, HostName );
                             } else {
                                 try {
-                                    statusRecord.setUnknownHost( IP, true );
+                                    StatRec.setUnknownHost( IP, true );
                                 } catch ( UnknownHostException ex ) {
                                     Logger.getLogger( LoginControl.class.getName() ).log( Level.SEVERE, null, ex );
                                 }
@@ -214,14 +217,14 @@ public class LoginControl extends JavaPlugin implements Listener {
                         } else {
                             Prt( p, ChatColor.RED + IP + " is already exists" );
                         }
-                        statusRecord.infoUnknownHost( p, IP );
+                        StatRec.infoUnknownHost( p, IP );
                     } else {
                         Prt( p, "usage: add IPAddress [HostName]" );
                     }
                     break;
                 case "del":
                     if ( !IP.equals( "" ) ) {
-                        if ( statusRecord.DelHostFromSQL( IP ) ) {
+                        if ( StatRec.DelHostFromSQL( IP ) ) {
                             msg = ChatColor.GREEN + "Data Deleted [";
                         } else {
                             msg = ChatColor.RED + "Failed to Delete Data [";
@@ -232,12 +235,21 @@ public class LoginControl extends JavaPlugin implements Listener {
                         Prt( p, "usage: del IPAddress" );
                     }
                     break;
+                case "count":
+                    {
+                        try {
+                            if ( StatRec.countUnknownHost( IP, Integer.parseInt( HostName ) ) > 0 ) StatRec.infoUnknownHost( p, IP );
+                        } catch ( UnknownHostException ex ) {
+                            Logger.getLogger( LoginControl.class.getName() ).log( Level.SEVERE, null, ex );
+                        }
+                    }
+                    break;
                 case "pingtop":
-                    statusRecord.PingTop( p );
+                    StatRec.PingTop( p );
                     break;
                 /*
                 case "conv":
-                    statusRecord.DataConv( sender );
+                    StatRec.DataConv( sender );
                     break;
                 */
                 case "CheckIP":
@@ -258,11 +270,10 @@ public class LoginControl extends JavaPlugin implements Listener {
         
         event.setJoinMessage( null );
         Player player = event.getPlayer();
-        StatusRecord statusRecord = new StatusRecord( config.getHost(), config.getDB(), config.getPort(), config.getUsername(), config.getPassword() );
-        statusRecord.ChangeStatus( date, 1 );
-        statusRecord.LogPrint( player, 5, false );
+        StatRec.ChangeStatus( date, 1 );
+        StatRec.LogPrint( player, 5, false );
         if ( !config.getIgnoreName().contains( player.getName() ) && !config.getIgnoreIP().contains( player.getAddress().getHostString() ) ) {
-            statusRecord.CheckIP( player );
+            StatRec.CheckIP( player );
         }
 
         if ( ( config.getJump() ) && ( ( !player.hasPlayedBefore() ) || config.OpJump( player.isOp() ) ) ) {
@@ -359,25 +370,25 @@ public class LoginControl extends JavaPlugin implements Listener {
     
     @EventHandler
     public void prePlayerLogin( AsyncPlayerPreLoginEvent event ) {
-
         date = new Date();
-
-        StatusRecord statusRecord = new StatusRecord( config.getHost(), config.getDB(), config.getPort(), config.getUsername(), config.getPassword() );
-        statusRecord.PreSavePlayer( date, event.getName(), event.getUniqueId().toString(), event.getAddress().getHostAddress(), 0 );
+        StatRec.PreSavePlayer( date, event.getName(), event.getUniqueId().toString(), event.getAddress().getHostAddress(), 0 );
     }
     
     @EventHandler
     public void onServerListPing( ServerListPingEvent event ) throws UnknownHostException {
-        StatusRecord statusRecord = new StatusRecord( config.getHost(), config.getDB(), config.getPort(), config.getUsername(), config.getPassword() );
-        String Names = statusRecord.GetPlayerName( event.getAddress().getHostAddress() );
+        String Names = StatRec.GetPlayerName( event.getAddress().getHostAddress() );
         String Host = ChatColor.WHITE + "Player(" + Names + ")";
+
+        String MotdMsg = ReplaceString( config.get1stLine(),Names ) + "\n";
+        MotdMsg += ReplaceString( config.get2ndLine( !Names.equals( "Unknown" ) ), Names );
+        event.setMotd( ReplaceString( MotdMsg, Names ) );
 
         if ( Names.equals("Unknown") ) {
             if ( config.KnownServers( event.getAddress().getHostAddress() ) != null ) {
                 Host = ChatColor.GRAY + config.KnownServers( event.getAddress().getHostAddress() );
             } else {
                 //  Unknown Player を File に記録してホストアドレスを取得する
-                Host = config.WriteUnknown( event.getAddress().getHostAddress() );
+                Host = StatRec.WriteUnknown( event.getAddress().getHostAddress(), config.getCheckIP() );
             }
         }
 
@@ -386,10 +397,6 @@ public class LoginControl extends JavaPlugin implements Listener {
         if ( !config.getIgnoreName().contains( Names ) && !config.getIgnoreIP().contains( event.getAddress().getHostAddress() ) ) {
             Bukkit.getOnlinePlayers().stream().filter( ( p ) -> ( p.hasPermission( "LoginCtl.view" ) || p.isOp() ) ).forEachOrdered( ( p ) -> { p.sendMessage( msg ); } );
         }
-
-        String MotdMsg = ReplaceString( config.get1stLine(),Names ) + "\n";
-        MotdMsg += ReplaceString( config.get2ndLine( !Names.equals( "Unknown" ) ), Names );
-        event.setMotd( ReplaceString( MotdMsg, Names ) );
     }
 
     @EventHandler //    看板ブロックを右クリック

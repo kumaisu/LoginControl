@@ -3,6 +3,8 @@
  */
 package com.mycompany.logincontrol;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.UnknownHostException;
 import java.sql.Connection;
@@ -15,10 +17,14 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 
 /**
  *
@@ -26,11 +32,13 @@ import org.bukkit.entity.Player;
  */
 public class StatusRecord {
 
+    private final Plugin plugin;
     SimpleDateFormat sdf = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" );
     private Connection connection;
     private final String host, database, port, username, password;
     
-    public StatusRecord( String CFhost, String CFdb, String CFport, String CFuser, String CFpass ) {
+    public StatusRecord( String CFhost, String CFdb, String CFport, String CFuser, String CFpass, Plugin plugin ) {
+        this.plugin = plugin;
         host = CFhost;
         database = CFdb;
         port = CFport;
@@ -371,8 +379,39 @@ public class StatusRecord {
         return inet.getHostName();
     }
 
+    public String WriteUnknown( String IPS, boolean ChkIP ) throws UnknownHostException {
+        File UKfile = new File( plugin.getDataFolder(), "UnknownIP.yml" );
+        FileConfiguration UKData = YamlConfiguration.loadConfiguration( UKfile );
+
+        SimpleDateFormat cdf = new SimpleDateFormat("yyyyMMddHHmmss");
+
+        String HostName = getUnknownHost( IPS );
+        ChatColor NameColor;
+        
+        if ( HostName.equals( "Unknown" ) ) {
+            HostName = setUnknownHost( IPS, ChkIP );
+            NameColor = ChatColor.RED;
+            UKData.set( cdf.format( new Date() ),IPS + "[" + HostName + "]" );
+
+            try {
+                UKData.save( UKfile );
+            }
+            catch (IOException e) {
+                plugin.getServer().getLogger().log( Level.SEVERE, "{0}Could not save UnknownIP File.", ChatColor.RED );
+                return "Unknown";
+            }
+
+        } else {
+            int count = countUnknownHost( IPS, 0 );
+            HostName += "(" + String.valueOf( count ) + ")";
+            NameColor = ChatColor.LIGHT_PURPLE;
+        }
+
+        return NameColor + HostName;
+    }
+    
     @SuppressWarnings("CallToPrintStackTrace")
-    public int countUnknownHost( String IP, boolean ZeroF ) throws UnknownHostException {
+    public int countUnknownHost( String IP, int ZeroF ) throws UnknownHostException {
         try {
             openConnection();
             Statement stmt = connection.createStatement();
@@ -382,7 +421,7 @@ public class StatusRecord {
             //  sql = "CREATE TABLE IF NOT EXISTS unknowns (ip varchar(22) not null primary, host varchar(40), count int, lastdate DATETIME )";
             if ( rs.next() ) {
                 //  int count = rs.getInt( "count" ) + 1;
-                int count = ( ZeroF ? 0 : rs.getInt( "count" ) + 1 );
+                int count = ( ( ZeroF == 0 ) ? rs.getInt( "count" ) + 1 : ZeroF );
                     
                 String chg_sql = "UPDATE hosts SET count = " + count +
                         ", lastdate = '" + sdf.format( new Date() ) +

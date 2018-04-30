@@ -3,18 +3,10 @@
  */
 package com.mycompany.logincontrol;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.UnknownHostException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
@@ -198,7 +190,7 @@ public class Config {
     }
     
     public String get2ndLine( boolean flag ) {
-        return ( flag ? MotD2ndLinePlayer:MotD2ndLineUnknown );
+        return ( flag ? MotD2ndLinePlayer : MotD2ndLineUnknown );
     }
 
     public List<String> getIgnoreName() {
@@ -225,39 +217,6 @@ public class Config {
         return config.getString( "Message.OptError" );
     }
 
-    public String WriteUnknown( String IPS ) throws UnknownHostException {
-        File UKfile = new File( plugin.getDataFolder(), "UnknownIP.yml" );
-        FileConfiguration UKData = YamlConfiguration.loadConfiguration( UKfile );
-
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
-
-        StatusRecord statusRecord = new StatusRecord( host, database, port, username, password );
-
-        String HostName = statusRecord.getUnknownHost( IPS );
-        ChatColor NameColor;
-        
-        if ( HostName.equals( "Unknown" ) ) {
-            HostName = statusRecord.setUnknownHost( IPS, CheckIPAddress );
-            NameColor = ChatColor.RED;
-            UKData.set( sdf.format( new Date() ),IPS + "[" + HostName + "]" );
-
-            try {
-                UKData.save( UKfile );
-            }
-            catch (IOException e) {
-                plugin.getServer().getLogger().log( Level.SEVERE, "{0}Could not save UnknownIP File.", ChatColor.RED );
-                return "Unknown";
-            }
-
-        } else {
-            int count = statusRecord.countUnknownHost( IPS, false );
-            HostName += "(" + String.valueOf( count ) + ")";
-            NameColor = ChatColor.LIGHT_PURPLE;
-        }
-
-        return NameColor + HostName;
-    }
-    
     public boolean Announce() {
         return config.getBoolean( "ANNOUNCE.Enabled" );
     }
