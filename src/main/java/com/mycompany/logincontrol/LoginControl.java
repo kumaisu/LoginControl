@@ -36,12 +36,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
-/*
-import com.mcbans.firestar.mcbans.MCBans;
-import com.mcbans.firestar.mcbans.api.MCBansAPI;
-import com.mcbans.firestar.mcbans.api.data.PlayerLookupData;
-import com.mcbans.firestar.mcbans.callBacks.LookupCallback;
-*/
 /**
  *
  * @author sugichan
@@ -237,11 +231,15 @@ public class LoginControl extends JavaPlugin implements Listener {
                     break;
                 case "count":
                     {
+                        if ( HostName.equals( "Reset" ) ) HostName = "-1";
+                        
                         try {
-                            if ( StatRec.countUnknownHost( IP, Integer.parseInt( HostName ) ) > 0 ) StatRec.infoUnknownHost( p, IP );
+                            StatRec.countUnknownHost( IP, Integer.parseInt( HostName ) );
                         } catch ( UnknownHostException ex ) {
                             Logger.getLogger( LoginControl.class.getName() ).log( Level.SEVERE, null, ex );
                         }
+
+                        StatRec.infoUnknownHost( p, IP );
                     }
                     break;
                 case "pingtop":
@@ -272,6 +270,8 @@ public class LoginControl extends JavaPlugin implements Listener {
         Player player = event.getPlayer();
         StatRec.ChangeStatus( date, 1 );
         StatRec.LogPrint( player, 5, false );
+        StatRec.countUnknownHost( player.getAddress().getHostString(), -1 );
+
         if ( !config.getIgnoreName().contains( player.getName() ) && !config.getIgnoreIP().contains( player.getAddress().getHostString() ) ) {
             StatRec.CheckIP( player );
         }
@@ -314,7 +314,6 @@ public class LoginControl extends JavaPlugin implements Listener {
             String[] MsgStr = ReplaceString( config.AnnounceMessage(), player.getDisplayName() ).split( "/n" );
             player.sendMessage( MsgStr );
         }
-                    
     }
 
     @EventHandler
@@ -372,6 +371,7 @@ public class LoginControl extends JavaPlugin implements Listener {
     public void prePlayerLogin( AsyncPlayerPreLoginEvent event ) {
         date = new Date();
         StatRec.PreSavePlayer( date, event.getName(), event.getUniqueId().toString(), event.getAddress().getHostAddress(), 0 );
+        StatRec.AddPlayerToSQL( event.getAddress().getHostAddress(), event.getName() );
     }
     
     @EventHandler
@@ -379,18 +379,22 @@ public class LoginControl extends JavaPlugin implements Listener {
         String Names = StatRec.GetPlayerName( event.getAddress().getHostAddress() );
         String Host = ChatColor.WHITE + "Player(" + Names + ")";
 
-        String MotdMsg = ReplaceString( config.get1stLine(),Names ) + "\n";
-        MotdMsg += ReplaceString( config.get2ndLine( !Names.equals( "Unknown" ) ), Names );
-        event.setMotd( ReplaceString( MotdMsg, Names ) );
-
         if ( Names.equals("Unknown") ) {
-            if ( config.KnownServers( event.getAddress().getHostAddress() ) != null ) {
-                Host = ChatColor.GRAY + config.KnownServers( event.getAddress().getHostAddress() );
+            String ChkHost = config.KnownServers( event.getAddress().getHostAddress() );
+            if ( ChkHost != null ) {
+                Host = ChatColor.GRAY + ChkHost;
             } else {
                 //  Unknown Player を File に記録してホストアドレスを取得する
                 Host = StatRec.WriteUnknown( event.getAddress().getHostAddress(), config.getCheckIP() );
             }
         }
+
+        int count = StatRec.countUnknownHost( event.getAddress().getHostAddress(), 0 );
+        Host += "(" + String.valueOf( count ) + ")";
+
+        String MotdMsg = ReplaceString( config.get1stLine(),Names ) + "\n";
+        MotdMsg += ReplaceString( config.get2ndLine( !Names.equals( "Unknown" ), count ), Names );
+        event.setMotd( ReplaceString( MotdMsg, Names ) );
 
         String msg = ChatColor.GREEN + "Ping from " + Host + ChatColor.YELLOW + " [" + event.getAddress().getHostAddress() + "]";
         Bukkit.getServer().getConsoleSender().sendMessage( msg );

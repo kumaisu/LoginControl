@@ -37,6 +37,8 @@ public class Config {
     private String MotD1stLine;
     private String MotD2ndLineUnknown;
     private String MotD2ndLinePlayer;
+    private String MotD2ndLinePing;
+    private int MotD_Count;
     private List<String> IgnoreReportName;
     private List<String> IgnoreReportIP;
     
@@ -79,6 +81,8 @@ public class Config {
         MotD1stLine = config.getString( "MotD1st" );
         MotD2ndLineUnknown = config.getString( "MotD2nd-Unknown" );
         MotD2ndLinePlayer = config.getString( "MotD2nd-Player" );
+        MotD2ndLinePing = config.getString( "MotD2nd-Ping" );
+        MotD_Count = config.getInt( "MotD2nd-Ping-Count" );
         IgnoreReportName = config.getStringList( "Ignore-Names" );
         IgnoreReportIP = config.getStringList( "Ignore-IP" );
         CheckIPAddress = config.getBoolean( "CheckIP" );
@@ -189,8 +193,10 @@ public class Config {
         return MotD1stLine;
     }
     
-    public String get2ndLine( boolean flag ) {
-        return ( flag ? MotD2ndLinePlayer : MotD2ndLineUnknown );
+    public String get2ndLine( boolean flag, int Count ) {
+        if ( Count>MotD_Count ) {
+            return MotD2ndLinePing;
+        } else return ( flag ? MotD2ndLinePlayer : MotD2ndLineUnknown );
     }
 
     public List<String> getIgnoreName() {

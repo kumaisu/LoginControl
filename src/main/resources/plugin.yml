@@ -31,7 +31,7 @@ commands:
             /<command> chg IPAddress HostName
             /<command> add IPAddress [HostName]
             /<command> del IPAddress
-            /<command> count IPAddress num
+            /<command> count IPAddress ( num or Reset )
             /<command> pingtop
             /<command> checkIP
 permissions:

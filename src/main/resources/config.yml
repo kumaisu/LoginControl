@@ -35,9 +35,12 @@ Ignore-IP:
 MotD1st: "%$dWelcome to Minecraft Server"
 MotD2nd-Unknown: "%$3Let's play together"
 MotD2nd-Player: "%$e%player%%$a, We are waiting for you"
+MotD2nd-Ping-Count: 100
+MotD2nd-Ping: "You are going to confirm host survival %count times since %date"
 # MotD1st: "%$fようこそ%$dMinecraft%$fサーバーへ"
 # MotD2nd-Unknown: "%$3いっしょに遊びましょうよ"
 # MotD2nd-Player: "%$e%player%%$aさん、まってますよ"
+# MotD2nd-Ping: "貴方は %date から生存確認を %count 回実施しています"
 
 #   Login時の案内表示用
 #   /n で改行が可能、複数行の表示に対応

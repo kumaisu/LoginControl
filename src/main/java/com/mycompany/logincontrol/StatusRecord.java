@@ -276,6 +276,19 @@ public class StatusRecord {
         }
     }
     
+    public void AddPlayerToSQL( String IP, String Name ) {
+        String DataName = "Player(" + Name + ",.none)";
+        String GetName = getUnknownHost( IP );
+        
+        if ( GetName.equals( "Unknown" ) ) {
+            AddHostToSQL( IP, DataName );
+        } else {
+            if ( !GetName.contains( "Player" ) ) {
+                chgUnknownHost( IP, DataName );
+            }
+        }
+    }
+    
     private void openConnection() throws SQLException, ClassNotFoundException {
 
         if (connection != null && !connection.isClosed()) {
@@ -328,7 +341,7 @@ public class StatusRecord {
             PreparedStatement preparedStatement = connection.prepareStatement( sql );
             preparedStatement.setString( 1, IP );
             preparedStatement.setString( 2, Host );
-            preparedStatement.setInt( 3, 1 );
+            preparedStatement.setInt( 3, 0 );
             preparedStatement.setString( 4, sdf.format( new Date() ) );
 
             preparedStatement.executeUpdate();
@@ -400,10 +413,7 @@ public class StatusRecord {
                 plugin.getServer().getLogger().log( Level.SEVERE, "{0}Could not save UnknownIP File.", ChatColor.RED );
                 return "Unknown";
             }
-
         } else {
-            int count = countUnknownHost( IPS, 0 );
-            HostName += "(" + String.valueOf( count ) + ")";
             NameColor = ChatColor.LIGHT_PURPLE;
         }
 
@@ -420,13 +430,17 @@ public class StatusRecord {
             
             //  sql = "CREATE TABLE IF NOT EXISTS unknowns (ip varchar(22) not null primary, host varchar(40), count int, lastdate DATETIME )";
             if ( rs.next() ) {
-                //  int count = rs.getInt( "count" ) + 1;
-                int count = ( ( ZeroF == 0 ) ? rs.getInt( "count" ) + 1 : ZeroF );
-                    
-                String chg_sql = "UPDATE hosts SET count = " + count +
-                        ", lastdate = '" + sdf.format( new Date() ) +
-                        "' WHERE INET_NTOA( ip ) = '" + IP + "';";
-                PreparedStatement preparedStatement = connection.prepareStatement(chg_sql);
+                String ResetDate = "";
+                
+                int count = ZeroF;
+                if ( ZeroF < 0 ) {
+                    count = 0;
+                    ResetDate = ", lastdate = '" + sdf.format( new Date() ) + "'";
+                }
+                if ( ZeroF == 0 ) count = rs.getInt( "count" ) + 1;
+
+                String chg_sql = "UPDATE hosts SET count = " + count + ResetDate + " WHERE INET_NTOA( ip ) = '" + IP + "';";
+                PreparedStatement preparedStatement = connection.prepareStatement( chg_sql );
                 preparedStatement.executeUpdate();
                 return count;
             }
