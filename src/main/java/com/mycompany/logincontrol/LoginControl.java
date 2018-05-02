@@ -109,6 +109,7 @@ public class LoginControl extends JavaPlugin implements Listener {
                         p.sendMessage( ChatColor.GREEN + "Fly (on/off)" );
                 }
             }
+            return true;
         }
 
         if ( cmd.getName().toLowerCase().equalsIgnoreCase( "loginlist" ) ) {
@@ -234,7 +235,7 @@ public class LoginControl extends JavaPlugin implements Listener {
                         if ( HostName.equals( "Reset" ) ) HostName = "-1";
                         
                         try {
-                            StatRec.countUnknownHost( IP, Integer.parseInt( HostName ) );
+                            StatRec.AddCountHost( IP, Integer.parseInt( HostName ) );
                         } catch ( UnknownHostException ex ) {
                             Logger.getLogger( LoginControl.class.getName() ).log( Level.SEVERE, null, ex );
                         }
@@ -270,7 +271,7 @@ public class LoginControl extends JavaPlugin implements Listener {
         Player player = event.getPlayer();
         StatRec.ChangeStatus( date, 1 );
         StatRec.LogPrint( player, 5, false );
-        StatRec.countUnknownHost( player.getAddress().getHostString(), -1 );
+        StatRec.AddCountHost( player.getAddress().getHostString(), -1 );
 
         if ( !config.getIgnoreName().contains( player.getName() ) && !config.getIgnoreIP().contains( player.getAddress().getHostString() ) ) {
             StatRec.CheckIP( player );
@@ -375,7 +376,7 @@ public class LoginControl extends JavaPlugin implements Listener {
     }
     
     @EventHandler
-    public void onServerListPing( ServerListPingEvent event ) throws UnknownHostException {
+    public void onServerListPing( ServerListPingEvent event ) throws UnknownHostException, ClassNotFoundException {
         String Names = StatRec.GetPlayerName( event.getAddress().getHostAddress() );
         String Host = ChatColor.WHITE + "Player(" + Names + ")";
 
@@ -388,12 +389,17 @@ public class LoginControl extends JavaPlugin implements Listener {
                 Host = StatRec.WriteUnknown( event.getAddress().getHostAddress(), config.getCheckIP() );
             }
         }
+        StatRec.AddCountHost( event.getAddress().getHostAddress(), 0 );
 
-        int count = StatRec.countUnknownHost( event.getAddress().getHostAddress(), 0 );
+        int count = StatRec.GetcountHosts( event.getAddress().getHostAddress() );
         Host += "(" + String.valueOf( count ) + ")";
 
         String MotdMsg = ReplaceString( config.get1stLine(),Names ) + "\n";
         MotdMsg += ReplaceString( config.get2ndLine( !Names.equals( "Unknown" ), count ), Names );
+        if ( count>0 ) {
+            MotdMsg = MotdMsg.replace( "%count", String.valueOf( count ) );
+            MotdMsg = MotdMsg.replace( "%date", StatRec.getDateHost( event.getAddress().getHostAddress(), false ) );
+        }
         event.setMotd( ReplaceString( MotdMsg, Names ) );
 
         String msg = ChatColor.GREEN + "Ping from " + Host + ChatColor.YELLOW + " [" + event.getAddress().getHostAddress() + "]";
