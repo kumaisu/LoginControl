@@ -6,8 +6,6 @@ package com.mycompany.logincontrol;
 import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.bukkit.Bukkit;
 import static org.bukkit.Bukkit.getWorld;
 import org.bukkit.ChatColor;
@@ -50,7 +48,7 @@ public class LoginControl extends JavaPlugin implements Listener {
     public void onEnable() {
         this.getServer().getPluginManager().registerEvents( this, this );
         config = new Config( this );
-        StatRec = new StatusRecord( config.getHost(), config.getDB(), config.getPort(), config.getUsername(), config.getPassword(), this );
+        StatRec = new StatusRecord( config.getHost(), config.getDB(), config.getPort(), config.getUsername(), config.getPassword() );
     }
 
     @Override
@@ -161,7 +159,7 @@ public class LoginControl extends JavaPlugin implements Listener {
                     Prt( p, msg );
                     return true;
                 } catch ( UnknownHostException ex ) {
-                    Logger.getLogger( LoginControl.class.getName() ).log( Level.SEVERE, null, ex );
+                    Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "Ping Unknown Host." );
                 }
             }
         }
@@ -206,7 +204,7 @@ public class LoginControl extends JavaPlugin implements Listener {
                                 try {
                                     StatRec.setUnknownHost( IP, true );
                                 } catch ( UnknownHostException ex ) {
-                                    Logger.getLogger( LoginControl.class.getName() ).log( Level.SEVERE, null, ex );
+                                    Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + ex.getMessage() );
                                 }
                             }
                         } else {
@@ -237,7 +235,7 @@ public class LoginControl extends JavaPlugin implements Listener {
                         try {
                             StatRec.AddCountHost( IP, Integer.parseInt( HostName ) );
                         } catch ( UnknownHostException ex ) {
-                            Logger.getLogger( LoginControl.class.getName() ).log( Level.SEVERE, null, ex );
+                            Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + ex.getMessage() );
                         }
 
                         StatRec.infoUnknownHost( p, IP );
@@ -386,7 +384,7 @@ public class LoginControl extends JavaPlugin implements Listener {
                 Host = ChatColor.GRAY + ChkHost;
             } else {
                 //  Unknown Player を File に記録してホストアドレスを取得する
-                Host = StatRec.WriteUnknown( event.getAddress().getHostAddress(), config.getCheckIP() );
+                Host = StatRec.WriteUnknown( event.getAddress().getHostAddress(), config.getCheckIP(), this.getDataFolder().toString() );
             }
         }
         StatRec.AddCountHost( event.getAddress().getHostAddress(), 0 );
@@ -398,7 +396,9 @@ public class LoginControl extends JavaPlugin implements Listener {
         MotdMsg += ReplaceString( config.get2ndLine( !Names.equals( "Unknown" ), count ), Names );
         if ( count>0 ) {
             MotdMsg = MotdMsg.replace( "%count", String.valueOf( count ) );
-            MotdMsg = MotdMsg.replace( "%date", StatRec.getDateHost( event.getAddress().getHostAddress(), false ) );
+            //  True : カウントを開始した日を指定
+            //  False : 最後にカウントされた日を指定
+            MotdMsg = MotdMsg.replace( "%date", StatRec.getDateHost( event.getAddress().getHostAddress(), true ) );
         }
         event.setMotd( ReplaceString( MotdMsg, Names ) );
 
@@ -419,7 +419,7 @@ public class LoginControl extends JavaPlugin implements Listener {
         Material material = clickedBlock.getType();
         if ( material == Material.SIGN_POST || material == Material.WALL_SIGN ) {
             Sign sign = (Sign) clickedBlock.getState();
-            if ( sign.getLine(0).equals( "[TrashCan]" ) ) {
+            if ( sign.getLine( 0 ).equals( "[TrashCan]" ) ) {
                 Inventory inv;
                 inv = Bukkit.createInventory( null, 36, "Trash Can" );
                 player.openInventory( inv );

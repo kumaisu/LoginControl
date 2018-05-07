@@ -17,15 +17,12 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 
 /**
  *
@@ -33,13 +30,11 @@ import org.bukkit.plugin.Plugin;
  */
 public class StatusRecord {
 
-    private final Plugin plugin;
     SimpleDateFormat sdf = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" );
     private Connection connection;
     private final String host, database, port, username, password;
     
-    public StatusRecord( String CFhost, String CFdb, String CFport, String CFuser, String CFpass, Plugin plugin ) {
-        this.plugin = plugin;
+    public StatusRecord( String CFhost, String CFdb, String CFport, String CFuser, String CFpass ) {
         host = CFhost;
         database = CFdb;
         port = CFport;
@@ -307,7 +302,7 @@ public class StatusRecord {
             PreparedStatement preparedStatement = connection.prepareStatement( sql );
             preparedStatement.executeUpdate();
 
-            //  mysql> create table IF NOT EXISTS unknowns (ip varchar(22), host varchar(60), count int, lastdate DATETIME );
+            //  mysql> create table IF NOT EXISTS unknowns (ip varchar(22), host varchar(60), count int, newdate DATETIME, lastdate DATETIME );
             //  Unknowns テーブルの作成
             //  存在すれば、無視される
             sql = "CREATE TABLE IF NOT EXISTS hosts (ip INTEGER UNSIGNED, host varchar(60), count int, newdate DATETIME, lastdate DATETIME )";
@@ -378,7 +373,7 @@ public class StatusRecord {
         //  Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "Get Unknown Addr : " + inet.getHostAddress() );
 
         //  テーブルへ追加
-        //  sql = "CREATE TABLE IF NOT EXISTS unknowns (ip varchar(22), host varchar(60), count int, lastdate DATETIME )";
+        //  sql = "CREATE TABLE IF NOT EXISTS unknowns (ip varchar(22), host varchar(60), count int, newdate DATETIME, lastdate DATETIME )";
 
         if ( HostName.length()>60 ) { HostName = String.format( "%-60s", HostName ); }
 
@@ -391,8 +386,8 @@ public class StatusRecord {
         return inet.getHostName();
     }
 
-    public String WriteUnknown( String IPS, boolean ChkIP ) throws UnknownHostException {
-        File UKfile = new File( plugin.getDataFolder(), "UnknownIP.yml" );
+    public String WriteUnknown( String IPS, boolean ChkIP, String DataFolder ) throws UnknownHostException {
+        File UKfile = new File( DataFolder, "UnknownIP.yml" );
         FileConfiguration UKData = YamlConfiguration.loadConfiguration( UKfile );
 
         SimpleDateFormat cdf = new SimpleDateFormat("yyyyMMddHHmmss");
@@ -409,7 +404,7 @@ public class StatusRecord {
                 UKData.save( UKfile );
             }
             catch ( IOException e ) {
-                plugin.getServer().getLogger().log( Level.SEVERE, "{0}Could not save UnknownIP File.", ChatColor.RED );
+                Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "Could not save UnknownIP File." );
                 return "Unknown";
             }
         } else {
@@ -420,6 +415,8 @@ public class StatusRecord {
     }
     
     public String getDateHost( String IP, boolean newf ) throws ClassNotFoundException {
+        //  True : カウントを開始した日を指定
+        //  False : 最後にカウントされた日を指定
         try {
             openConnection();
             Statement stmt;
@@ -429,9 +426,9 @@ public class StatusRecord {
             
             if ( rs.next() ) {
                 if ( newf ) {
-                    return sdf.format( rs.getDate( "newdate" ) );
+                    return sdf.format( rs.getTimestamp( "newdate" ) );
                 } else {
-                    return sdf.format( rs.getDate( "lastdate" ) );
+                    return sdf.format( rs.getTimestamp( "lastdate" ) );
                 }
             }
         } catch ( SQLException e ) {
