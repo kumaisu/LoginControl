@@ -180,7 +180,6 @@ public class StatusRecord {
 
     @SuppressWarnings( "CallToPrintStackTrace" )
     public void CheckIP( Player player ) throws UnknownHostException {
-        Boolean PrtF = false;
         List<String> PrtData;
         PrtData = new ArrayList<>();
         List<String> NameData;
@@ -199,12 +198,10 @@ public class StatusRecord {
                 String GetName = rs.getString( "name" );
 
                 if ( ( i == 0 ) && ( GetName.equals( player.getName() ) ) ) {
-                    // pass                    
                     i++;
                 } else {
                     if ( !NameData.contains( GetName ) ) {
                         i++;
-                        PrtF = true; // ( i>1 );
                         NameData.add( GetName );
                         PrtData.add( ChatColor.WHITE + String.format( "%6d", rs.getInt( "id" ) ) + ": " + ChatColor.GREEN + sdf.format( rs.getTimestamp( "date" ) ) + " " + String.format( "%-20s", GetName ) );
                     }
@@ -216,14 +213,13 @@ public class StatusRecord {
         }
         
         PrtData.add( ChatColor.RED + "=== end ===" );
-        
-        if ( PrtF ) {
-            PrtData.stream().forEach( PD -> {
-                String msg = PD;
-                Bukkit.getServer().getConsoleSender().sendMessage( msg );
-                Bukkit.getOnlinePlayers().stream().filter( ( p ) -> ( p.hasPermission( "LoginCtl.view" ) || p.isOp() ) ).forEachOrdered( ( p ) -> { p.sendMessage( msg ); } );
-            } );
-        }
+
+        PrtData.stream().forEach( PD -> {
+            String msg = PD;
+            if ( NameData.size() > 1 ) player.sendMessage( msg );
+            Bukkit.getServer().getConsoleSender().sendMessage( msg );
+            Bukkit.getOnlinePlayers().stream().filter( ( p ) -> ( ( player != p ) && ( p.hasPermission( "LoginCtl.view" ) || p.isOp() ) ) ).forEachOrdered( ( p ) -> { p.sendMessage( msg ); } );
+        } );
     }
 
     @SuppressWarnings("CallToPrintStackTrace")
