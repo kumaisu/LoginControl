@@ -170,7 +170,7 @@ public class StatusRecord {
             Statement stmt = connection.createStatement();
             String sql = "SELECT * FROM list WHERE INET_NTOA(ip) = '" + ip + "' ORDER BY date DESC;";
             ResultSet rs = stmt.executeQuery( sql );
-            return ( rs.next() ? rs.getString("name"):"Unknown" );
+            return ( rs.next() ? rs.getString( "name" ):"Unknown" );
         } catch ( ClassNotFoundException | SQLException e ) {
             e.printStackTrace();
         }
