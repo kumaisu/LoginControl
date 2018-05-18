@@ -11,6 +11,12 @@ As for player login, it is a plug-in that supports variously
 4.Ability to give items to new players.  
 5.History record and reference function of logged-in player and failed player.  
 6.Ability to display the list of users from the same IP to authorized player.  
+
+Extra function
+1. Flight mode / flight [on / off]
+2. Trash Can Signboard [Trash Can]
+3. Death announcement (incomplete)
+
   
 LoginControlは、プレイヤーログインに付いて、サポートをするプラグインです  
   
@@ -20,6 +26,11 @@ LoginControlは、プレイヤーログインに付いて、サポートをす�
 4.新規ログインプレイヤーに特定のアイテムをプレゼントする機能  
 5.ログイン時にデータベース記録し、参照する機能（直近５人）またはコマンドによって１０人  
 6.同一IPからのアクセスを監視し、プレイヤー名を列挙する機能  
+
+おまけ機能
+1.フライトモード /flight [on/off]
+2.ゴミ箱看板    [Trash Can]
+3.死亡アナウンス（不完全）
 
 **Usage**  
 

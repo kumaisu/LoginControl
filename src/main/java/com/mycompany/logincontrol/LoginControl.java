@@ -333,7 +333,7 @@ public class LoginControl extends JavaPlugin implements Listener {
             if ( !event.getReason().equals( "" ) ) {
                 msg = msg.replace( "%Reason%", event.getReason() );
             } else {
-                msg = msg.replace( "%Reason%", "事由不明" );
+                msg = msg.replace( "%Reason%", "Unknown Reason" );
             }
             Bukkit.broadcastMessage( msg );
         }
