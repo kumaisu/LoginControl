@@ -8,6 +8,15 @@ mysql:
   username: root
   password: password
 
+#Ignore Report
+Ignore-Names:
+    - Kumaisu
+Ignore-IP:
+    - 127.0.0.0
+
+#   Unknown IP Address Check Flag
+CheckIP: false
+
 #First Login TP
 OpJump: false
 FirstPoint: false
@@ -24,12 +33,6 @@ Present:
     - BREAD,32
     - STONE_AXE,1
     - STONE_PICKAXE,1
-
-#Ignore Report
-Ignore-Names:
-    - Kumaisu
-Ignore-IP:
-    - 127.0.0.0
 
 #MotD Message
 MotD1st: "%$dWelcome to Minecraft Server"
@@ -75,7 +78,7 @@ AutoMessages:
     global:
       interval: 5000
       use_permission: true
-      permission: LegendaryMessages.AutoMessages.global
+      permission: LoginCtl.AutoMessages.global
       list:
       - "%$7メインワールドでの建築などの作業は許可された場所のみになります"
       - "%$7難易度は%$4HARD%$7です、餓死に注意してね"
@@ -92,7 +95,7 @@ AutoMessages:
     vip:
       interval: 8000
       use_permission: true
-      permission: LegendaryMessages.AutoMessages.vip
+      permission: LoginCtl.AutoMessages.vip
       list:
       - "%$f運営メンバー募集、詳しくは%$eKumaisu%$fまで問合せください"
       - "%$fプラグイン開発協力者募集中です、詳細は個別対応になります"
@@ -155,9 +158,6 @@ Message:
 #    Reload: "%$aコンフィグを再読込しました"
 #    ArgsErr: "%$4引数指定の誤り：未知の引数が指定されました"
 #    OptError: "%$4ログ表示指定に誤りがあります"
-
-#   Unknown IP Address Check Flag
-CheckIP: false
 
 #Known servers
 104.155.197.233: JapanMinecraftServer
