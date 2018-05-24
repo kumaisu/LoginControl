@@ -27,10 +27,10 @@ LoginControlは、プレイヤーログインに付いて、サポートをす�
 5.ログイン時にデータベース記録し、参照する機能（直近５人）またはコマンドによって１０人  
 6.同一IPからのアクセスを監視し、プレイヤー名を列挙する機能  
 
-おまけ機能 
-1.フライトモード /flight [on/off] 
-2.ゴミ箱看板    [Trash Can] 
-3.死亡アナウンス（不完全） 
+おまけ機能  
+1.フライトモード /flight [on/off]  
+2.ゴミ箱看板    [Trash Can]  
+3.死亡アナウンス（不完全）  
 
 **Usage**  
 
@@ -41,8 +41,12 @@ LoginControlは、プレイヤーログインに付いて、サポートをす�
 /LoginCtl chg:[ip address]:[host name]  
 /LoginCtl PingTop  
 
-**How to Install**
-1.サーバーのプラグインディレクトリにLoginControl.jarを入れて起動します
-2.一旦終了し、作成されたConfig.ymlを編集します
-3.config設定の通りMySQLにデーターベースをCreateします
-4.再度サーバーを起動
+**How to Install**  
+1.サーバーのプラグインディレクトリにLoginControl.jarを入れて起動します  
+2.一旦終了し、作成されたConfig.ymlを編集します  
+3.config設定の通りMySQLにデーターベースをCreateします  
+4.再度サーバーを起動  
+  
+Contact is Discord Kitsune#5955  
+Discord Server https://discord.gg/AgX3UxR  
+

@@ -404,7 +404,11 @@ public class StatusRecord {
                 return "Unknown";
             }
         } else {
-            NameColor = ChatColor.LIGHT_PURPLE;
+            if ( HostName.contains( "Player" ) ) {
+                NameColor = ChatColor.WHITE;
+            } else {
+                NameColor = ChatColor.LIGHT_PURPLE;
+            }
         }
 
         return NameColor + HostName;

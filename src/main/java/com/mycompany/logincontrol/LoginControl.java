@@ -376,16 +376,15 @@ public class LoginControl extends JavaPlugin implements Listener {
     @EventHandler
     public void onServerListPing( ServerListPingEvent event ) throws UnknownHostException, ClassNotFoundException {
         String Names = StatRec.GetPlayerName( event.getAddress().getHostAddress() );
-        String Host = ChatColor.WHITE + "Player(" + Names + ")";
+        String Host;    // = ChatColor.WHITE + "Player(" + Names + ")";
 
-        if ( Names.equals("Unknown") ) {
-            String ChkHost = config.KnownServers( event.getAddress().getHostAddress() );
-            if ( ChkHost != null ) {
-                Host = ChatColor.GRAY + ChkHost;
-            } else {
-                //  Unknown Player を File に記録してホストアドレスを取得する
-                Host = StatRec.WriteUnknown( event.getAddress().getHostAddress(), config.getCheckIP(), this.getDataFolder().toString() );
-            }
+        String ChkHost = config.KnownServers( event.getAddress().getHostAddress() );
+        if ( ChkHost != null ) {
+            Host = ChatColor.GRAY + ChkHost;
+        } else {
+            //  簡易DNSからホスト名を取得
+            //  ホスト名が取得できなかった場合は、Unknown Player を File に記録し、新規登録
+            Host = StatRec.WriteUnknown( event.getAddress().getHostAddress(), config.getCheckIP(), this.getDataFolder().toString() );
         }
         StatRec.AddCountHost( event.getAddress().getHostAddress(), 0 );
 
