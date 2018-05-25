@@ -222,7 +222,6 @@ public class StatusRecord {
         } );
     }
 
-    @SuppressWarnings("CallToPrintStackTrace")
     public void ChangeStatus( Date date, int status ) {
         try {
             openConnection();
@@ -232,11 +231,10 @@ public class StatusRecord {
             preparedStatement.executeUpdate();
             
         } catch ( ClassNotFoundException | SQLException e ) {
-            e.printStackTrace();
+            Bukkit.getServer().getConsoleSender().sendMessage( "[LoginControl] Error ChangeStatus" );
         }
     }
     
-    @SuppressWarnings("CallToPrintStackTrace")
     public void PreSavePlayer( Date date, String name, String UUID, String IP, int Status ) {
 
         /*
@@ -261,12 +259,12 @@ public class StatusRecord {
             preparedStatement.executeUpdate();
             
         } catch ( ClassNotFoundException | SQLException e ) {
-            e.printStackTrace();
+            Bukkit.getServer().getConsoleSender().sendMessage( "[LoginControl] Error PreSavePlayer" );
         }
     }
     
     public void AddPlayerToSQL( String IP, String Name ) {
-        String DataName = "Player(" + Name + ",.none)";
+        String DataName = "(Player)." + Name + ".none";
         String GetName = getUnknownHost( IP );
         
         if ( GetName.equals( "Unknown" ) ) {
@@ -307,7 +305,27 @@ public class StatusRecord {
         }
     }
 
-    @SuppressWarnings("CallToPrintStackTrace")
+    public String GetLocale( String IP ) {
+        try {
+            openConnection();
+            Statement stmt = connection.createStatement();
+            String sql = "SELECT * FROM hosts WHERE INET_NTOA(ip) = '" + IP + "' ORDER BY ip DESC;";
+            ResultSet rs = stmt.executeQuery( sql );
+            if ( rs.next() ) {
+                String HostName = rs.getString( "host" );
+                Bukkit.getServer().getConsoleSender().sendMessage( "GetHostName = " + HostName );
+                String[] item = HostName.split( "\\.", 0 );
+                for( int i=0;i<item.length; i++){
+                    Bukkit.getServer().getConsoleSender().sendMessage( i + " : " + item[i] );
+                }
+                return item[ item.length - 1 ];
+            }
+        } catch ( ClassNotFoundException | SQLException e ) {
+            Bukkit.getServer().getConsoleSender().sendMessage( "[LoginControl] Error GetLocale" );
+        }
+        return "JP";
+    }
+    
     public String getUnknownHost( String IP ) {
         try {
             openConnection();
@@ -316,12 +334,11 @@ public class StatusRecord {
             ResultSet rs = stmt.executeQuery( sql );
             if ( rs.next() ) return rs.getString( "host" );
         } catch ( ClassNotFoundException | SQLException e ) {
-            e.printStackTrace();
+            Bukkit.getServer().getConsoleSender().sendMessage( "[LoginControl] Error GetUnknownHost" );
         }
         return "Unknown";
     }
 
-    @SuppressWarnings("CallToPrintStackTrace")
     public void AddHostToSQL( String IP, String Host ) {
         try {
             openConnection();
@@ -337,11 +354,10 @@ public class StatusRecord {
             preparedStatement.executeUpdate();
             
         } catch ( ClassNotFoundException | SQLException e ) {
-            e.printStackTrace();
+            Bukkit.getServer().getConsoleSender().sendMessage( "[LoginControl] Error AddHostToSQL" );
         }
     }
 
-    @SuppressWarnings("CallToPrintStackTrace")
     public boolean DelHostFromSQL( String IP ) {
         try {
             openConnection();
@@ -350,7 +366,7 @@ public class StatusRecord {
             preparedStatement.executeUpdate();
             return true;
         } catch ( ClassNotFoundException | SQLException e ) {
-            e.printStackTrace();
+            Bukkit.getServer().getConsoleSender().sendMessage( "[LoginControl] Error DelHostFromSQL" );
             return false;
         }
     }

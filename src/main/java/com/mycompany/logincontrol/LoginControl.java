@@ -297,7 +297,9 @@ public class LoginControl extends JavaPlugin implements Listener {
             if( config.NewJoin() ) {
                 //  String[] MsgStr = ReplaceString( config.NewJoinMessage(), player.getDisplayName() ).split( "/n" );
                 //  player.sendMessage( MsgStr );
-                Bukkit.broadcastMessage( ReplaceString( config.NewJoinMessage(), player.getDisplayName() ) );
+                //  Bukkit.getServer().getConsoleSender().sendMessage( "Player host = " + player.getAddress().getHostString() );
+                //  Bukkit.getServer().getConsoleSender().sendMessage( "Get Locale = " + StatRec.GetLocale( player.getAddress().getHostString() ) );
+                Bukkit.broadcastMessage( ReplaceString( config.NewJoinMessage( StatRec.GetLocale( player.getAddress().getHostString() ) ), player.getDisplayName() ) );
             }
 
         } else {
@@ -305,7 +307,9 @@ public class LoginControl extends JavaPlugin implements Listener {
             if( config.ReturnJoin() && !player.hasPermission( "LoginCtl.silentjoin" ) ) {
                 //  String[] MsgStr = ReplaceString( config.ReturnJoinMessage(), player.getDisplayName() ).split( "/n" );
                 //  player.sendMessage( MsgStr );
-                Bukkit.broadcastMessage( ReplaceString( config.ReturnJoinMessage(), player.getDisplayName() ) );
+                //  Bukkit.getServer().getConsoleSender().sendMessage( "Player host = " + player.getAddress().getHostString() );
+                //  Bukkit.getServer().getConsoleSender().sendMessage( "Get Locale = " + StatRec.GetLocale( player.getAddress().getHostString() ) );
+                Bukkit.broadcastMessage( ReplaceString( config.ReturnJoinMessage( StatRec.GetLocale( player.getAddress().getHostString() ) ), player.getDisplayName() ) );
             }
         }
         
@@ -375,15 +379,17 @@ public class LoginControl extends JavaPlugin implements Listener {
     
     @EventHandler
     public void onServerListPing( ServerListPingEvent event ) throws UnknownHostException, ClassNotFoundException {
-        String Names = StatRec.GetPlayerName( event.getAddress().getHostAddress() );
+        String Names = "Unknown";   // = StatRec.GetPlayerName( event.getAddress().getHostAddress() );
         String Host;    // = ChatColor.WHITE + "Player(" + Names + ")";
 
         String ChkHost = config.KnownServers( event.getAddress().getHostAddress() );
         if ( ChkHost != null ) {
+            //  Configに既知のホスト登録があった場合
             Host = ChatColor.GRAY + ChkHost;
         } else {
             //  簡易DNSからホスト名を取得
             //  ホスト名が取得できなかった場合は、Unknown Player を File に記録し、新規登録
+            //  未知のホスト名の場合は LIGHT_PURPLE , 既知のPlayerだった場合は WHITE になる
             Host = StatRec.WriteUnknown( event.getAddress().getHostAddress(), config.getCheckIP(), this.getDataFolder().toString() );
         }
         StatRec.AddCountHost( event.getAddress().getHostAddress(), 0 );
@@ -391,14 +397,18 @@ public class LoginControl extends JavaPlugin implements Listener {
         int count = StatRec.GetcountHosts( event.getAddress().getHostAddress() );
         Host += "(" + String.valueOf( count ) + ")";
 
-        String MotdMsg = ReplaceString( config.get1stLine(),Names ) + "\n";
-        MotdMsg += ReplaceString( config.get2ndLine( !Names.equals( "Unknown" ), count ), Names );
-        if ( count>0 ) {
+        //  簡易DNSにプレイヤー登録されている場合は、ログイン履歴を参照して最新のプレイヤー名を取得する
+        if ( Host.contains( "Player" ) ) Names = StatRec.GetPlayerName( event.getAddress().getHostAddress() );
+
+        String MotdMsg = config.get1stLine() + "\n" + config.get2ndLine( !Names.equals( "Unknown" ), count );
+
+        if ( count>config.getmotDCount() ) {
             MotdMsg = MotdMsg.replace( "%count", String.valueOf( count ) );
+            MotdMsg = MotdMsg.replace( "%date", StatRec.getDateHost( event.getAddress().getHostAddress(), true ) );
             //  True : カウントを開始した日を指定
             //  False : 最後にカウントされた日を指定
-            MotdMsg = MotdMsg.replace( "%date", StatRec.getDateHost( event.getAddress().getHostAddress(), true ) );
         }
+
         event.setMotd( ReplaceString( MotdMsg, Names ) );
 
         String msg = ChatColor.GREEN + "Ping from " + Host + ChatColor.YELLOW + " [" + event.getAddress().getHostAddress() + "]";

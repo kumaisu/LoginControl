@@ -40,10 +40,12 @@ MotD2nd-Unknown: "%$3Let's play together"
 MotD2nd-Player: "%$e%player%%$a, We are waiting for you"
 MotD2nd-Ping-Count: 100
 MotD2nd-Ping: "You are going to confirm host survival %count times since %date"
+MotD2nd-Ping-Player: "%$e%player%%$a, I have not been there for a while"
 # MotD1st: "%$fようこそ%$dMinecraft%$fサーバーへ"
 # MotD2nd-Unknown: "%$3いっしょに遊びましょうよ"
 # MotD2nd-Player: "%$e%player%%$aさん、まってますよ"
 # MotD2nd-Ping: "貴方は %date から生存確認を %count 回実施しています"
+# MotD2nd-Ping-Player: "%$e%player%%$a,さん、たまには如何でしょうか"
 
 #   Login時の案内表示用
 #   /n で改行が可能、複数行の表示に対応
@@ -58,9 +60,25 @@ ANNOUNCE:
 New_Join_Message:
   Enabled: true
   Message: "%$d%player% さん、スナック・クマイスサーバーへ、ようこそ"
+  JP: "%$d%player% さん、スナック・クマイスサーバーへ、ようこそ"
+  US: "%$d%player%, welcome to Snack Kumaisu Server"
+  TW: "%$d%player%，歡迎來到 Snack Kumaisu 服務器"
+  DE: "%$d%player%, willkommen im Snack Kumaisu Server"
+  FR: "%$d%player%, bienvenue sur Snack Kumaisu Server"
+  IT: "%$d%player%, benvenuto su Snack Kumaisu Server"
+  PH: "%$d%player%, maligayang pagdating sa Snack Kumaisu Server"
+  RU: "%$d%player%, добро пожаловать на сервер Snack Kumaisu"
 Returning_Join_Message:
   Enabled: true
   Message: "%$b%player% %$dさん、おかえりなさい！ゆっくりしていってね！"
+  JP: "%$b%player% %$dさん、おかえりなさい！ゆっくりしていってね！"
+  US: "%$b%player% %$d, welcome back! Please go slow!"
+  TW: "%$b%player% %$d，歡迎回來！ 請慢一點！"
+  DE: "%$b%player% %$d, willkommen zurück! Bitte geh langsam!"
+  FR: "%$b%player% %$d, bon retour! S'il vous plaît allez lentement!"
+  IT: "%$b%player% %$d, bentornato! Per favore vai piano!"
+  PH: "%$b%player% %$d, maligayang pagdating pabalik! Mangyaring magpatuloy!"
+  RU: "%$b%player% %$d, добро пожаловать! Пожалуйста, идите медленно!"
 Quit_Message:
   Enabled: true
   Message: "%$b%player% %$dさんがログアウトしました"

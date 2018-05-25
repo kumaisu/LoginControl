@@ -38,6 +38,7 @@ public class Config {
     private String MotD2ndLineUnknown;
     private String MotD2ndLinePlayer;
     private String MotD2ndLinePing;
+    private String MotD2ndLinePingPlayer;
     private int MotD_Count;
     private List<String> IgnoreReportName;
     private List<String> IgnoreReportIP;
@@ -82,6 +83,7 @@ public class Config {
         MotD2ndLineUnknown = config.getString( "MotD2nd-Unknown" );
         MotD2ndLinePlayer = config.getString( "MotD2nd-Player" );
         MotD2ndLinePing = config.getString( "MotD2nd-Ping" );
+        MotD2ndLinePingPlayer = config.getString( "MotD2nd-Ping-Player" );
         MotD_Count = config.getInt( "MotD2nd-Ping-Count" );
         IgnoreReportName = config.getStringList( "Ignore-Names" );
         IgnoreReportIP = config.getStringList( "Ignore-IP" );
@@ -195,8 +197,14 @@ public class Config {
     
     public String get2ndLine( boolean flag, int Count ) {
         if ( Count>MotD_Count ) {
-            return MotD2ndLinePing;
-        } else return ( flag ? MotD2ndLinePlayer : MotD2ndLineUnknown );
+            return ( flag ? MotD2ndLinePingPlayer : MotD2ndLinePing );
+        } else {
+            return ( flag ? MotD2ndLinePlayer : MotD2ndLineUnknown );
+        }
+    }
+    
+    public int getmotDCount() {
+        return MotD_Count;
     }
 
     public List<String> getIgnoreName() {
@@ -235,16 +243,16 @@ public class Config {
         return config.getBoolean( "New_Join_Message.Enabled" );
     }
     
-    public String NewJoinMessage() {
-        return config.getString( "New_Join_Message.Message" );
+    public String NewJoinMessage( String Lang ) {
+        return config.getString( "New_Join_Message." + Lang, config.getString( "New_Join_Message.Message" ) );
     }
     
     public boolean ReturnJoin() {
         return config.getBoolean( "Returning_Join_Message.Enabled" );
     }
 
-    public String ReturnJoinMessage() {
-        return config.getString( "Returning_Join_Message.Message" );
+    public String ReturnJoinMessage( String Lang ) {
+        return config.getString( "Returning_Join_Message." + Lang, config.getString( "Returning_Join_Message.Message" ) );
     }
     
     public boolean PlayerQuti() {
