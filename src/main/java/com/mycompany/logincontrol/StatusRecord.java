@@ -266,14 +266,14 @@ public class StatusRecord {
     }
     
     public void AddPlayerToSQL( String IP, String Name ) {
-        String DataName = "(Player)." + Name + ".none";
+        String DataName = Name + ".Player.";
         String GetName = getUnknownHost( IP );
         
         if ( GetName.equals( "Unknown" ) ) {
-            AddHostToSQL( IP, DataName );
+            AddHostToSQL( IP, DataName + "none");
         } else {
             if ( !GetName.contains( "Player" ) ) {
-                chgUnknownHost( IP, DataName );
+                chgUnknownHost( IP, DataName + GetName );
             }
         }
     }
@@ -560,7 +560,7 @@ public class StatusRecord {
         try {
             openConnection();
             Statement stmt = connection.createStatement();
-            String sql = "SELECT * FROM hosts WHERE host = '%" + word + "%' ORDER BY ip DESC;";
+            String sql = "SELECT * FROM hosts WHERE host LIKE '%" + word + "%' ORDER BY ip DESC;";
             ResultSet rs = stmt.executeQuery( sql );
 
             MsgPrt( p, ChatColor.YELLOW + "Search host [" + word + "]..." );

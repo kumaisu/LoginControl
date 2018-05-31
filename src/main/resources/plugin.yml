@@ -42,4 +42,9 @@ permissions:
     LoginCtl.silentquit:
         description: Silent Quit non Message
         default: false
-
+    LoginCtl.view:
+        description: Ping Display
+        default: op
+    LoginCtl.flight:
+        description: Player Flight Mode Switch
+        default: op
