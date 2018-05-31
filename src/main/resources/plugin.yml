@@ -32,6 +32,7 @@ commands:
             /<command> add IPAddress [HostName]
             /<command> del IPAddress
             /<command> count IPAddress ( num or Reset )
+            /<command> search word
             /<command> pingtop
             /<command> checkIP
 permissions:

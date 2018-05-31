@@ -48,7 +48,7 @@ public class LoginControl extends JavaPlugin implements Listener {
     public void onEnable() {
         this.getServer().getPluginManager().registerEvents( this, this );
         config = new Config( this );
-        StatRec = new StatusRecord( config.getHost(), config.getDB(), config.getPort(), config.getUsername(), config.getPassword() );
+        StatRec = new StatusRecord( config.getHost(), config.getDB(), config.getPort(), config.getUsername(), config.getPassword(), config.getKumaisu() );
     }
 
     @Override
@@ -241,14 +241,16 @@ public class LoginControl extends JavaPlugin implements Listener {
                         StatRec.infoUnknownHost( p, IP );
                     }
                     break;
+                case "search":
+                    if ( !IP.equals( "" ) ) {
+                        StatRec.SearchHost( p, IP );
+                    } else {
+                        Prt( p, "usage: search word" );
+                    }
+                    break;
                 case "pingtop":
                     StatRec.PingTop( p );
                     break;
-                /*
-                case "conv":
-                    StatRec.DataConv( sender );
-                    break;
-                */
                 case "CheckIP":
                     config.setCheckIP( !config.getCheckIP() );
                     msg = ChatColor.GREEN + "Unknown IP Address Check Change to " + ChatColor.YELLOW + ( config.getCheckIP() ? "True":"False" );
@@ -380,7 +382,7 @@ public class LoginControl extends JavaPlugin implements Listener {
     @EventHandler
     public void onServerListPing( ServerListPingEvent event ) throws UnknownHostException, ClassNotFoundException {
         String Names = "Unknown";   // = StatRec.GetPlayerName( event.getAddress().getHostAddress() );
-        String Host;    // = ChatColor.WHITE + "Player(" + Names + ")";
+        String Host;                // = ChatColor.WHITE + "Player(" + Names + ")";
 
         String ChkHost = config.KnownServers( event.getAddress().getHostAddress() );
         if ( ChkHost != null ) {
@@ -413,6 +415,7 @@ public class LoginControl extends JavaPlugin implements Listener {
 
         String msg = ChatColor.GREEN + "Ping from " + Host + ChatColor.YELLOW + " [" + event.getAddress().getHostAddress() + "]";
         Bukkit.getServer().getConsoleSender().sendMessage( msg );
+        //  Bukkit.getServer().getConsoleSender().sendMessage( ReplaceString( MotdMsg, Names ) );
         if ( !config.getIgnoreName().contains( Names ) && !config.getIgnoreIP().contains( event.getAddress().getHostAddress() ) ) {
             Bukkit.getOnlinePlayers().stream().filter( ( p ) -> ( p.hasPermission( "LoginCtl.view" ) || p.isOp() ) ).forEachOrdered( ( p ) -> { p.sendMessage( msg ); } );
         }

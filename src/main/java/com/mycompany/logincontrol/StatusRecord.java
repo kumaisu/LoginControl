@@ -33,8 +33,10 @@ public class StatusRecord {
     SimpleDateFormat sdf = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" );
     private Connection connection;
     private final String host, database, port, username, password;
+    private final boolean Kumaisu;
     
-    public StatusRecord( String CFhost, String CFdb, String CFport, String CFuser, String CFpass ) {
+    public StatusRecord( String CFhost, String CFdb, String CFport, String CFuser, String CFpass, boolean KumaFlag ) {
+        Kumaisu = KumaFlag;
         host = CFhost;
         database = CFdb;
         port = CFport;
@@ -389,6 +391,22 @@ public class StatusRecord {
 
         if ( HostName.length()>60 ) { HostName = String.format( "%-60s", HostName ); }
 
+        //  クマイス鯖特有の特別処理
+        if ( Kumaisu ) {
+            if ( HostName.contains( "ec2" ) ) {
+                Bukkit.getServer().getConsoleSender().sendMessage( "[LC] Change Hostname[ORG] = " + HostName );
+                String[] NameItem = HostName.split( "\\.", 0 );
+                StringBuilder buf = new StringBuilder();
+                for( int i = 1; i < NameItem.length; i++ ){
+                    Bukkit.getServer().getConsoleSender().sendMessage( i + " : " + NameItem[i] );
+                    if( i != 1 ) buf.append( "." );
+                    buf.append( NameItem[i] );
+                }
+                HostName = buf.toString();
+                Bukkit.getServer().getConsoleSender().sendMessage( "[LC] Change Hostname[CHG] = " + HostName );
+            }
+        }
+
         AddHostToSQL( IP, HostName );
         return HostName;
     }
@@ -497,7 +515,6 @@ public class StatusRecord {
         }
     }
 
-    @SuppressWarnings("CallToPrintStackTrace")
     public boolean chgUnknownHost( String IP, String Hostname ) {
         try {
             openConnection();
@@ -512,12 +529,11 @@ public class StatusRecord {
                 return true;
             }
         } catch ( ClassNotFoundException | SQLException e ) {
-            e.printStackTrace();
+            Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "[LoginControl] Change Database Error" );
         }
         return false;
     }
 
-    @SuppressWarnings("CallToPrintStackTrace")
     public void infoUnknownHost( Player p, String IP ) {
         try {
             openConnection();
@@ -536,7 +552,35 @@ public class StatusRecord {
                 MsgPrt( p, ChatColor.RED + "No data for [" + IP + "]" );
             }
         } catch ( ClassNotFoundException | SQLException e ) {
-            e.printStackTrace();
+            Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "[LoginControl] Error Information" );
+        }
+    }
+
+    public void SearchHost( Player p, String word ) {
+        try {
+            openConnection();
+            Statement stmt = connection.createStatement();
+            String sql = "SELECT * FROM hosts WHERE host = '%" + word + "%' ORDER BY ip DESC;";
+            ResultSet rs = stmt.executeQuery( sql );
+
+            MsgPrt( p, ChatColor.YELLOW + "Search host [" + word + "]..." );
+            
+            int DataNum = 0;
+            while( rs.next() ) {
+                DataNum++;
+                MsgPrt( p,
+                        ChatColor.WHITE + String.valueOf( DataNum ) + ":" +
+                        ChatColor.GRAY + rs.getString( "host" ) +
+                        ChatColor.GREEN + "(" + String.valueOf( rs.getInt( "count" ) ) + ")" +
+                        ChatColor.YELLOW + "[" + toInetAddress( rs.getLong( "ip" ) ) + "]" +
+                        ChatColor.WHITE + sdf.format( rs.getTimestamp( "lastdate" ) )
+                );
+            }
+
+            if ( DataNum == 0 ) MsgPrt( p, ChatColor.RED + "No data for [" + word + "]" );
+
+        } catch ( ClassNotFoundException | SQLException e ) {
+            Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "[LoginControl] Search Error" );
         }
     }
     

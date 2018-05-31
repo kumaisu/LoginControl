@@ -288,4 +288,9 @@ public class Config {
     public void setCheckIP( boolean flag ) {
         CheckIPAddress = flag;
     }
+    
+    public boolean getKumaisu() {
+        return config.getBoolean( "Kumaisu" );
+    }
+
 }
