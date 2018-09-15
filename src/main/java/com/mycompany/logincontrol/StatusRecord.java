@@ -109,7 +109,6 @@ public class StatusRecord {
         }
     }
 
-    @SuppressWarnings("CallToPrintStackTrace")
     public void DateLogPrint( Player player, String ChkDate, boolean FullFlag ) {
         MsgPrt( player, "== [" + ChkDate + "] Login List ==" );
 
@@ -131,18 +130,23 @@ public class StatusRecord {
             MsgPrt( player, "================" );
 
         } catch ( ClassNotFoundException | SQLException e ) {
-            e.printStackTrace();
+            Bukkit.getServer().getConsoleSender().sendMessage( "[LoginControl] Error DateLogPrint" );
         }
     }
 
-    @SuppressWarnings("CallToPrintStackTrace")
-    public void NameLogPrint( Player player, String ChkName, boolean FullFlag ) {
+    public void NameLogPrint( Player player, String ChkName, boolean FullFlag, int Flag ) {
         MsgPrt( player, "== [" + ChkName + "] Login List ==" );
 
         try {        
             openConnection();
             Statement stmt = connection.createStatement();
-            String sql = "SELECT * FROM list WHERE name = '" + ChkName + "' ORDER BY date DESC;";
+            String sql;
+            if ( Flag == 2 ) {
+                sql = "SELECT * FROM list WHERE name = '" + ChkName + "' ORDER BY date DESC;";
+            } else {
+                sql = "SELECT * FROM list WHERE INET_NTOA(ip) = '" + ChkName + "' ORDER BY date DESC;";
+                FullFlag = true;
+            }
             ResultSet rs = stmt.executeQuery( sql );
             
             SimpleDateFormat cdf = new SimpleDateFormat( "yyyyMMdd" );
@@ -160,7 +164,7 @@ public class StatusRecord {
             MsgPrt( player, "================" );
 
         } catch ( ClassNotFoundException | SQLException e ) {
-            e.printStackTrace();
+            Bukkit.getServer().getConsoleSender().sendMessage( "[LoginControl] Error NameLogPrint" );
         }
     }
 
@@ -320,7 +324,7 @@ public class StatusRecord {
                 for( int i=0;i<item.length; i++){
                     Bukkit.getServer().getConsoleSender().sendMessage( i + " : " + item[i] );
                 }
-                return item[ item.length - 1 ];
+                return item[ item.length - 1 ].toUpperCase();
             }
         } catch ( ClassNotFoundException | SQLException e ) {
             Bukkit.getServer().getConsoleSender().sendMessage( "[LoginControl] Error GetLocale" );
@@ -527,6 +531,8 @@ public class StatusRecord {
                 PreparedStatement preparedStatement = connection.prepareStatement(chg_sql);
                 preparedStatement.executeUpdate();
                 return true;
+            } else {
+                Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "could not get " + IP );
             }
         } catch ( ClassNotFoundException | SQLException e ) {
             Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "[LoginControl] Change Database Error" );

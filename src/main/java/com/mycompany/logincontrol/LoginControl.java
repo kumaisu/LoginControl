@@ -61,6 +61,14 @@ public class LoginControl extends JavaPlugin implements Listener {
         super.onLoad(); //To change body of generated methods, choose Tools | Templates.
     }
 
+    public String StringBuild( String ... StrItem ) {
+        StringBuilder buf = new StringBuilder();
+
+        for ( String StrItem1 : StrItem ) buf.append( StrItem1 );
+ 
+        return buf.toString();
+    }
+    
     public String ReplaceString( String data, String Names ) {
         String RetStr;
         RetStr = data.replace( "%player%", Names );
@@ -125,6 +133,10 @@ public class LoginControl extends JavaPlugin implements Listener {
                         PrtF = 2;
                         Param = param[1];
                         break;
+                    case "i":
+                        PrtF = 3;
+                        Param = param[1];
+                        break;
                     case "full":
                         sender.sendMessage( config.LogFull().replace( "%$", "§" ) );
                         FullFlag = true;
@@ -143,7 +155,8 @@ public class LoginControl extends JavaPlugin implements Listener {
                     StatRec.DateLogPrint( p, Param, FullFlag );
                     break;
                 case 2:
-                    StatRec.NameLogPrint( p, Param, FullFlag );
+                case 3:
+                    StatRec.NameLogPrint( p, Param, FullFlag, PrtF );
                     break;
                 default:
                     sender.sendMessage( config.OptError().replace( "%$", "§" ) );
@@ -299,8 +312,8 @@ public class LoginControl extends JavaPlugin implements Listener {
             if( config.NewJoin() ) {
                 //  String[] MsgStr = ReplaceString( config.NewJoinMessage(), player.getDisplayName() ).split( "/n" );
                 //  player.sendMessage( MsgStr );
-                //  Bukkit.getServer().getConsoleSender().sendMessage( "Player host = " + player.getAddress().getHostString() );
-                //  Bukkit.getServer().getConsoleSender().sendMessage( "Get Locale = " + StatRec.GetLocale( player.getAddress().getHostString() ) );
+                Bukkit.getServer().getConsoleSender().sendMessage( "Player host = " + player.getAddress().getHostString() );
+                Bukkit.getServer().getConsoleSender().sendMessage( "Get Locale = " + StatRec.GetLocale( player.getAddress().getHostString() ) );
                 Bukkit.broadcastMessage( ReplaceString( config.NewJoinMessage( StatRec.GetLocale( player.getAddress().getHostString() ) ), player.getDisplayName() ) );
             }
 
@@ -387,7 +400,7 @@ public class LoginControl extends JavaPlugin implements Listener {
         String ChkHost = config.KnownServers( event.getAddress().getHostAddress() );
         if ( ChkHost != null ) {
             //  Configに既知のホスト登録があった場合
-            Host = ChatColor.GRAY + ChkHost;
+            Host = StringBuild( ChatColor.GRAY.toString(), ChkHost );
         } else {
             //  簡易DNSからホスト名を取得
             //  ホスト名が取得できなかった場合は、Unknown Player を File に記録し、新規登録
@@ -397,12 +410,12 @@ public class LoginControl extends JavaPlugin implements Listener {
         StatRec.AddCountHost( event.getAddress().getHostAddress(), 0 );
 
         int count = StatRec.GetcountHosts( event.getAddress().getHostAddress() );
-        Host += "(" + String.valueOf( count ) + ")";
+        Host = StringBuild( Host, "(", String.valueOf( count ), ")" );
 
         //  簡易DNSにプレイヤー登録されている場合は、ログイン履歴を参照して最新のプレイヤー名を取得する
         if ( Host.contains( "Player" ) ) Names = StatRec.GetPlayerName( event.getAddress().getHostAddress() );
 
-        String MotdMsg = config.get1stLine() + "\n" + config.get2ndLine( !Names.equals( "Unknown" ), count );
+        String MotdMsg = StringBuild( config.get1stLine(), "\n", config.get2ndLine( !Names.equals( "Unknown" ), count ) );
 
         if ( count>config.getmotDCount() ) {
             MotdMsg = MotdMsg.replace( "%count", String.valueOf( count ) );
@@ -413,7 +426,7 @@ public class LoginControl extends JavaPlugin implements Listener {
 
         event.setMotd( ReplaceString( MotdMsg, Names ) );
 
-        String msg = ChatColor.GREEN + "Ping from " + Host + ChatColor.YELLOW + " [" + event.getAddress().getHostAddress() + "]";
+        String msg = StringBuild( ChatColor.GREEN.toString(), "Ping from ", Host, ChatColor.YELLOW.toString(), " [", event.getAddress().getHostAddress(), "]" );
         Bukkit.getServer().getConsoleSender().sendMessage( msg );
         //  Bukkit.getServer().getConsoleSender().sendMessage( ReplaceString( MotdMsg, Names ) );
         if ( !config.getIgnoreName().contains( Names ) && !config.getIgnoreIP().contains( event.getAddress().getHostAddress() ) ) {
