@@ -1,5 +1,9 @@
 #LoginControl Config
 
+#Console Log Print
+Debug: true
+console: true
+
 #MySQL Settings
 mysql:
   host: localhost

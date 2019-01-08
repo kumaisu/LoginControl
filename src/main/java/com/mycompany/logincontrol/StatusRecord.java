@@ -311,7 +311,7 @@ public class StatusRecord {
         }
     }
 
-    public String GetLocale( String IP ) {
+    public String GetLocale( String IP, boolean Debug ) {
         try {
             openConnection();
             Statement stmt = connection.createStatement();
@@ -319,10 +319,10 @@ public class StatusRecord {
             ResultSet rs = stmt.executeQuery( sql );
             if ( rs.next() ) {
                 String HostName = rs.getString( "host" );
-                Bukkit.getServer().getConsoleSender().sendMessage( "GetHostName = " + HostName );
+                if ( Debug ) Bukkit.getServer().getConsoleSender().sendMessage( "GetHostName = " + HostName );
                 String[] item = HostName.split( "\\.", 0 );
                 for( int i=0;i<item.length; i++){
-                    Bukkit.getServer().getConsoleSender().sendMessage( i + " : " + item[i] );
+                    if ( Debug ) Bukkit.getServer().getConsoleSender().sendMessage( i + " : " + item[i] );
                 }
                 return item[ item.length - 1 ].toUpperCase();
             }
@@ -377,7 +377,7 @@ public class StatusRecord {
         }
     }
 
-    public String setUnknownHost( String IP, boolean CheckFlag ) throws UnknownHostException {
+    public String setUnknownHost( String IP, boolean CheckFlag, boolean Debug ) throws UnknownHostException {
         Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "[Debug] Unknown New Record" );
         String HostName = "Unknown(IP)";
         if ( CheckFlag ) {
@@ -398,16 +398,16 @@ public class StatusRecord {
         //  クマイス鯖特有の特別処理
         if ( Kumaisu ) {
             if ( HostName.contains( "ec2" ) ) {
-                Bukkit.getServer().getConsoleSender().sendMessage( "[LC] Change Hostname[ORG] = " + HostName );
+                if ( Debug ) Bukkit.getServer().getConsoleSender().sendMessage( "[LC] Change Hostname[ORG] = " + HostName );
                 String[] NameItem = HostName.split( "\\.", 0 );
                 StringBuilder buf = new StringBuilder();
                 for( int i = 1; i < NameItem.length; i++ ){
-                    Bukkit.getServer().getConsoleSender().sendMessage( i + " : " + NameItem[i] );
+                    if ( Debug ) Bukkit.getServer().getConsoleSender().sendMessage( i + " : " + NameItem[i] );
                     if( i != 1 ) buf.append( "." );
                     buf.append( NameItem[i] );
                 }
                 HostName = buf.toString();
-                Bukkit.getServer().getConsoleSender().sendMessage( "[LC] Change Hostname[CHG] = " + HostName );
+                if ( Debug ) Bukkit.getServer().getConsoleSender().sendMessage( "[LC] Change Hostname[CHG] = " + HostName );
             }
         }
 
@@ -420,7 +420,7 @@ public class StatusRecord {
         return inet.getHostName();
     }
 
-    public String WriteUnknown( String IPS, boolean ChkIP, String DataFolder ) throws UnknownHostException {
+    public String WriteUnknown( String IPS, boolean ChkIP, String DataFolder, boolean Debug ) throws UnknownHostException {
         File UKfile = new File( DataFolder, "UnknownIP.yml" );
         FileConfiguration UKData = YamlConfiguration.loadConfiguration( UKfile );
 
@@ -430,7 +430,7 @@ public class StatusRecord {
         ChatColor NameColor;
         
         if ( HostName.equals( "Unknown" ) ) {
-            HostName = setUnknownHost( IPS, ChkIP );
+            HostName = setUnknownHost( IPS, ChkIP, Debug );
             NameColor = ChatColor.RED;
             UKData.set( cdf.format( new Date() ),IPS + "[" + HostName + "]" );
 

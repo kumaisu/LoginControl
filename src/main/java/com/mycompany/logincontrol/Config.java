@@ -42,6 +42,8 @@ public class Config {
     private int MotD_Count;
     private List<String> IgnoreReportName;
     private List<String> IgnoreReportIP;
+    private boolean ConPrt;
+    private boolean DBPrt;
     
     public Config(Plugin plugin) {
         this.plugin = plugin;
@@ -88,6 +90,8 @@ public class Config {
         IgnoreReportName = config.getStringList( "Ignore-Names" );
         IgnoreReportIP = config.getStringList( "Ignore-IP" );
         CheckIPAddress = config.getBoolean( "CheckIP" );
+        ConPrt = !config.getBoolean( "Console" );
+        DBPrt = !config.getBoolean( "Debug" );
     }
     
     public void Prt( Player p, String s ) {
@@ -293,4 +297,15 @@ public class Config {
         return config.getBoolean( "Kumaisu" );
     }
 
+    public void setCondolePrint() {
+        ConPrt = !ConPrt;
+    }
+    
+    public boolean getConsolePrint() {
+        return ConPrt;
+    }
+    
+    public boolean getDebugPrint() {
+        return DBPrt;
+    }
 }

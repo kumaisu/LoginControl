@@ -84,12 +84,12 @@ public class LoginControl extends JavaPlugin implements Listener {
     
     public void FlightMode( Player p, boolean flag ) {
         if ( flag ) {
-            p.sendMessage( ChatColor.AQUA + "You can FLY !!" );
+            p.sendMessage( StringBuild( ChatColor.AQUA.toString(), "You can FLY !!" ) );
             // 飛行許可
             p.setAllowFlight( true );
             p.setFlySpeed( 0.1F );
         } else {
-            p.sendMessage( ChatColor.LIGHT_PURPLE + "Stop your FLY Mode." );
+            p.sendMessage( StringBuild( ChatColor.LIGHT_PURPLE.toString(), "Stop your FLY Mode." ) );
             // 無効化
             p.setFlying( false );
             p.setAllowFlight( false );
@@ -112,7 +112,7 @@ public class LoginControl extends JavaPlugin implements Listener {
                         FlightMode( p, false );
                         break;
                     default:
-                        p.sendMessage( ChatColor.GREEN + "Fly (on/off)" );
+                        p.sendMessage( StringBuild( ChatColor.GREEN.toString(), "Fly (on/off)" ) );
                 }
             }
             return true;
@@ -172,7 +172,7 @@ public class LoginControl extends JavaPlugin implements Listener {
                     Prt( p, msg );
                     return true;
                 } catch ( UnknownHostException ex ) {
-                    Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "Ping Unknown Host." );
+                    Bukkit.getServer().getConsoleSender().sendMessage( StringBuild( ChatColor.RED.toString(), "Ping Unknown Host." ) );
                 }
             }
         }
@@ -202,7 +202,7 @@ public class LoginControl extends JavaPlugin implements Listener {
                     break;
                 case "info":
                     if ( !IP.equals( "" ) ) {
-                        Prt( p, "Check Unknown IP Information [" + IP + "]" );
+                        Prt( p, StringBuild( "Check Unknown IP Information [", IP, "]" ) );
                         StatRec.infoUnknownHost( p, IP );
                     } else {
                         Prt( p, "usage: info IPAddress" );
@@ -215,13 +215,13 @@ public class LoginControl extends JavaPlugin implements Listener {
                                 StatRec.AddHostToSQL( IP, HostName );
                             } else {
                                 try {
-                                    StatRec.setUnknownHost( IP, true );
+                                    StatRec.setUnknownHost( IP, true, config.getDebugPrint() );
                                 } catch ( UnknownHostException ex ) {
-                                    Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + ex.getMessage() );
+                                    Bukkit.getServer().getConsoleSender().sendMessage( StringBuild( ChatColor.RED.toString(), ex.getMessage() ) );
                                 }
                             }
                         } else {
-                            Prt( p, ChatColor.RED + IP + " is already exists" );
+                            Prt( p, StringBuild( ChatColor.RED.toString(), IP, " is already exists" ) );
                         }
                         StatRec.infoUnknownHost( p, IP );
                     } else {
@@ -231,12 +231,11 @@ public class LoginControl extends JavaPlugin implements Listener {
                 case "del":
                     if ( !IP.equals( "" ) ) {
                         if ( StatRec.DelHostFromSQL( IP ) ) {
-                            msg = ChatColor.GREEN + "Data Deleted [";
+                            msg = StringBuild( ChatColor.GREEN.toString(), "Data Deleted [" );
                         } else {
-                            msg = ChatColor.RED + "Failed to Delete Data [";
+                            msg = StringBuild( ChatColor.RED.toString(), "Failed to Delete Data [" );
                         }
-                        msg += IP + "]";
-                        Prt( p, msg );
+                        Prt( p, StringBuild( msg, IP, "]" ) );
                     } else {
                         Prt( p, "usage: del IPAddress" );
                     }
@@ -248,7 +247,7 @@ public class LoginControl extends JavaPlugin implements Listener {
                         try {
                             StatRec.AddCountHost( IP, Integer.parseInt( HostName ) );
                         } catch ( UnknownHostException ex ) {
-                            Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + ex.getMessage() );
+                            Bukkit.getServer().getConsoleSender().sendMessage( StringBuild( ChatColor.RED.toString(), ex.getMessage() ) );
                         }
 
                         StatRec.infoUnknownHost( p, IP );
@@ -266,8 +265,11 @@ public class LoginControl extends JavaPlugin implements Listener {
                     break;
                 case "CheckIP":
                     config.setCheckIP( !config.getCheckIP() );
-                    msg = ChatColor.GREEN + "Unknown IP Address Check Change to " + ChatColor.YELLOW + ( config.getCheckIP() ? "True":"False" );
+                    msg = StringBuild( ChatColor.GREEN.toString(), "Unknown IP Address Check Change to ", ChatColor.YELLOW.toString(), ( config.getCheckIP() ? "True":"False" ) );
                     Prt( p, msg );
+                    break;
+                case "Console":
+                    config.setCondolePrint();
                     break;
                 default:
                     return false;
@@ -291,13 +293,13 @@ public class LoginControl extends JavaPlugin implements Listener {
         }
 
         if ( ( config.getJump() ) && ( ( !player.hasPlayedBefore() ) || config.OpJump( player.isOp() ) ) ) {
-            Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.LIGHT_PURPLE + "The First Login Player" );
+            Bukkit.getServer().getConsoleSender().sendMessage( StringBuild( ChatColor.LIGHT_PURPLE.toString(), "The First Login Player" ) );
 
             List<String> present = config.getPresent();
             present.stream().forEach( PR -> {
                 String[] itemdata = PR.split( ",", 0 );
                 player.getInventory().addItem( new ItemStack( Material.getMaterial( itemdata[0] ), Integer.parseInt( itemdata[1] ) ) );
-                Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.AQUA + "Present Item : " + ChatColor.WHITE + itemdata[0] + "(" + itemdata[1] + ")" );
+                Bukkit.getServer().getConsoleSender().sendMessage( StringBuild( ChatColor.AQUA.toString(), "Present Item : ", ChatColor.WHITE.toString(), itemdata[0], "(", itemdata[1], ")" ) );
             } );
 
             // Bukkit.getServer().getConsoleSender().sendMessage( player.getLocale().isEmpty() ? "Location Empty":"First Spawn Location" );
@@ -312,9 +314,10 @@ public class LoginControl extends JavaPlugin implements Listener {
             if( config.NewJoin() ) {
                 //  String[] MsgStr = ReplaceString( config.NewJoinMessage(), player.getDisplayName() ).split( "/n" );
                 //  player.sendMessage( MsgStr );
-                Bukkit.getServer().getConsoleSender().sendMessage( "Player host = " + player.getAddress().getHostString() );
-                Bukkit.getServer().getConsoleSender().sendMessage( "Get Locale = " + StatRec.GetLocale( player.getAddress().getHostString() ) );
-                Bukkit.broadcastMessage( ReplaceString( config.NewJoinMessage( StatRec.GetLocale( player.getAddress().getHostString() ) ), player.getDisplayName() ) );
+                String msg = StatRec.GetLocale( player.getAddress().getHostString(), config.getDebugPrint() );
+                Bukkit.getServer().getConsoleSender().sendMessage( StringBuild( "Player host = ", player.getAddress().getHostString() ) );
+                Bukkit.getServer().getConsoleSender().sendMessage( StringBuild( "Get Locale = ", msg ) );
+                Bukkit.broadcastMessage( ReplaceString( config.NewJoinMessage( msg ), player.getDisplayName() ) );
             }
 
         } else {
@@ -324,13 +327,12 @@ public class LoginControl extends JavaPlugin implements Listener {
                 //  player.sendMessage( MsgStr );
                 //  Bukkit.getServer().getConsoleSender().sendMessage( "Player host = " + player.getAddress().getHostString() );
                 //  Bukkit.getServer().getConsoleSender().sendMessage( "Get Locale = " + StatRec.GetLocale( player.getAddress().getHostString() ) );
-                Bukkit.broadcastMessage( ReplaceString( config.ReturnJoinMessage( StatRec.GetLocale( player.getAddress().getHostString() ) ), player.getDisplayName() ) );
+                Bukkit.broadcastMessage( ReplaceString( config.ReturnJoinMessage( StatRec.GetLocale( player.getAddress().getHostString(), config.getDebugPrint() ) ), player.getDisplayName() ) );
             }
         }
         
         if ( config.Announce() ) {
-            String[] MsgStr = ReplaceString( config.AnnounceMessage(), player.getDisplayName() ).split( "/n" );
-            player.sendMessage( MsgStr );
+            player.sendMessage( ReplaceString( config.AnnounceMessage(), player.getDisplayName() ).split( "/n" ) );
         }
     }
 
@@ -361,12 +363,12 @@ public class LoginControl extends JavaPlugin implements Listener {
     @EventHandler
     public void onPlayerDeath( PlayerDeathEvent event ) {
         if ( config.DeathMessageFlag() ) {
-            Bukkit.getServer().getConsoleSender().sendMessage( "DeathMessage: " + event.getDeathMessage() );
-            Bukkit.getServer().getConsoleSender().sendMessage( "DisplayName : " + event.getEntity().getDisplayName() );
+            Bukkit.getServer().getConsoleSender().sendMessage( StringBuild( "DeathMessage: ", event.getDeathMessage() ) );
+            Bukkit.getServer().getConsoleSender().sendMessage( StringBuild( "DisplayName : ", event.getEntity().getDisplayName() ) );
             if ( event.getEntity().getLastDamageCause() instanceof EntityDamageByEntityEvent ) {
                 EntityDamageByEntityEvent lastcause = ( EntityDamageByEntityEvent ) event.getEntity().getLastDamageCause();
                 Entity entity = lastcause.getDamager();
-                Bukkit.getServer().getConsoleSender().sendMessage( "Killer Name : " + entity.getName() );
+                Bukkit.getServer().getConsoleSender().sendMessage( StringBuild( "Killer Name : ", entity.getName() ) );
                 String msg = config.DeathMessage( entity.getName().toUpperCase() );
                 msg = ReplaceString( msg, event.getEntity().getDisplayName() );
                 msg = msg.replace( "%mob%", entity.getName() );
@@ -405,7 +407,7 @@ public class LoginControl extends JavaPlugin implements Listener {
             //  簡易DNSからホスト名を取得
             //  ホスト名が取得できなかった場合は、Unknown Player を File に記録し、新規登録
             //  未知のホスト名の場合は LIGHT_PURPLE , 既知のPlayerだった場合は WHITE になる
-            Host = StatRec.WriteUnknown( event.getAddress().getHostAddress(), config.getCheckIP(), this.getDataFolder().toString() );
+            Host = StatRec.WriteUnknown( event.getAddress().getHostAddress(), config.getCheckIP(), this.getDataFolder().toString(), config.getDebugPrint() );
         }
         StatRec.AddCountHost( event.getAddress().getHostAddress(), 0 );
 
@@ -427,7 +429,7 @@ public class LoginControl extends JavaPlugin implements Listener {
         event.setMotd( ReplaceString( MotdMsg, Names ) );
 
         String msg = StringBuild( ChatColor.GREEN.toString(), "Ping from ", Host, ChatColor.YELLOW.toString(), " [", event.getAddress().getHostAddress(), "]" );
-        Bukkit.getServer().getConsoleSender().sendMessage( msg );
+        if ( config.getConsolePrint() ) Bukkit.getServer().getConsoleSender().sendMessage( msg );
         //  Bukkit.getServer().getConsoleSender().sendMessage( ReplaceString( MotdMsg, Names ) );
         if ( !config.getIgnoreName().contains( Names ) && !config.getIgnoreIP().contains( event.getAddress().getHostAddress() ) ) {
             Bukkit.getOnlinePlayers().stream().filter( ( p ) -> ( p.hasPermission( "LoginCtl.view" ) || p.isOp() ) ).forEachOrdered( ( p ) -> { p.sendMessage( msg ); } );
