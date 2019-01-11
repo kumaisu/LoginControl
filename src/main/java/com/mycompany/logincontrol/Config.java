@@ -91,7 +91,7 @@ public class Config {
         IgnoreReportIP = config.getStringList( "Ignore-IP" );
         CheckIPAddress = config.getBoolean( "CheckIP" );
         ConPrt = !config.getBoolean( "Console" );
-        DBPrt = !config.getBoolean( "Debug" );
+        DBPrt = config.getBoolean( "Debug" );
     }
     
     public void Prt( Player p, String s ) {
@@ -104,33 +104,33 @@ public class Config {
     
     public void Status( Player p ) {
         Prt( p, "=== LoginContrl Status ===" );
-        Prt( p, "Mysql : " + host + ":" + port );
-        Prt( p, "DB Name : " + database );
-        Prt( p, "FirstJump : " + ( ( JumpStats ) ? "True":"None" ) );
+        Prt( p, Utility.StringBuild( "Mysql : ", host, ":", port ) );
+        Prt( p, Utility.StringBuild( "DB Name : ", database ) );
+        Prt( p, Utility.StringBuild( "FirstJump : ", ( ( JumpStats ) ? "True":"None" ) ) );
         if ( JumpStats ) {
-            Prt( p, "  world:" + fworld );
-            Prt( p, "  x:" + String.valueOf( fx ) );
-            Prt( p, "  y:" + String.valueOf( fy ) );
-            Prt( p, "  z:" + String.valueOf( fz ) );
-            Prt( p, "  p:" + String.valueOf( fpitch ) );
-            Prt( p, "  y:" + String.valueOf( fyaw ) );
+            Prt( p, Utility.StringBuild( "  world:", fworld ) );
+            Prt( p, Utility.StringBuild( "  x:", String.valueOf( fx ) ) );
+            Prt( p, Utility.StringBuild( "  y:", String.valueOf( fy ) ) );
+            Prt( p, Utility.StringBuild( "  z:", String.valueOf( fz ) ) );
+            Prt( p, Utility.StringBuild( "  p:", String.valueOf( fpitch ) ) );
+            Prt( p, Utility.StringBuild( "  y:", String.valueOf( fyaw ) ) );
         }
         Prt( p, "Present Items" );
         present.stream().forEach( pr -> {
             String[] itemdata = pr.split( ",", 0 );
-            Prt( p, " - " + itemdata[0] + "(" + itemdata[1] + ")" );
+            Prt( p, Utility.StringBuild( " - ", itemdata[0], "(", itemdata[1], ")" ) );
         } );
 
         Prt( p, "Ignore Names" );
-        IgnoreReportName.stream().forEach( IRN -> { Prt( p, " - " + IRN ); } );
+        IgnoreReportName.stream().forEach( IRN -> { Prt( p, Utility.StringBuild( " - ", IRN ) ); } );
 
         Prt( p, "Ignore IPs" );
-        IgnoreReportIP.stream().forEach( IRI -> { Prt( p, " - " + IRI ); } );
+        IgnoreReportIP.stream().forEach( IRI -> { Prt( p, Utility.StringBuild( " - ", IRI ) ); } );
         
-        Prt( p, "Unknown IP Check : " + ( CheckIPAddress ? "True":"False" ) );
-        Prt( p, "MotD 1 Line : " + MotD1stLine );
-        Prt( p, "MotD 2 Line(Unknown) : " + MotD2ndLineUnknown );
-        Prt( p, "MotD 2 Line(Player ) : " + MotD2ndLinePlayer );
+        Prt( p, Utility.StringBuild( "Unknown IP Check : ", ( CheckIPAddress ? "True":"False" ) ) );
+        Prt( p, Utility.StringBuild( "MotD 1 Line : ", MotD1stLine ) );
+        Prt( p, Utility.StringBuild( "MotD 2 Line(Unknown) : ", MotD2ndLineUnknown ) );
+        Prt( p, Utility.StringBuild( "MotD 2 Line(Player ) : ", MotD2ndLinePlayer ) );
         Prt( p, "==========================" );
         
     }
