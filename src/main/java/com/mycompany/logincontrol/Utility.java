@@ -31,10 +31,10 @@ public final class Utility {
         
         return RetStr;
     }
-    
+
     public static void Prt( Player player, String msg, boolean console ) {
         if ( console ) Bukkit.getServer().getConsoleSender().sendMessage( msg );
         if ( player != null ) player.sendMessage( msg );
     }
-    
+
 }

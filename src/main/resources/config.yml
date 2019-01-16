@@ -1,8 +1,7 @@
 #LoginControl Config
 
-#Console Log Print
-Debug: true
-console: true
+#   Debug ( full / Default:normal / none )
+Debug: normal
 
 #MySQL Settings
 mysql:

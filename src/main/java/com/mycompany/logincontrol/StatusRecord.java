@@ -369,7 +369,7 @@ public class StatusRecord {
     }
 
     public String setUnknownHost( String IP, boolean CheckFlag, boolean Debug ) throws UnknownHostException {
-        Bukkit.getServer().getConsoleSender().sendMessage( Utility.StringBuild( ChatColor.RED.toString(), "[Debug] Unknown New Record" ) );
+        Bukkit.getServer().getConsoleSender().sendMessage( Utility.StringBuild( ChatColor.RED.toString(), "[Debug] Unknown New Record : ", IP ) );
         String HostName = "Unknown(IP)";
         if ( CheckFlag ) {
             Inet4Address inet = ( Inet4Address ) Inet4Address.getByName( IP );

@@ -48,7 +48,7 @@ public class LoginControl extends JavaPlugin implements Listener {
     public void onEnable() {
         this.getServer().getPluginManager().registerEvents( this, this );
         config = new Config( this );
-        StatRec = new StatusRecord( config.getHost(), config.getDB(), config.getPort(), config.getUsername(), config.getPassword(), config.getKumaisu() );
+        StatRec = new StatusRecord( config.getHost(), config.getDatabase(), config.getPort(), config.getUsername(), config.getPassword(), config.getKumaisu() );
     }
 
     @Override
@@ -63,12 +63,12 @@ public class LoginControl extends JavaPlugin implements Listener {
 
     public void FlightMode( Player p, boolean flag ) {
         if ( flag ) {
-            Utility.Prt( p, Utility.StringBuild( ChatColor.AQUA.toString(), "You can FLY !!" ), config.getDebugPrint() );
+            Utility.Prt( p, Utility.StringBuild( ChatColor.AQUA.toString(), "You can FLY !!" ), config.DBFlag( 1 ) );
             // 飛行許可
             p.setAllowFlight( true );
             p.setFlySpeed( 0.1F );
         } else {
-            Utility.Prt( p, Utility.StringBuild( ChatColor.LIGHT_PURPLE.toString(), "Stop your FLY Mode." ), config.getDebugPrint() );
+            Utility.Prt( p, Utility.StringBuild( ChatColor.LIGHT_PURPLE.toString(), "Stop your FLY Mode." ), config.DBFlag( 1 ) );
             // 無効化
             p.setFlying( false );
             p.setAllowFlight( false );
@@ -91,7 +91,7 @@ public class LoginControl extends JavaPlugin implements Listener {
                         FlightMode( p, false );
                         break;
                     default:
-                        Utility.Prt( p, Utility.StringBuild( ChatColor.GREEN.toString(), "Fly (on/off)" ), config.getDebugPrint() );
+                        Utility.Prt( p, Utility.StringBuild( ChatColor.GREEN.toString(), "Fly (on/off)" ), config.DBFlag( 1 ) );
                 }
             }
             return true;
@@ -117,11 +117,11 @@ public class LoginControl extends JavaPlugin implements Listener {
                         Param = param[1];
                         break;
                     case "full":
-                        Utility.Prt( (Player)sender, Utility.Replace( config.LogFull() ),config.getDebugPrint() );
+                        Utility.Prt( (Player)sender, Utility.Replace( config.LogFull() ),config.DBFlag( 2 ) );
                         FullFlag = true;
                         break;
                     default:
-                        Utility.Prt( (Player)sender, Utility.Replace( config.ArgsErr() ),config.getDebugPrint() );
+                        Utility.Prt( (Player)sender, Utility.Replace( config.ArgsErr() ),config.DBFlag( 2 ) );
                         return false;
                 }
             }
@@ -138,7 +138,7 @@ public class LoginControl extends JavaPlugin implements Listener {
                     StatRec.NameLogPrint( p, Param, FullFlag, PrtF );
                     break;
                 default:
-                    Utility.Prt( (Player)sender, Utility.Replace( config.OptError() ),config.getDebugPrint() );
+                    Utility.Prt( (Player)sender, Utility.Replace( config.OptError() ),config.DBFlag( 2 ) );
                     return false;
             }
             return true;
@@ -194,7 +194,7 @@ public class LoginControl extends JavaPlugin implements Listener {
                                 StatRec.AddHostToSQL( IP, HostName );
                             } else {
                                 try {
-                                    StatRec.setUnknownHost( IP, true, config.getDebugPrint() );
+                                    StatRec.setUnknownHost( IP, true, ( p == null ) );
                                 } catch ( UnknownHostException ex ) {
                                     Utility.Prt( p, Utility.StringBuild( ChatColor.RED.toString(), ex.getMessage() ),true );
                                 }
@@ -247,7 +247,20 @@ public class LoginControl extends JavaPlugin implements Listener {
                     Utility.Prt( p, Utility.StringBuild( ChatColor.GREEN.toString(), "Unknown IP Address Check Change to ", ChatColor.YELLOW.toString(), ( config.getCheckIP() ? "True":"False" ) ), true );
                     break;
                 case "Console":
-                    config.setCondolePrint();
+                    switch ( IP ) {
+                        case "full":
+                            config.setDebug( 2 );
+                            break;
+                        case "normal":
+                            config.setDebug( 1 );
+                            break;
+                        case "none":
+                            config.setDebug( 0 );
+                            break;
+                        default:
+                            Utility.Prt( p, "usage: loginctl Console [full/normal/none]", ( p == null ) );
+                    }
+                    Utility.Prt( p, Utility.StringBuild( ChatColor.GREEN.toString(), "System Debug Mode is [ ", ChatColor.RED.toString(), config.DBString( config.getDebug() ), ChatColor.GREEN.toString(), " ]" ), ( p == null ) );
                     break;
                 default:
                     return false;
@@ -267,7 +280,7 @@ public class LoginControl extends JavaPlugin implements Listener {
         StatRec.AddCountHost( player.getAddress().getHostString(), -1 );
 
         if ( !config.getIgnoreName().contains( player.getName() ) && !config.getIgnoreIP().contains( player.getAddress().getHostString() ) ) {
-            StatRec.CheckIP( player, config.getDebugPrint() );
+            StatRec.CheckIP( player, config.DBFlag( 1 ) );
         }
 
         if ( ( config.getJump() ) && ( ( !player.hasPlayedBefore() ) || config.OpJump( player.isOp() ) ) ) {
@@ -277,10 +290,10 @@ public class LoginControl extends JavaPlugin implements Listener {
             present.stream().forEach( PR -> {
                 String[] itemdata = PR.split( ",", 0 );
                 player.getInventory().addItem( new ItemStack( Material.getMaterial( itemdata[0] ), Integer.parseInt( itemdata[1] ) ) );
-                Utility.Prt( null, Utility.StringBuild( ChatColor.AQUA.toString(), "Present Item : ", ChatColor.WHITE.toString(), itemdata[0], "(", itemdata[1], ")" ), config.getDebugPrint() );
+                Utility.Prt( null, Utility.StringBuild( ChatColor.AQUA.toString(), "Present Item : ", ChatColor.WHITE.toString(), itemdata[0], "(", itemdata[1], ")" ), config.DBFlag( 2 ) );
             } );
 
-            Utility.Prt( null, "This player is first play to teleport", config.getDebugPrint() );
+            Utility.Prt( null, "This player is first play to teleport", config.DBFlag( 1 ) );
             World world = getWorld( config.getWorld() );
             Location loc = new Location( world, config.getX(), config.getY(), config.getZ() );
             loc.setPitch( config.getPitch() );
@@ -288,16 +301,16 @@ public class LoginControl extends JavaPlugin implements Listener {
             player.teleport( loc );
             
             if( config.NewJoin() ) {
-                String msg = StatRec.GetLocale( player.getAddress().getHostString(), config.getDebugPrint() );
-                Utility.Prt( null, Utility.StringBuild( "Player host = ", player.getAddress().getHostString() ), config.getDebugPrint() );
-                Utility.Prt( null, Utility.StringBuild( "Get Locale = ", msg ), config.getDebugPrint() );
+                String msg = StatRec.GetLocale( player.getAddress().getHostString(), config.DBFlag( 1 ) );
+                Utility.Prt( null, Utility.StringBuild( "Player host = ", player.getAddress().getHostString() ), config.DBFlag( 1 ) );
+                Utility.Prt( null, Utility.StringBuild( "Get Locale = ", msg ), config.DBFlag( 1 ) );
                 Bukkit.broadcastMessage( Utility.ReplaceString( config.NewJoinMessage( msg ), player.getDisplayName() ) );
             }
 
         } else {
             Utility.Prt( null, "The Repeat Login Player", true );
             if( config.ReturnJoin() && !player.hasPermission( "LoginCtl.silentjoin" ) ) {
-                Bukkit.broadcastMessage( Utility.ReplaceString( config.ReturnJoinMessage( StatRec.GetLocale( player.getAddress().getHostString(), config.getDebugPrint() ) ), player.getDisplayName() ) );
+                Bukkit.broadcastMessage( Utility.ReplaceString( config.ReturnJoinMessage( StatRec.GetLocale( player.getAddress().getHostString(), config.DBFlag( 2 ) ) ), player.getDisplayName() ) );
             }
         }
         
@@ -333,19 +346,28 @@ public class LoginControl extends JavaPlugin implements Listener {
     @EventHandler
     public void onPlayerDeath( PlayerDeathEvent event ) {
         if ( config.DeathMessageFlag() ) {
-            Utility.Prt( null, Utility.StringBuild( "DeathMessage: ", event.getDeathMessage() ), config.getDebugPrint() );
-            Utility.Prt( null, Utility.StringBuild( "DisplayName : ", event.getEntity().getDisplayName() ), config.getDebugPrint() );
+            Utility.Prt( null, Utility.StringBuild( "DeathMessage: ", event.getDeathMessage() ), config.DBFlag( 2 ) );
+            Utility.Prt( null, Utility.StringBuild( "DisplayName : ", event.getEntity().getDisplayName() ), config.DBFlag( 2 ) );
             if ( event.getEntity().getLastDamageCause() instanceof EntityDamageByEntityEvent ) {
                 EntityDamageByEntityEvent lastcause = ( EntityDamageByEntityEvent ) event.getEntity().getLastDamageCause();
                 Entity entity = lastcause.getDamager();
-                Utility.Prt( null, Utility.StringBuild( "Killer Name : ", entity.getName() ), config.getDebugPrint() );
+                Utility.Prt( null, Utility.StringBuild( "Killer Name : ", entity.getName() ), config.DBFlag( 2 ) );
                 String msg = config.DeathMessage( entity.getName().toUpperCase() );
                 msg = Utility.ReplaceString( msg, event.getEntity().getDisplayName() );
                 msg = msg.replace( "%mob%", entity.getName() );
-                event.setDeathMessage( null );
+                //event.setDeathMessage( null );
                 Bukkit.broadcastMessage( msg );
             } else {
-                Utility.Prt( null, "Other Death", config.getDebugPrint() );
+                Utility.Prt( null, "Other Death", config.DBFlag( 1 ) );
+                Bukkit.broadcastMessage(
+                    Utility.StringBuild(
+                        ChatColor.YELLOW.toString(), "[天の声] ",
+                        ChatColor.AQUA.toString(), event.getEntity().getDisplayName(),
+                        ChatColor.WHITE.toString(), "は",
+                        ChatColor.RED.toString(), "謎", 
+                        ChatColor.WHITE.toString(), "の死を遂げた"
+                    )
+                );
             }
         }
     }
@@ -377,7 +399,7 @@ public class LoginControl extends JavaPlugin implements Listener {
             //  簡易DNSからホスト名を取得
             //  ホスト名が取得できなかった場合は、Unknown Player を File に記録し、新規登録
             //  未知のホスト名の場合は LIGHT_PURPLE , 既知のPlayerだった場合は WHITE になる
-            Host = StatRec.WriteUnknown( event.getAddress().getHostAddress(), config.getCheckIP(), this.getDataFolder().toString(), config.getDebugPrint() );
+            Host = StatRec.WriteUnknown( event.getAddress().getHostAddress(), config.getCheckIP(), this.getDataFolder().toString(), config.DBFlag( 2 ) );
         }
         StatRec.AddCountHost( event.getAddress().getHostAddress(), 0 );
 
@@ -399,7 +421,7 @@ public class LoginControl extends JavaPlugin implements Listener {
         event.setMotd( Utility.ReplaceString( MotdMsg, Names ) );
 
         String msg = Utility.StringBuild( ChatColor.GREEN.toString(), "Ping from ", Host, ChatColor.YELLOW.toString(), " [", event.getAddress().getHostAddress(), "]" );
-        Utility.Prt( null, msg, config.getConsolePrint() );
+        Utility.Prt( null, msg, config.DBFlag( 2 ) );
         if ( !config.getIgnoreName().contains( Names ) && !config.getIgnoreIP().contains( event.getAddress().getHostAddress() ) ) {
             Bukkit.getOnlinePlayers().stream().filter( ( p ) -> ( p.hasPermission( "LoginCtl.view" ) || p.isOp() ) ).forEachOrdered( ( p ) -> { p.sendMessage( msg ); } );
         }

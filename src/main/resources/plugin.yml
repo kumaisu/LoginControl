@@ -35,6 +35,7 @@ commands:
             /<command> search word
             /<command> pingtop
             /<command> checkIP
+            /<command> Console [full/normal/none]
 permissions:
     LoginCtl.silentjoin:
         description: Silent Login non Message

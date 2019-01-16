@@ -42,8 +42,7 @@ public class Config {
     private int MotD_Count;
     private List<String> IgnoreReportName;
     private List<String> IgnoreReportIP;
-    private boolean ConPrt;
-    private boolean DBPrt;
+    private int DebugFlag;
     
     public Config(Plugin plugin) {
         this.plugin = plugin;
@@ -90,8 +89,21 @@ public class Config {
         IgnoreReportName = config.getStringList( "Ignore-Names" );
         IgnoreReportIP = config.getStringList( "Ignore-IP" );
         CheckIPAddress = config.getBoolean( "CheckIP" );
-        ConPrt = !config.getBoolean( "Console" );
-        DBPrt = config.getBoolean( "Debug" );
+        
+        switch ( config.getString( "Debug" ) ) {
+        case "full":
+            DebugFlag = 2;
+            break;
+        case "normal":
+            DebugFlag = 1;
+            break;
+        case "none":
+            DebugFlag = 0;
+            break;
+        default:
+            DebugFlag = 0;
+        }
+        
     }
     
     public void Prt( Player p, String s ) {
@@ -104,6 +116,7 @@ public class Config {
     
     public void Status( Player p ) {
         Prt( p, "=== LoginContrl Status ===" );
+        Prt( p, Utility.StringBuild( "Degub Mode : ", DBString( DebugFlag ) ) );
         Prt( p, Utility.StringBuild( "Mysql : ", host, ":", port ) );
         Prt( p, Utility.StringBuild( "DB Name : ", database ) );
         Prt( p, Utility.StringBuild( "FirstJump : ", ( ( JumpStats ) ? "True":"None" ) ) );
@@ -135,6 +148,46 @@ public class Config {
         
     }
     
+    public int getDebug() {
+        return DebugFlag;
+    }
+
+    public void setDebug( int num ) {
+        DebugFlag = num;
+    }
+
+    public boolean DBFlag( int lvl ) {
+    // 0:none 1:normal 2:full
+        Boolean prtf;
+        switch ( DebugFlag ) {
+            case 0:
+                prtf = ( lvl == 0 );
+                break;
+            case 1:
+                prtf = ( lvl == 1 );
+                break;
+            case 2:
+                prtf = true;
+                break;
+            default:
+                prtf = false;
+        }
+        return prtf;
+    }
+
+    public String DBString( int lvl ) {
+        switch ( lvl ) {
+            case 0:
+                return "none";
+            case 1:
+                return "normal";
+            case 2:
+                return "full";
+            default:
+                return "Error";
+        }
+    }
+    
     public String getHost() {
         return host;
     }
@@ -143,7 +196,7 @@ public class Config {
         return port;
     }
     
-    public String getDB() {
+    public String getDatabase() {
         return database;
     }
     
@@ -297,15 +350,4 @@ public class Config {
         return config.getBoolean( "Kumaisu" );
     }
 
-    public void setCondolePrint() {
-        ConPrt = !ConPrt;
-    }
-    
-    public boolean getConsolePrint() {
-        return ConPrt;
-    }
-    
-    public boolean getDebugPrint() {
-        return DBPrt;
-    }
 }
