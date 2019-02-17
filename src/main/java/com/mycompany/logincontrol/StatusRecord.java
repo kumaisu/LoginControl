@@ -19,7 +19,6 @@ import java.util.Date;
 import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-//  import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -69,7 +68,7 @@ public class StatusRecord {
     }
             
     @SuppressWarnings("CallToPrintStackTrace")
-    public void LogPrint( Player player, int lines, boolean FullFlag ) {
+    public void LogPrint( Player player, int lines, boolean FullFlag, List Ignore ) {
         
         Utility.Prt( player, "== Login List ==", ( player == null ) );
 
@@ -78,6 +77,7 @@ public class StatusRecord {
             Statement stmt = connection.createStatement();
             String sql = "SELECT * FROM list ORDER BY date DESC;";
             ResultSet rs = stmt.executeQuery( sql );
+            boolean isOP = ( ( player == null ) ? true:player.isOp() );
             
             int i = 0;
             String chk_name = "";
@@ -85,8 +85,8 @@ public class StatusRecord {
             while( rs.next() && ( i<lines ) ) {
                 String GetName = rs.getString( "name" );
                 
-                if ( rs.getInt( "status" ) != 0 || player == null || player.hasPermission( "LoginCtl.view" ) || player.isOp() ) {
-                    if ( ( !chk_name.equals( GetName ) ) || ( FullFlag ) ) {
+                if ( rs.getInt( "status" ) != 0 || player == null || player.hasPermission( "LoginCtl.view" ) || isOP ) {
+                    if ( ( isOP || !Ignore.contains( GetName ) ) && ( ( !chk_name.equals( GetName ) ) || ( FullFlag ) ) ) {
                         i++;
                         LineMsg( player, rs.getInt( "id" ), rs.getTimestamp( "date" ), rs.getString( "name" ), rs.getLong( "ip" ), rs.getInt( "status" ) );
                         chk_name = GetName;
@@ -101,7 +101,7 @@ public class StatusRecord {
         }
     }
 
-    public void DateLogPrint( Player player, String ChkDate, boolean FullFlag ) {
+    public void DateLogPrint( Player player, String ChkDate, boolean FullFlag, List Ignore ) {
         Utility.Prt( player, Utility.StringBuild( "== [", ChkDate, "] Login List ==" ), ( player == null ) );
 
         try {        
@@ -111,11 +111,14 @@ public class StatusRecord {
             Statement stmt = connection.createStatement();
             String sql = "SELECT * FROM list WHERE date BETWEEN '" + ChkDate + " 00:00:00' AND '" + ChkDate + " 23:59:59' ORDER BY date DESC;";
             ResultSet rs = stmt.executeQuery( sql );
+            boolean isOP = ( ( player == null ) ? true:player.isOp() );
 
             while( rs.next() ) {
-                if ( !chk_name.equals( rs.getString( "name" ) ) || ( FullFlag ) ) {
+                String GetName = rs.getString( "name" );
+                
+                if ( ( isOP || !Ignore.contains( GetName )  ) && ( !chk_name.equals( GetName ) || ( FullFlag ) ) ) {
                     LineMsg( player, rs.getInt( "id" ), rs.getTimestamp( "date" ), rs.getString( "name" ), rs.getLong( "ip" ), rs.getInt( "status" ) );
-                    chk_name = rs.getString( "name" );
+                    chk_name = GetName;
                 }
             }
                     
@@ -369,7 +372,7 @@ public class StatusRecord {
     }
 
     public String setUnknownHost( String IP, boolean CheckFlag, boolean Debug ) throws UnknownHostException {
-        Bukkit.getServer().getConsoleSender().sendMessage( Utility.StringBuild( ChatColor.RED.toString(), "[Debug] Unknown New Record : ", IP ) );
+        Bukkit.getServer().getConsoleSender().sendMessage( Utility.StringBuild( ChatColor.RED.toString(), "[LC] Unknown New Record : ", ChatColor.AQUA.toString(), IP ) );
         String HostName = "Unknown(IP)";
         if ( CheckFlag ) {
             Inet4Address inet = ( Inet4Address ) Inet4Address.getByName( IP );
@@ -385,11 +388,11 @@ public class StatusRecord {
         //  sql = "CREATE TABLE IF NOT EXISTS unknowns (ip varchar(22), host varchar(60), count int, newdate DATETIME, lastdate DATETIME )";
 
         if ( HostName.length()>60 ) { HostName = String.format( "%-60s", HostName ); }
-
+        
         //  クマイス鯖特有の特別処理
         if ( Kumaisu ) {
+            if ( Debug ) Bukkit.getServer().getConsoleSender().sendMessage( Utility.StringBuild( ChatColor.GREEN.toString(), "[LC] Original Hostname = ", ChatColor.AQUA.toString(), HostName ) );
             if ( HostName.contains( "ec2" ) ) {
-                if ( Debug ) Bukkit.getServer().getConsoleSender().sendMessage( Utility.StringBuild( "[LC] Change Hostname[ORG] = ", HostName ) );
                 String[] NameItem = HostName.split( "\\.", 0 );
                 StringBuilder buf = new StringBuilder();
                 for( int i = 1; i < NameItem.length; i++ ){
@@ -398,10 +401,10 @@ public class StatusRecord {
                     buf.append( NameItem[i] );
                 }
                 HostName = buf.toString();
-                if ( Debug ) Bukkit.getServer().getConsoleSender().sendMessage( Utility.StringBuild( "[LC] Change Hostname[CHG] = ", HostName ) );
             }
         }
 
+        Bukkit.getServer().getConsoleSender().sendMessage( Utility.StringBuild( ChatColor.GREEN.toString(), "[LC] Change Hostname = ", ChatColor.AQUA.toString(), HostName ) );
         AddHostToSQL( IP, HostName );
         return HostName;
     }

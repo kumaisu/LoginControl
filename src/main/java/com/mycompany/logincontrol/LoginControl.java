@@ -109,11 +109,11 @@ public class LoginControl extends JavaPlugin implements Listener {
                         Param = param[1];
                         break;
                     case "u":
-                        PrtF = 2;
+                        PrtF = ( config.getIgnoreName().contains( Param ) ? -1 : 2 );
                         Param = param[1];
                         break;
                     case "i":
-                        PrtF = 3;
+                        PrtF = ( config.getIgnoreIP().contains( Param ) ? -1 : 3 );
                         Param = param[1];
                         break;
                     case "full":
@@ -128,10 +128,10 @@ public class LoginControl extends JavaPlugin implements Listener {
 
             switch ( PrtF ) {
                 case 0:
-                    StatRec.LogPrint( p, ( sender instanceof Player ) ? 15:30, FullFlag );
+                    StatRec.LogPrint( p, ( sender instanceof Player ) ? 15:30, FullFlag, config.getIgnoreName() );
                     break;
                 case 1:
-                    StatRec.DateLogPrint( p, Param, FullFlag );
+                    StatRec.DateLogPrint( p, Param, FullFlag, config.getIgnoreName() );
                     break;
                 case 2:
                 case 3:
@@ -276,12 +276,9 @@ public class LoginControl extends JavaPlugin implements Listener {
         event.setJoinMessage( null );
         Player player = event.getPlayer();
         StatRec.ChangeStatus( date, 1 );
-        StatRec.LogPrint( player, 5, false );
+        StatRec.LogPrint( player, 5, false, config.getIgnoreName() );
         StatRec.AddCountHost( player.getAddress().getHostString(), -1 );
-
-        if ( !config.getIgnoreName().contains( player.getName() ) && !config.getIgnoreIP().contains( player.getAddress().getHostString() ) ) {
-            StatRec.CheckIP( player, config.DBFlag( 1 ) );
-        }
+        StatRec.CheckIP( player, config.DBFlag( 1 ) );
 
         if ( ( config.getJump() ) && ( ( !player.hasPlayedBefore() ) || config.OpJump( player.isOp() ) ) ) {
             Utility.Prt( null, Utility.StringBuild( ChatColor.LIGHT_PURPLE.toString(), "The First Login Player" ), true );
@@ -422,9 +419,7 @@ public class LoginControl extends JavaPlugin implements Listener {
 
         String msg = Utility.StringBuild( ChatColor.GREEN.toString(), "Ping from ", Host, ChatColor.YELLOW.toString(), " [", event.getAddress().getHostAddress(), "]" );
         Utility.Prt( null, msg, config.DBFlag( 2 ) );
-        if ( !config.getIgnoreName().contains( Names ) && !config.getIgnoreIP().contains( event.getAddress().getHostAddress() ) ) {
-            Bukkit.getOnlinePlayers().stream().filter( ( p ) -> ( p.hasPermission( "LoginCtl.view" ) || p.isOp() ) ).forEachOrdered( ( p ) -> { p.sendMessage( msg ); } );
-        }
+        Bukkit.getOnlinePlayers().stream().filter( ( p ) -> ( p.hasPermission( "LoginCtl.view" ) || p.isOp() ) ).forEachOrdered( ( p ) -> { p.sendMessage( msg ); } );
     }
 
     @EventHandler //    看板ブロックを右クリック
