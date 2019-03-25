@@ -33,7 +33,7 @@ commands:
             /<command> del IPAddress
             /<command> count IPAddress ( num or Reset )
             /<command> search word
-            /<command> pingtop
+            /<command> pingtop [LineCount]
             /<command> checkIP
             /<command> Console [full/normal/none]
 permissions:

@@ -37,9 +37,16 @@ LoginControlは、プレイヤーログインに付いて、サポートをす�
 /Loginlist [d:yymmdd] [u:player name] [full]  
 
 /LoginCtl reload  
-/LoginCtl info:[ip address]  
-/LoginCtl chg:[ip address]:[host name]  
-/LoginCtl PingTop  
+/LoginCtl status  
+/LoginCtl info IPAddress  
+/LoginCtl chg IPAddress HostName
+/LoginCtl add IPAddress HostName  
+/LoginCtl del IPAddress  
+/LoginCtl PingTop [MaxCount]  
+/LoginCtl count IPAddress ( num or Reset )  
+/LoginCtl search word  
+/LoginCtl checkIP  
+/LoginCtl Console [full/normal/none]  
 
 **How to Install**  
 1.サーバーのプラグインディレクトリにLoginControl.jarを入れて起動します  

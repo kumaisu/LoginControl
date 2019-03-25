@@ -1,5 +1,8 @@
 #LoginControl Config
 
+#Kumaisu Setting
+Kumaisu: false
+
 #   Debug ( full / Default:normal / none )
 Debug: normal
 
@@ -54,9 +57,10 @@ MotD2nd-Ping-Player: "%$e%player%%$a, I have not been there for a while"
 #   /n で改行が可能、複数行の表示に対応
 ANNOUNCE:
   Enabled: true
-  Message: "%$e－－－  おしらせ  －－－/nDynmap URL[ %$4http://kumaisu.dip.jp:8123%$f ]/nHome Page
-    [ %$4http://wikiwiki.jp/kumaisu/%$7 ]/nJMS Vote  [ %$4https://minecraft.jp/servers/kumaisu.dip.jp
-    %$f]"
+  Message: "%$e－－－  おしらせ  －－－/n
+    DynmapURL [ %$4http://kumaisu.mydns.jp:8123%$f ]/n
+    Home Page [ %$4http://wikiwiki.jp/kumaisu/%$7 ]/n
+    JMS Vote  [ %$4https://minecraft.jp/servers/kumaisu.mydns.jp%$f ]"
 
 #   Login/Logout時のコメント表示用
 #   /n で改行が可能、複数行の表示に対応
@@ -77,8 +81,8 @@ Returning_Join_Message:
   JP: "%$b%player% %$dさん、おかえりなさい！ゆっくりしていってね！"
   US: "%$b%player% %$d, welcome back! Please go slow!"
   TW: "%$b%player% %$d，歡迎回來！ 請慢一點！"
-  DE: "%$b%player% %$d, willkommen zurück! Bitte geh langsam!"
-  FR: "%$b%player% %$d, bon retour! S'il vous plaît allez lentement!"
+  DE: "%$b%player% %$d, willkommen zuruck! Bitte geh langsam!"
+  FR: "%$b%player% %$d, bon retour! S'il vous plait allez lentement!"
   IT: "%$b%player% %$d, bentornato! Per favore vai piano!"
   PH: "%$b%player% %$d, maligayang pagdating pabalik! Mangyaring magpatuloy!"
   RU: "%$b%player% %$d, добро пожаловать! Пожалуйста, идите медленно!"
@@ -89,40 +93,6 @@ Kick_Message:
   Enabled: true
   Message: "%$e%player% さんを$%4[%Reason%]$%eにより、サーバーからキックしました"
     
-AutoMessages:
-  Enabled: true
-  Prefix: "%$f[%$Server-INFO%$f]"
-  Messages:
-    newbie:
-      interval: 5000
-      use_permission: true
-      permission: LoginCtl.AutoMessages.newbie
-      list:
-      - "%$7メインワールドでの建築などの作業は許可された場所のみになります"
-      - "%$7難易度は%$4HARD%$7です、餓死に注意してね"
-      - "%$7地下透視や能力向上系のﾂｰﾙ等の利用は禁止、%$4GlobalBAN%$7対象です"
-      - "%$7ﾒｲﾝﾜｰﾙﾄﾞ以外は死亡時に%$eｱｲﾃﾑﾄﾞﾛｯﾌﾟ%$7するので注意してください"
-      - "%$7ジョブに就いて、資金を稼ぎましょう/n%$4/jobs browse %$7で職種が確認できます"
-      - "%$7ｴﾚﾍﾞｰﾀは看板を右ｸﾘｯｸで行きたい階を選べるよ"
-    global:
-      interval: 5000
-      use_permission: true
-      permission: LoginCtl.AutoMessages.global
-      list:
-      - "%$3send&7や%$3tell%$7コマンドは相手が不在でもメールとして届くよ"
-      - "%$7資源ﾜｰﾙﾄﾞでのTT作成は禁止しませんが、%$eﾜｰﾙﾄﾞﾘｾｯﾄ%$7時保護されません"
-      - "%$7鯖の情報用に %$eDiscord %$7を運用しています/n[ %$bhttps://discord.gg/AgX3UxR%$7 ]"
-      - "%$7ルールやコマンドなどは%$ewiki%$7で確認してください/n[ %$bhttp://wikiwiki.jp/kumaisu/%$7 ]"
-      - "%$7鯖発展のため、是非投票をお願いします/n[ %$bhttps://minecraft.jp/servers/kumaisu.dip.jp%$7 ]"
-    vip:
-      interval: 8000
-      use_permission: true
-      permission: LoginCtl.AutoMessages.vip
-      list:
-      - "%$f運営メンバー募集、詳しくは%$eKumaisu%$fまで問合せください"
-      - "%$fプラグイン開発協力者募集中です、詳細は個別対応になります"
-      - "%$fItemShopのﾁｪｽﾄは破壊可能、ｶﾞﾗｽ部分に看板も設置可能です"
-
 #   死亡時のメッセージ類
 Death_Message:
   Enabled: true
@@ -192,5 +162,3 @@ Message:
 107.178.192.0/18: GoogleIncUS,MountainView)
 54.216.0.0/15: AmazonCom(Ireland,Dublin)
 
-#Kumaisu Setting
-Kumaisu: true

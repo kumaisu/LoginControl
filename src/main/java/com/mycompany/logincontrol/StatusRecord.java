@@ -586,8 +586,8 @@ public class StatusRecord {
         }
     }
     
-    public void PingTop( Player p ) {
-        Utility.Prt( p, ChatColor.GREEN + "== Ping Count Top10 ==", ( p == null ) );
+    public void PingTop( Player p, int Lines ) {
+        Utility.Prt( p, ChatColor.GREEN + "== Ping Count Top " + Lines + " ==", ( p == null ) );
 
         try {        
             openConnection();
@@ -598,7 +598,7 @@ public class StatusRecord {
             int i = 0;
             String chk_name = "";
             
-            while( rs.next() && ( i<10 ) ) {
+            while( rs.next() && ( i<Lines ) ) {
                 String GetName = rs.getString( "host" );
                 
                 if ( !chk_name.equals( GetName ) ) {
@@ -625,13 +625,11 @@ public class StatusRecord {
     @SuppressWarnings("CallToPrintStackTrace")
     public void DataConv( CommandSender sender ) {
         sender.sendMessage( "== Data Convert List ==" );
-
         try {        
             openConnection();
             Statement stmt = connection.createStatement();
             String sql = "SELECT * FROM players ORDER BY date ASC;";
             ResultSet rs = stmt.executeQuery(sql);
-
             while( rs.next() ) {
                 //  String sql = "CREATE TABLE IF NOT EXISTS players(id int auto_increment, date DATETIME,name varchar(20), uuid varchar(36), ip varchar(22), status varchar(10), index(id))";
                 int GetID = rs.getInt( "id" );
@@ -640,9 +638,7 @@ public class StatusRecord {
                 String GetUUID = rs.getString( "uuid" );
                 String GetIP = rs.getString( "ip" );
                 String GetSts = rs.getString( "status" );
-
                 String message = String.format("%6d", GetID) + ": " + sdf.format(GetData) + " " + String.format("%-10s", GetName) + ChatColor.RED + "[" + String.format("%-15s", GetIP ) + "]";
-
                 //  sql = "CREATE TABLE IF NOT EXISTS list(id int auto_increment, date DATETIME,name varchar(20), uuid varchar(36), ip INTEGER UNSIGNED, status byte, index(id))";
                 String add_sql = "INSERT INTO list ( date, name, uuid, ip, status ) VALUES ( ?, ?, ?, INET_ATON( ? ), ? );";
                 PreparedStatement preparedStatement = connection.prepareStatement( add_sql );
@@ -655,14 +651,11 @@ public class StatusRecord {
                 } else {
                     preparedStatement.setInt( 5, 0 );
                 }
-
                 preparedStatement.executeUpdate();
-
                 sender.sendMessage( message );
             }
                     
             sender.sendMessage( "================" );
-
         } catch ( ClassNotFoundException | SQLException e ) {
             e.printStackTrace();
         }

@@ -43,7 +43,7 @@ public class LoginControl extends JavaPlugin implements Listener {
     private Config config;
     private Date date;
     private StatusRecord StatRec;
-    
+
     @Override
     public void onEnable() {
         this.getServer().getPluginManager().registerEvents( this, this );
@@ -100,7 +100,7 @@ public class LoginControl extends JavaPlugin implements Listener {
         if ( cmd.getName().toLowerCase().equalsIgnoreCase( "loginlist" ) ) {
             int PrtF = 0;
             String Param = "";
-                
+
             for ( String arg : args ) {
                 String[] param = arg.split( ":" );
                 switch ( param[0] ) {
@@ -143,7 +143,7 @@ public class LoginControl extends JavaPlugin implements Listener {
             }
             return true;
         }
-        
+
         if ( cmd.getName().toLowerCase().equalsIgnoreCase( "ping" ) ) {
             if ( args.length > 0 ) {
                 try {
@@ -155,7 +155,7 @@ public class LoginControl extends JavaPlugin implements Listener {
                 }
             }
         }
-        
+
         if ( cmd.getName().toLowerCase().equalsIgnoreCase( "loginctl" ) ) {
             String msg;
             String IP = "127.0.0.0";
@@ -165,7 +165,7 @@ public class LoginControl extends JavaPlugin implements Listener {
             if ( args.length > 0 ) CtlCmd = args[0];
             if ( args.length > 1 ) IP = args[1];
             if ( args.length > 2 ) HostName = args[2];
-            
+
             switch ( CtlCmd ) {
                 case "reload":
                     config = new Config( this );
@@ -222,7 +222,7 @@ public class LoginControl extends JavaPlugin implements Listener {
                 case "count":
                     {
                         if ( HostName.equals( "Reset" ) ) HostName = "-1";
-                        
+
                         try {
                             StatRec.AddCountHost( IP, Integer.parseInt( HostName ) );
                         } catch ( UnknownHostException ex ) {
@@ -240,7 +240,15 @@ public class LoginControl extends JavaPlugin implements Listener {
                     }
                     break;
                 case "pingtop":
-                    StatRec.PingTop( p );
+                    int PTLines;
+                    try {
+                        PTLines = Integer.parseInt( IP );
+                    } catch ( NumberFormatException e ) {
+                        Utility.Prt( p, Utility.StringBuild( ChatColor.RED.toString(), "Please specify an integer" ), true );
+                        PTLines = 10;
+                    }
+                    if ( PTLines < 1 ) { PTLines = 10; }
+                    StatRec.PingTop( p, PTLines );
                     break;
                 case "CheckIP":
                     config.setCheckIP( !config.getCheckIP() );
@@ -272,7 +280,7 @@ public class LoginControl extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onPlayerLogin( PlayerJoinEvent event ) throws UnknownHostException {
-        
+
         event.setJoinMessage( null );
         Player player = event.getPlayer();
         StatRec.ChangeStatus( date, 1 );
@@ -296,7 +304,7 @@ public class LoginControl extends JavaPlugin implements Listener {
             loc.setPitch( config.getPitch() );
             loc.setYaw( config.getYaw() );
             player.teleport( loc );
-            
+
             if( config.NewJoin() ) {
                 String msg = StatRec.GetLocale( player.getAddress().getHostString(), config.DBFlag( 1 ) );
                 Utility.Prt( null, Utility.StringBuild( "Player host = ", player.getAddress().getHostString() ), config.DBFlag( 1 ) );
@@ -310,7 +318,7 @@ public class LoginControl extends JavaPlugin implements Listener {
                 Bukkit.broadcastMessage( Utility.ReplaceString( config.ReturnJoinMessage( StatRec.GetLocale( player.getAddress().getHostString(), config.DBFlag( 2 ) ) ), player.getDisplayName() ) );
             }
         }
-        
+
         if ( config.Announce() ) {
             player.sendMessage( Utility.ReplaceString( config.AnnounceMessage(), player.getDisplayName() ).split( "/n" ) );
         }
@@ -326,7 +334,7 @@ public class LoginControl extends JavaPlugin implements Listener {
             event.setQuitMessage( Utility.ReplaceString( config.PlayerQuitMessage(), event.getPlayer().getDisplayName() ) );
         }
     }
-    
+
     @EventHandler
     public void onKickMessage( PlayerKickEvent event ) {
         if ( config.PlayerKick() ) {
@@ -339,7 +347,7 @@ public class LoginControl extends JavaPlugin implements Listener {
             Bukkit.broadcastMessage( msg );
         }
     }
-    
+
     @EventHandler
     public void onPlayerDeath( PlayerDeathEvent event ) {
         if ( config.DeathMessageFlag() ) {
@@ -375,14 +383,14 @@ public class LoginControl extends JavaPlugin implements Listener {
         // p.sendMessage( "Catch Flight mode " + p.getDisplayName() );
         if ( !p.hasPermission( "LoginCtl.flight" ) ) FlightMode( p, false );
     }
-    
+
     @EventHandler
     public void prePlayerLogin( AsyncPlayerPreLoginEvent event ) {
         date = new Date();
         StatRec.PreSavePlayer( date, event.getName(), event.getUniqueId().toString(), event.getAddress().getHostAddress(), 0 );
         StatRec.AddPlayerToSQL( event.getAddress().getHostAddress(), event.getName() );
     }
-    
+
     @EventHandler
     public void onServerListPing( ServerListPingEvent event ) throws UnknownHostException, ClassNotFoundException {
         String Names = "Unknown";   // = StatRec.GetPlayerName( event.getAddress().getHostAddress() );
@@ -424,9 +432,9 @@ public class LoginControl extends JavaPlugin implements Listener {
 
     @EventHandler //    看板ブロックを右クリック
     public void onSignClick( PlayerInteractEvent event ) {
-               
+
         if ( event.getAction() != Action.RIGHT_CLICK_BLOCK ) return;
-        
+
         Player player = event.getPlayer();
         Block clickedBlock = event.getClickedBlock();
         Material material = clickedBlock.getType();
@@ -439,6 +447,4 @@ public class LoginControl extends JavaPlugin implements Listener {
             }
         }
     }
-
-
 }
