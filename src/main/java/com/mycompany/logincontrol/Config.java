@@ -35,10 +35,7 @@ public class Config {
     private int fpitch;
     private int fyaw;
     private String MotD1stLine;
-    private String MotD2ndLineUnknown;
-    private String MotD2ndLinePlayer;
-    private String MotD2ndLinePing;
-    private String MotD2ndLinePingPlayer;
+    private List<String> MotD2ndLine;
     private int MotD_Count;
     private List<String> IgnoreReportName;
     private List<String> IgnoreReportIP;
@@ -81,15 +78,18 @@ public class Config {
         fyaw = config.getInt( "yaw" );
         present = config.getStringList( "Present" );
         MotD1stLine = config.getString( "MotD1st" );
-        MotD2ndLineUnknown = config.getString( "MotD2nd-Unknown" );
-        MotD2ndLinePlayer = config.getString( "MotD2nd-Player" );
-        MotD2ndLinePing = config.getString( "MotD2nd-Ping" );
-        MotD2ndLinePingPlayer = config.getString( "MotD2nd-Ping-Player" );
         MotD_Count = config.getInt( "MotD2nd-Ping-Count" );
         IgnoreReportName = config.getStringList( "Ignore-Names" );
         IgnoreReportIP = config.getStringList( "Ignore-IP" );
         CheckIPAddress = config.getBoolean( "CheckIP" );
-        
+
+        MotD2ndLine = new ArrayList<>();
+        MotD2ndLine.add( config.getString( "MotD2nd-Unknown" ) );
+        MotD2ndLine.add( config.getString( "MotD2nd-Ping" ) );
+        MotD2ndLine.add( config.getString( "MotD2nd-Player" ) );
+        MotD2ndLine.add( config.getString( "MotD2nd-Ping-Player" ) );
+        MotD2ndLine.add( config.getString( "MotD2nd-Alive" ) );
+
         switch ( config.getString( "Debug" ) ) {
         case "full":
             DebugFlag = 2;
@@ -142,8 +142,8 @@ public class Config {
         
         Prt( p, Utility.StringBuild( "Unknown IP Check : ", ( CheckIPAddress ? "True":"False" ) ) );
         Prt( p, Utility.StringBuild( "MotD 1 Line : ", MotD1stLine ) );
-        Prt( p, Utility.StringBuild( "MotD 2 Line(Unknown) : ", MotD2ndLineUnknown ) );
-        Prt( p, Utility.StringBuild( "MotD 2 Line(Player ) : ", MotD2ndLinePlayer ) );
+        Prt( p, Utility.StringBuild( "MotD 2 Line(Unknown) : ", MotD2ndLine.get( 0 ) ) );
+        Prt( p, Utility.StringBuild( "MotD 2 Line(Player ) : ", MotD2ndLine.get( 2 ) ) );
         Prt( p, "==========================" );
         
     }
@@ -237,7 +237,7 @@ public class Config {
     }
 
     public String KnownServers( String IP ) {
-        return config.getString( IP );
+        return config.getString( IP, null );
     }
     
     public boolean OpJump( boolean isOP ) {
@@ -252,12 +252,8 @@ public class Config {
         return MotD1stLine;
     }
     
-    public String get2ndLine( boolean flag, int Count ) {
-        if ( Count>MotD_Count ) {
-            return ( flag ? MotD2ndLinePingPlayer : MotD2ndLinePing );
-        } else {
-            return ( flag ? MotD2ndLinePlayer : MotD2ndLineUnknown );
-        }
+    public String get2ndLine( int num ) {
+        return MotD2ndLine.get( num );
     }
     
     public int getmotDCount() {

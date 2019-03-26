@@ -61,20 +61,6 @@ public class LoginControl extends JavaPlugin implements Listener {
         super.onLoad(); //To change body of generated methods, choose Tools | Templates.
     }
 
-    public void FlightMode( Player p, boolean flag ) {
-        if ( flag ) {
-            Utility.Prt( p, Utility.StringBuild( ChatColor.AQUA.toString(), "You can FLY !!" ), config.DBFlag( 1 ) );
-            // 飛行許可
-            p.setAllowFlight( true );
-            p.setFlySpeed( 0.1F );
-        } else {
-            Utility.Prt( p, Utility.StringBuild( ChatColor.LIGHT_PURPLE.toString(), "Stop your FLY Mode." ), config.DBFlag( 1 ) );
-            // 無効化
-            p.setFlying( false );
-            p.setAllowFlight( false );
-        }
-    }
-
     @Override
     public boolean onCommand( CommandSender sender,Command cmd, String commandLabel, String[] args ) {
         boolean FullFlag = false;
@@ -189,15 +175,11 @@ public class LoginControl extends JavaPlugin implements Listener {
                     break;
                 case "add":
                     if ( !IP.equals( "" ) ) {
-                        if ( StatRec.getUnknownHost( IP ).equals( "Unknown" ) ) {
+                        if ( StatRec.GetHost( IP ) == null ) {
                             if ( !HostName.equals( "" ) ) {
                                 StatRec.AddHostToSQL( IP, HostName );
                             } else {
-                                try {
-                                    StatRec.setUnknownHost( IP, true, ( p == null ) );
-                                } catch ( UnknownHostException ex ) {
-                                    Utility.Prt( p, Utility.StringBuild( ChatColor.RED.toString(), ex.getMessage() ),true );
-                                }
+                                Utility.Prt( p, Utility.StringBuild( ChatColor.RED.toString(), " Host name is required" ), true );
                             }
                         } else {
                             Utility.Prt( p, Utility.StringBuild( ChatColor.RED.toString(), IP, " is already exists" ), true );
@@ -378,13 +360,6 @@ public class LoginControl extends JavaPlugin implements Listener {
     }
 
     @EventHandler
-    public void onFlight( PlayerToggleFlightEvent event ) {
-        Player p = event.getPlayer();
-        // p.sendMessage( "Catch Flight mode " + p.getDisplayName() );
-        if ( !p.hasPermission( "LoginCtl.flight" ) ) FlightMode( p, false );
-    }
-
-    @EventHandler
     public void prePlayerLogin( AsyncPlayerPreLoginEvent event ) {
         date = new Date();
         StatRec.PreSavePlayer( date, event.getName(), event.getUniqueId().toString(), event.getAddress().getHostAddress(), 0 );
@@ -395,39 +370,81 @@ public class LoginControl extends JavaPlugin implements Listener {
     public void onServerListPing( ServerListPingEvent event ) throws UnknownHostException, ClassNotFoundException {
         String Names = "Unknown";   // = StatRec.GetPlayerName( event.getAddress().getHostAddress() );
         String Host;                // = ChatColor.WHITE + "Player(" + Names + ")";
+        int count = 0;
+        String MotdMsg = Utility.StringBuild( config.get1stLine(), "\n" );
 
         String ChkHost = config.KnownServers( event.getAddress().getHostAddress() );
-        if ( ChkHost != null ) {
+        if ( ChkHost == null ) {
+            //  簡易DNSからホスト名を取得
+            Host = StatRec.GetHost( event.getAddress().getHostAddress() );
+            int MsgNum = 0;
+            if ( Host == null ) {
+                //  DBに該当なしなので、DB登録
+                //  ホスト名が取得できなかった場合は、Unknown Player を File に記録し、新規登録
+                Host = Utility.StringBuild( ChatColor.RED.toString(), StatRec.getUnknownHost( event.getAddress().getHostAddress(), config.getCheckIP(), config.DBFlag( 2 ) ) );
+                //  新規ホストとして、Unknown.yml ファイルへ書き出し
+                StatRec.WriteFileUnknown( event.getAddress().getHostAddress(), this.getDataFolder().toString() );
+            } else {
+                //  未知のホスト名の場合は LIGHT_PURPLE , 既知のPlayerだった場合は WHITE になる
+                if ( Host.contains( "Player" ) ) {
+                    Host = Utility.StringBuild( ChatColor.WHITE.toString(), Host );
+                    //  簡易DNSにプレイヤー登録されている場合は、ログイン履歴を参照して最新のプレイヤー名を取得する
+                    Names = StatRec.GetPlayerName( event.getAddress().getHostAddress() );
+                    MsgNum = 2;
+                } else {
+                    Host = Utility.StringBuild( ChatColor.LIGHT_PURPLE.toString(), Host );
+                }
+            }
+            StatRec.AddCountHost( event.getAddress().getHostAddress(), 0 );
+
+            count = StatRec.GetcountHosts( event.getAddress().getHostAddress() );
+            Host = Utility.StringBuild( Host, "(", String.valueOf( count ), ")" );
+            
+            if ( count>config.getmotDCount() ) MsgNum++;
+            MotdMsg = Utility.StringBuild( MotdMsg, config.get2ndLine( MsgNum ) );
+            if ( MsgNum == 1 ) {
+                MotdMsg = MotdMsg.replace( "%count", String.valueOf( count ) );
+                MotdMsg = MotdMsg.replace( "%date", StatRec.getDateHost( event.getAddress().getHostAddress(), true ) );
+                //  True : カウントを開始した日を指定
+                //  False : 最後にカウントされた日を指定
+            }
+            event.setMotd( Utility.ReplaceString( MotdMsg, Names ) );
+        } else {
             //  Configに既知のホスト登録があった場合
             Host = Utility.StringBuild( ChatColor.GRAY.toString(), ChkHost );
-        } else {
-            //  簡易DNSからホスト名を取得
-            //  ホスト名が取得できなかった場合は、Unknown Player を File に記録し、新規登録
-            //  未知のホスト名の場合は LIGHT_PURPLE , 既知のPlayerだった場合は WHITE になる
-            Host = StatRec.WriteUnknown( event.getAddress().getHostAddress(), config.getCheckIP(), this.getDataFolder().toString(), config.DBFlag( 2 ) );
+            MotdMsg = Utility.StringBuild( MotdMsg, config.get2ndLine( 4 ) );
+            event.setMotd( MotdMsg );
         }
-        StatRec.AddCountHost( event.getAddress().getHostAddress(), 0 );
-
-        int count = StatRec.GetcountHosts( event.getAddress().getHostAddress() );
-        Host = Utility.StringBuild( Host, "(", String.valueOf( count ), ")" );
-
-        //  簡易DNSにプレイヤー登録されている場合は、ログイン履歴を参照して最新のプレイヤー名を取得する
-        if ( Host.contains( "Player" ) ) Names = StatRec.GetPlayerName( event.getAddress().getHostAddress() );
-
-        String MotdMsg = Utility.StringBuild( config.get1stLine(), "\n", config.get2ndLine( !Names.equals( "Unknown" ), count ) );
-
-        if ( count>config.getmotDCount() ) {
-            MotdMsg = MotdMsg.replace( "%count", String.valueOf( count ) );
-            MotdMsg = MotdMsg.replace( "%date", StatRec.getDateHost( event.getAddress().getHostAddress(), true ) );
-            //  True : カウントを開始した日を指定
-            //  False : 最後にカウントされた日を指定
-        }
-
-        event.setMotd( Utility.ReplaceString( MotdMsg, Names ) );
 
         String msg = Utility.StringBuild( ChatColor.GREEN.toString(), "Ping from ", Host, ChatColor.YELLOW.toString(), " [", event.getAddress().getHostAddress(), "]" );
         Utility.Prt( null, msg, config.DBFlag( 2 ) );
         Bukkit.getOnlinePlayers().stream().filter( ( p ) -> ( p.hasPermission( "LoginCtl.view" ) || p.isOp() ) ).forEachOrdered( ( p ) -> { p.sendMessage( msg ); } );
+    }
+
+    //
+    //  Extra Command
+    //  オプショナリーな機能
+    //
+    
+    public void FlightMode( Player p, boolean flag ) {
+        if ( flag ) {
+            Utility.Prt( p, Utility.StringBuild( ChatColor.AQUA.toString(), "You can FLY !!" ), config.DBFlag( 1 ) );
+            // 飛行許可
+            p.setAllowFlight( true );
+            p.setFlySpeed( 0.1F );
+        } else {
+            Utility.Prt( p, Utility.StringBuild( ChatColor.LIGHT_PURPLE.toString(), "Stop your FLY Mode." ), config.DBFlag( 1 ) );
+            // 無効化
+            p.setFlying( false );
+            p.setAllowFlight( false );
+        }
+    }
+
+    @EventHandler
+    public void onFlight( PlayerToggleFlightEvent event ) {
+        Player p = event.getPlayer();
+        // p.sendMessage( "Catch Flight mode " + p.getDisplayName() );
+        if ( !p.hasPermission( "LoginCtl.flight" ) ) FlightMode( p, false );
     }
 
     @EventHandler //    看板ブロックを右クリック

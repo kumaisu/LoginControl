@@ -265,9 +265,9 @@ public class StatusRecord {
     
     public void AddPlayerToSQL( String IP, String Name ) {
         String DataName = Utility.StringBuild( Name, ".Player." );
-        String GetName = getUnknownHost( IP );
+        String GetName = GetHost( IP );
         
-        if ( GetName.equals( "Unknown" ) ) {
+        if ( GetName == null ) {
             AddHostToSQL( IP, Utility.StringBuild( DataName, "none" ) );
         } else {
             if ( !GetName.contains( "Player" ) ) {
@@ -326,19 +326,6 @@ public class StatusRecord {
         return "JP";
     }
     
-    public String getUnknownHost( String IP ) {
-        try {
-            openConnection();
-            Statement stmt = connection.createStatement();
-            String sql = "SELECT * FROM hosts WHERE INET_NTOA(ip) = '" + IP + "' ORDER BY ip DESC;";
-            ResultSet rs = stmt.executeQuery( sql );
-            if ( rs.next() ) return rs.getString( "host" );
-        } catch ( ClassNotFoundException | SQLException e ) {
-            Bukkit.getServer().getConsoleSender().sendMessage( "[LoginControl] Error GetUnknownHost" );
-        }
-        return "Unknown";
-    }
-
     public void AddHostToSQL( String IP, String Host ) {
         try {
             openConnection();
@@ -371,24 +358,57 @@ public class StatusRecord {
         }
     }
 
-    public String setUnknownHost( String IP, boolean CheckFlag, boolean Debug ) throws UnknownHostException {
+    public String GetHost( String IP ) {
+        try {
+            openConnection();
+            Statement stmt = connection.createStatement();
+            String sql = "SELECT * FROM hosts WHERE INET_NTOA(ip) = '" + IP + "';";
+            ResultSet rs = stmt.executeQuery( sql );
+            if ( rs.next() ) return rs.getString( "host" );
+        } catch ( ClassNotFoundException | SQLException e ) {
+            Bukkit.getServer().getConsoleSender().sendMessage( "[LoginControl] Error GetUnknownHost" );
+        }
+        return null;
+    }
+
+    public void SearchHost( Player p, String word ) {
+        try {
+            openConnection();
+            Statement stmt = connection.createStatement();
+            String sql = "SELECT * FROM hosts WHERE host LIKE '%" + word + "%' ORDER BY ip DESC;";
+            ResultSet rs = stmt.executeQuery( sql );
+
+            Utility.Prt( p, Utility.StringBuild( ChatColor.YELLOW.toString(), "Search host [", word, "]..." ), ( p == null ) );
+            
+            int DataNum = 0;
+            while( rs.next() ) {
+                DataNum++;
+                Utility.Prt( p,
+                    Utility.StringBuild(
+                        ChatColor.WHITE.toString(), String.valueOf( DataNum ), ":",
+                        ChatColor.GRAY.toString(), rs.getString( "host" ),
+                        ChatColor.GREEN.toString(), "(", String.valueOf( rs.getInt( "count" ) ), ")",
+                        ChatColor.YELLOW.toString(), "[", toInetAddress( rs.getLong( "ip" ) ), "]",
+                        ChatColor.WHITE.toString(), sdf.format( rs.getTimestamp( "lastdate" ) )
+                    ), ( p == null )
+                );
+            }
+
+            if ( DataNum == 0 ) Utility.Prt( p, Utility.StringBuild( ChatColor.RED.toString(), "No data for [", word, "]" ), ( p == null ) );
+
+        } catch ( ClassNotFoundException | SQLException e ) {
+            Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "[LoginControl] Search Error" );
+        }
+    }
+    
+    public String getUnknownHost( String IP, boolean CheckFlag, boolean Debug ) throws UnknownHostException {
         Bukkit.getServer().getConsoleSender().sendMessage( Utility.StringBuild( ChatColor.RED.toString(), "[LC] Unknown New Record : ", ChatColor.AQUA.toString(), IP ) );
         String HostName = "Unknown(IP)";
         if ( CheckFlag ) {
             Inet4Address inet = ( Inet4Address ) Inet4Address.getByName( IP );
-            if ( !inet.getHostName().equals( IP ) ) HostName = inet.getHostName();
+            if ( !inet.getHostName().equals( IP ) ) { HostName = inet.getHostName(); }
         }
 
-        //  Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "Write Unknown IP : " + IP );
-        //  Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "Get Unknown Host : " + inet.getHostName() );
-        //  Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "Get Unknown Cano : " + inet.getCanonicalHostName() );
-        //  Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "Get Unknown Addr : " + inet.getHostAddress() );
-
-        //  テーブルへ追加
-        //  sql = "CREATE TABLE IF NOT EXISTS unknowns (ip varchar(22), host varchar(60), count int, newdate DATETIME, lastdate DATETIME )";
-
-        if ( HostName.length()>60 ) { HostName = String.format( "%-60s", HostName ); }
-        
         //  クマイス鯖特有の特別処理
         if ( Kumaisu ) {
             if ( Debug ) Bukkit.getServer().getConsoleSender().sendMessage( Utility.StringBuild( ChatColor.GREEN.toString(), "[LC] Original Hostname = ", ChatColor.AQUA.toString(), HostName ) );
@@ -404,6 +424,8 @@ public class StatusRecord {
             }
         }
 
+        if ( HostName.length()>60 ) { HostName = String.format( "%-60s", HostName ); }
+        
         Bukkit.getServer().getConsoleSender().sendMessage( Utility.StringBuild( ChatColor.GREEN.toString(), "[LC] Change Hostname = ", ChatColor.AQUA.toString(), HostName ) );
         AddHostToSQL( IP, HostName );
         return HostName;
@@ -414,36 +436,22 @@ public class StatusRecord {
         return inet.getHostName();
     }
 
-    public String WriteUnknown( String IPS, boolean ChkIP, String DataFolder, boolean Debug ) throws UnknownHostException {
+    public boolean WriteFileUnknown( String IP, String DataFolder ) {
         File UKfile = new File( DataFolder, "UnknownIP.yml" );
         FileConfiguration UKData = YamlConfiguration.loadConfiguration( UKfile );
 
         SimpleDateFormat cdf = new SimpleDateFormat("yyyyMMddHHmmss");
-
-        String HostName = getUnknownHost( IPS );
-        ChatColor NameColor;
         
-        if ( HostName.equals( "Unknown" ) ) {
-            HostName = setUnknownHost( IPS, ChkIP, Debug );
-            NameColor = ChatColor.RED;
-            UKData.set( cdf.format( new Date() ),Utility.StringBuild( IPS, "[", HostName, "]" ) );
-
-            try {
-                UKData.save( UKfile );
-            }
-            catch ( IOException e ) {
-                Bukkit.getServer().getConsoleSender().sendMessage( Utility.StringBuild( ChatColor.RED.toString(), "Could not save UnknownIP File." ) );
-                return "Unknown";
-            }
-        } else {
-            if ( HostName.contains( "Player" ) ) {
-                NameColor = ChatColor.WHITE;
-            } else {
-                NameColor = ChatColor.LIGHT_PURPLE;
-            }
+        UKData.set( cdf.format( new Date() ),Utility.StringBuild( IP, "[", GetHost( IP ), "]" ) );
+        try {
+            UKData.save( UKfile );
+        }
+        catch ( IOException e ) {
+            Bukkit.getServer().getConsoleSender().sendMessage( Utility.StringBuild( ChatColor.RED.toString(), "Could not save UnknownIP File." ) );
+            return false;
         }
 
-        return Utility.StringBuild( NameColor.toString(), HostName );
+        return true;
     }
     
     public String getDateHost( String IP, boolean newf ) throws ClassNotFoundException {
@@ -556,36 +564,6 @@ public class StatusRecord {
         }
     }
 
-    public void SearchHost( Player p, String word ) {
-        try {
-            openConnection();
-            Statement stmt = connection.createStatement();
-            String sql = "SELECT * FROM hosts WHERE host LIKE '%" + word + "%' ORDER BY ip DESC;";
-            ResultSet rs = stmt.executeQuery( sql );
-
-            Utility.Prt( p, Utility.StringBuild( ChatColor.YELLOW.toString(), "Search host [", word, "]..." ), ( p == null ) );
-            
-            int DataNum = 0;
-            while( rs.next() ) {
-                DataNum++;
-                Utility.Prt( p,
-                    Utility.StringBuild(
-                        ChatColor.WHITE.toString(), String.valueOf( DataNum ), ":",
-                        ChatColor.GRAY.toString(), rs.getString( "host" ),
-                        ChatColor.GREEN.toString(), "(", String.valueOf( rs.getInt( "count" ) ), ")",
-                        ChatColor.YELLOW.toString(), "[", toInetAddress( rs.getLong( "ip" ) ), "]",
-                        ChatColor.WHITE.toString(), sdf.format( rs.getTimestamp( "lastdate" ) )
-                    ), ( p == null )
-                );
-            }
-
-            if ( DataNum == 0 ) Utility.Prt( p, Utility.StringBuild( ChatColor.RED.toString(), "No data for [", word, "]" ), ( p == null ) );
-
-        } catch ( ClassNotFoundException | SQLException e ) {
-            Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "[LoginControl] Search Error" );
-        }
-    }
-    
     public void PingTop( Player p, int Lines ) {
         Utility.Prt( p, ChatColor.GREEN + "== Ping Count Top " + Lines + " ==", ( p == null ) );
 
@@ -605,7 +583,7 @@ public class StatusRecord {
                     i++;
                     Utility.Prt( p, 
                         Utility.StringBuild(
-                            ChatColor.AQUA.toString(), String.format( "%4d", rs.getInt("count" ) ), ": ",
+                            ChatColor.AQUA.toString(), String.format( "%5d", rs.getInt("count" ) ), ": ",
                             ChatColor.YELLOW.toString(), String.format( "%-15s", toInetAddress( rs.getLong( "ip" ) ) ),
                             ChatColor.WHITE.toString(), String.format( "%-40s", rs.getString( "host" ) ),
                             ChatColor.WHITE.toString(), sdf.format( rs.getTimestamp( "lastdate" ) )
