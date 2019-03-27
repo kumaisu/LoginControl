@@ -370,11 +370,10 @@ public class LoginControl extends JavaPlugin implements Listener {
     public void onServerListPing( ServerListPingEvent event ) throws UnknownHostException, ClassNotFoundException {
         String Names = "Unknown";   // = StatRec.GetPlayerName( event.getAddress().getHostAddress() );
         String Host;                // = ChatColor.WHITE + "Player(" + Names + ")";
-        int count = 0;
-	int PrtStatus = 2;	// ConsoleLog Flag
-        String MsgColor = ChatColor.GREEN.toString();
+	int PrtStatus = 2;          // ConsoleLog Flag 2:Full 1:Normal(Playerのみ)
 
         String MotdMsg = config.get1stLine();
+        String MsgColor;
 
         String ChkHost = config.KnownServers( event.getAddress().getHostAddress() );
         if ( ChkHost == null ) {
@@ -397,15 +396,16 @@ public class LoginControl extends JavaPlugin implements Listener {
                     MsgNum = 2;
                     PrtStatus = 1;
                 } else {
-                    MsgColor = olor.LIGHT_PURPLE.toString();
+                    MsgColor = ChatColor.LIGHT_PURPLE.toString();
                 }
             }
             StatRec.AddCountHost( event.getAddress().getHostAddress(), 0 );
 
-            count = StatRec.GetcountHosts( event.getAddress().getHostAddress() );
+            int count = StatRec.GetcountHosts( event.getAddress().getHostAddress() );
             Host = Utility.StringBuild( Host, "(", String.valueOf( count ), ")" );
 
-            if ( count>config.getmotDCount() ) MsgNum++;
+            if ( ( config.getmotDCount() != 0 ) && ( count>config.getmotDCount() ) ) MsgNum++;
+            if ( ( config.getmotDMaxCount() != 0 ) && ( count>config.getmotDMaxCount() ) ) MsgNum = 1;
             MotdMsg = Utility.StringBuild( MotdMsg, config.get2ndLine( MsgNum ) );
             if ( MsgNum == 1 ) {
                 MotdMsg = MotdMsg.replace( "%count", String.valueOf( count ) );

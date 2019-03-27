@@ -42,6 +42,7 @@ Present:
 
 #MotD Message
 MotD2nd-Ping-Count: 100
+MotS2nd-Ping-Max-Count: 1000
 MotD1st: "%$dWelcome to Minecraft Server\n"
 MotD2nd-Unknown: "%$3Let's play together"
 MotD2nd-Ping: "You are going to confirm host survival %count times since %date"

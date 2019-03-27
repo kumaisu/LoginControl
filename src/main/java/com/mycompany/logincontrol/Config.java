@@ -24,7 +24,7 @@ public class Config {
     private String database;
     private String username;
     private String password;
-    private String fworld;
+
     private boolean JumpStats;
     private boolean OpJumpStats;
     private boolean CheckIPAddress;
@@ -34,11 +34,16 @@ public class Config {
     private int fz;
     private int fpitch;
     private int fyaw;
+    private String fworld;
+
+    private int MotD_Count;
+    private int MotD_MaxCount;
     private String MotD1stLine;
     private List<String> MotD2ndLine;
-    private int MotD_Count;
+
     private List<String> IgnoreReportName;
     private List<String> IgnoreReportIP;
+
     private int DebugFlag;
     
     public Config(Plugin plugin) {
@@ -79,6 +84,7 @@ public class Config {
         present = config.getStringList( "Present" );
         MotD1stLine = config.getString( "MotD1st" );
         MotD_Count = config.getInt( "MotD2nd-Ping-Count" );
+        MotD_MaxCount = config.getInt( "MotD2nd-Ping-Max-Count", 0 );
         IgnoreReportName = config.getStringList( "Ignore-Names" );
         IgnoreReportIP = config.getStringList( "Ignore-IP" );
         CheckIPAddress = config.getBoolean( "CheckIP" );
@@ -258,6 +264,10 @@ public class Config {
     
     public int getmotDCount() {
         return MotD_Count;
+    }
+
+    public int getmotDMaxCount() {
+        return MotD_MaxCount;
     }
 
     public List<String> getIgnoreName() {
