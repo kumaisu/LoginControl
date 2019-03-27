@@ -351,7 +351,7 @@ public class LoginControl extends JavaPlugin implements Listener {
                         ChatColor.YELLOW.toString(), "[天の声] ",
                         ChatColor.AQUA.toString(), event.getEntity().getDisplayName(),
                         ChatColor.WHITE.toString(), "は",
-                        ChatColor.RED.toString(), "謎", 
+                        ChatColor.RED.toString(), "謎",
                         ChatColor.WHITE.toString(), "の死を遂げた"
                     )
                 );
@@ -371,7 +371,10 @@ public class LoginControl extends JavaPlugin implements Listener {
         String Names = "Unknown";   // = StatRec.GetPlayerName( event.getAddress().getHostAddress() );
         String Host;                // = ChatColor.WHITE + "Player(" + Names + ")";
         int count = 0;
-        String MotdMsg = Utility.StringBuild( config.get1stLine(), "\n" );
+	int PrtStatus = 2;	// ConsoleLog Flag
+        String MsgColor = ChatColor.GREEN.toString();
+
+        String MotdMsg = config.get1stLine();
 
         String ChkHost = config.KnownServers( event.getAddress().getHostAddress() );
         if ( ChkHost == null ) {
@@ -381,25 +384,27 @@ public class LoginControl extends JavaPlugin implements Listener {
             if ( Host == null ) {
                 //  DBに該当なしなので、DB登録
                 //  ホスト名が取得できなかった場合は、Unknown Player を File に記録し、新規登録
-                Host = Utility.StringBuild( ChatColor.RED.toString(), StatRec.getUnknownHost( event.getAddress().getHostAddress(), config.getCheckIP(), config.DBFlag( 2 ) ) );
+                MsgColor = ChatColor.RED.toString();
+                Host = StatRec.getUnknownHost( event.getAddress().getHostAddress(), config.getCheckIP(), config.DBFlag( 2 ) );
                 //  新規ホストとして、Unknown.yml ファイルへ書き出し
                 StatRec.WriteFileUnknown( event.getAddress().getHostAddress(), this.getDataFolder().toString() );
             } else {
                 //  未知のホスト名の場合は LIGHT_PURPLE , 既知のPlayerだった場合は WHITE になる
                 if ( Host.contains( "Player" ) ) {
-                    Host = Utility.StringBuild( ChatColor.WHITE.toString(), Host );
+                    MsgColor = ChatColor.WHITE.toString();
                     //  簡易DNSにプレイヤー登録されている場合は、ログイン履歴を参照して最新のプレイヤー名を取得する
                     Names = StatRec.GetPlayerName( event.getAddress().getHostAddress() );
                     MsgNum = 2;
+                    PrtStatus = 1;
                 } else {
-                    Host = Utility.StringBuild( ChatColor.LIGHT_PURPLE.toString(), Host );
+                    MsgColor = olor.LIGHT_PURPLE.toString();
                 }
             }
             StatRec.AddCountHost( event.getAddress().getHostAddress(), 0 );
 
             count = StatRec.GetcountHosts( event.getAddress().getHostAddress() );
             Host = Utility.StringBuild( Host, "(", String.valueOf( count ), ")" );
-            
+
             if ( count>config.getmotDCount() ) MsgNum++;
             MotdMsg = Utility.StringBuild( MotdMsg, config.get2ndLine( MsgNum ) );
             if ( MsgNum == 1 ) {
@@ -411,13 +416,14 @@ public class LoginControl extends JavaPlugin implements Listener {
             event.setMotd( Utility.ReplaceString( MotdMsg, Names ) );
         } else {
             //  Configに既知のホスト登録があった場合
-            Host = Utility.StringBuild( ChatColor.GRAY.toString(), ChkHost );
+            MsgColor = ChatColor.GRAY.toString();
+            Host = ChkHost;
             MotdMsg = Utility.StringBuild( MotdMsg, config.get2ndLine( 4 ) );
             event.setMotd( MotdMsg );
         }
 
-        String msg = Utility.StringBuild( ChatColor.GREEN.toString(), "Ping from ", Host, ChatColor.YELLOW.toString(), " [", event.getAddress().getHostAddress(), "]" );
-        Utility.Prt( null, msg, config.DBFlag( 2 ) );
+        String msg = Utility.StringBuild( ChatColor.GREEN.toString(), "Ping from ", MsgColor, Host, ChatColor.YELLOW.toString(), " [", event.getAddress().getHostAddress(), "]" );
+        Utility.Prt( null, msg, config.DBFlag( PrtStatus ) );
         Bukkit.getOnlinePlayers().stream().filter( ( p ) -> ( p.hasPermission( "LoginCtl.view" ) || p.isOp() ) ).forEachOrdered( ( p ) -> { p.sendMessage( msg ); } );
     }
 
@@ -425,7 +431,7 @@ public class LoginControl extends JavaPlugin implements Listener {
     //  Extra Command
     //  オプショナリーな機能
     //
-    
+
     public void FlightMode( Player p, boolean flag ) {
         if ( flag ) {
             Utility.Prt( p, Utility.StringBuild( ChatColor.AQUA.toString(), "You can FLY !!" ), config.DBFlag( 1 ) );
