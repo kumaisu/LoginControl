@@ -372,7 +372,7 @@ public class LoginControl extends JavaPlugin implements Listener {
         String Host;                // = ChatColor.WHITE + "Player(" + Names + ")";
 	int PrtStatus = 2;          // ConsoleLog Flag 2:Full 1:Normal(Playerのみ)
 
-        String MotdMsg = config.get1stLine();
+        String MotdMsg = Utility.Replace( config.get1stLine() );
         String MsgColor;
 
         String ChkHost = config.KnownServers( event.getAddress().getHostAddress() );
