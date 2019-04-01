@@ -267,7 +267,7 @@ public class StatusRecord {
         String DataName = Utility.StringBuild( Name, ".Player." );
         String GetName = GetHost( IP );
         
-        if ( GetName == null ) {
+        if ( GetName.equals( "Unknown" ) ) {
             AddHostToSQL( IP, Utility.StringBuild( DataName, "none" ) );
         } else {
             if ( !GetName.contains( "Player" ) ) {
@@ -368,7 +368,7 @@ public class StatusRecord {
         } catch ( ClassNotFoundException | SQLException e ) {
             Bukkit.getServer().getConsoleSender().sendMessage( "[LoginControl] Error GetUnknownHost" );
         }
-        return null;
+        return "Unknown";
     }
 
     public void SearchHost( Player p, String word ) {
