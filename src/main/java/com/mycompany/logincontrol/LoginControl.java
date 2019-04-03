@@ -61,6 +61,175 @@ public class LoginControl extends JavaPlugin implements Listener {
         super.onLoad(); //To change body of generated methods, choose Tools | Templates.
     }
 
+    @EventHandler
+    public void prePlayerLogin( AsyncPlayerPreLoginEvent event ) {
+        Utility.Prt( null, "PrePlayerLogin process", config.DBFlag( 2 ) );
+        date = new Date();
+        StatRec.PreSavePlayer( date, event.getName(), event.getUniqueId().toString(), event.getAddress().getHostAddress(), 0 );
+        StatRec.AddPlayerToSQL( event.getAddress().getHostAddress(), event.getName() );
+    }
+
+    @EventHandler
+    public void onPlayerLogin( PlayerJoinEvent event ) throws UnknownHostException {
+
+        Utility.Prt( null, "onPlayerLogin process", config.DBFlag( 2 ) );
+        event.setJoinMessage( null );
+        Player player = event.getPlayer();
+        StatRec.ChangeStatus( date, 1 );
+        StatRec.LogPrint( player, 5, false, config.getIgnoreName() );
+        StatRec.AddCountHost( player.getAddress().getHostString(), -1 );
+        StatRec.CheckIP( player, config.DBFlag( 1 ) );
+
+        if ( ( config.getJump() ) && ( ( !player.hasPlayedBefore() ) || config.OpJump( player.isOp() ) ) ) {
+            Utility.Prt( null, Utility.StringBuild( ChatColor.LIGHT_PURPLE.toString(), "The First Login Player" ), true );
+
+            List<String> present = config.getPresent();
+            present.stream().forEach( PR -> {
+                String[] itemdata = PR.split( ",", 0 );
+                player.getInventory().addItem( new ItemStack( Material.getMaterial( itemdata[0] ), Integer.parseInt( itemdata[1] ) ) );
+                Utility.Prt( null, Utility.StringBuild( ChatColor.AQUA.toString(), "Present Item : ", ChatColor.WHITE.toString(), itemdata[0], "(", itemdata[1], ")" ), config.DBFlag( 2 ) );
+            } );
+
+            Utility.Prt( null, "This player is first play to teleport", config.DBFlag( 1 ) );
+            World world = getWorld( config.getWorld() );
+            Location loc = new Location( world, config.getX(), config.getY(), config.getZ() );
+            loc.setPitch( config.getPitch() );
+            loc.setYaw( config.getYaw() );
+            player.teleport( loc );
+
+            if( config.NewJoin() ) {
+                String msg = StatRec.GetLocale( player.getAddress().getHostString(), config.DBFlag( 1 ) );
+                Utility.Prt( null, Utility.StringBuild( "Player host = ", player.getAddress().getHostString() ), config.DBFlag( 1 ) );
+                Utility.Prt( null, Utility.StringBuild( "Get Locale = ", msg ), config.DBFlag( 1 ) );
+                Bukkit.broadcastMessage( Utility.ReplaceString( config.NewJoinMessage( msg ), player.getDisplayName() ) );
+            }
+
+        } else {
+            Utility.Prt( null, "The Repeat Login Player", true );
+            if( config.ReturnJoin() && !player.hasPermission( "LoginCtl.silentjoin" ) ) {
+                Bukkit.broadcastMessage( Utility.ReplaceString( config.ReturnJoinMessage( StatRec.GetLocale( player.getAddress().getHostString(), config.DBFlag( 2 ) ) ), player.getDisplayName() ) );
+            }
+        }
+
+        if ( config.Announce() ) {
+            player.sendMessage( Utility.ReplaceString( config.AnnounceMessage(), player.getDisplayName() ).split( "/n" ) );
+        }
+    }
+
+    @EventHandler
+    public void onPlayerQuit( PlayerQuitEvent event ) {
+        if ( event.getPlayer().hasPermission( "LoginCtl.silentquit" ) ) {
+            event.setQuitMessage( null );
+            return;
+        }
+        if ( config.PlayerQuti() ) {
+            event.setQuitMessage( Utility.ReplaceString( config.PlayerQuitMessage(), event.getPlayer().getDisplayName() ) );
+        }
+    }
+
+    @EventHandler
+    public void onKickMessage( PlayerKickEvent event ) {
+        if ( config.PlayerKick() ) {
+            String msg = Utility.ReplaceString( config.KickMessage(),event.getPlayer().getDisplayName() );
+            if ( !event.getReason().equals( "" ) ) {
+                msg = msg.replace( "%Reason%", event.getReason() );
+            } else {
+                msg = msg.replace( "%Reason%", "Unknown Reason" );
+            }
+            Bukkit.broadcastMessage( msg );
+        }
+    }
+
+    @EventHandler
+    public void onPlayerDeath( PlayerDeathEvent event ) {
+        if ( config.DeathMessageFlag() ) {
+            Utility.Prt( null, Utility.StringBuild( "DeathMessage: ", event.getDeathMessage() ), config.DBFlag( 2 ) );
+            Utility.Prt( null, Utility.StringBuild( "DisplayName : ", event.getEntity().getDisplayName() ), config.DBFlag( 2 ) );
+            if ( event.getEntity().getLastDamageCause() instanceof EntityDamageByEntityEvent ) {
+                EntityDamageByEntityEvent lastcause = ( EntityDamageByEntityEvent ) event.getEntity().getLastDamageCause();
+                Entity entity = lastcause.getDamager();
+                Utility.Prt( null, Utility.StringBuild( "Killer Name : ", entity.getName() ), config.DBFlag( 2 ) );
+                String msg = config.DeathMessage( entity.getName().toUpperCase() );
+                msg = Utility.ReplaceString( msg, event.getEntity().getDisplayName() );
+                msg = msg.replace( "%mob%", entity.getName() );
+                //event.setDeathMessage( null );
+                Bukkit.broadcastMessage( msg );
+            } else {
+                Utility.Prt( null, "Other Death", config.DBFlag( 1 ) );
+                Bukkit.broadcastMessage(
+                    Utility.StringBuild(
+                        ChatColor.YELLOW.toString(), "[天の声] ",
+                        ChatColor.AQUA.toString(), event.getEntity().getDisplayName(),
+                        ChatColor.WHITE.toString(), "は",
+                        ChatColor.RED.toString(), "謎",
+                        ChatColor.WHITE.toString(), "の死を遂げた"
+                    )
+                );
+            }
+        }
+    }
+
+    @EventHandler
+    public void onServerListPing( ServerListPingEvent event ) throws UnknownHostException, ClassNotFoundException {
+        String Names = "Unknown";   // = StatRec.GetPlayerName( event.getAddress().getHostAddress() );
+        String Host;                // = ChatColor.WHITE + "Player(" + Names + ")";
+	int PrtStatus = 2;          // ConsoleLog Flag 2:Full 1:Normal(Playerのみ)
+
+        String MotdMsg = Utility.Replace( config.get1stLine() );
+        String MsgColor;
+
+        String ChkHost = config.KnownServers( event.getAddress().getHostAddress() );
+        if ( ChkHost == null ) {
+            //  簡易DNSからホスト名を取得
+            Host = StatRec.GetHost( event.getAddress().getHostAddress() );
+            int MsgNum = 0;
+            if ( Host.equals( "Unknown" ) ) {
+                //  DBに該当なしなので、DB登録
+                //  ホスト名が取得できなかった場合は、Unknown Player を File に記録し、新規登録
+                MsgColor = ChatColor.RED.toString();
+                Host = StatRec.getUnknownHost( event.getAddress().getHostAddress(), config.getCheckIP(), config.DBFlag( 2 ) );
+                //  新規ホストとして、Unknown.yml ファイルへ書き出し
+                StatRec.WriteFileUnknown( event.getAddress().getHostAddress(), this.getDataFolder().toString() );
+            } else {
+                //  未知のホスト名の場合は LIGHT_PURPLE , 既知のPlayerだった場合は WHITE になる
+                if ( Host.contains( "Player" ) ) {
+                    MsgColor = ChatColor.WHITE.toString();
+                    //  簡易DNSにプレイヤー登録されている場合は、ログイン履歴を参照して最新のプレイヤー名を取得する
+                    Names = StatRec.GetPlayerName( event.getAddress().getHostAddress() );
+                    MsgNum = 2;
+                    PrtStatus = 1;
+                } else {
+                    MsgColor = ChatColor.LIGHT_PURPLE.toString();
+                }
+            }
+            StatRec.AddCountHost( event.getAddress().getHostAddress(), 0 );
+
+            int count = StatRec.GetcountHosts( event.getAddress().getHostAddress() );
+            Host = Utility.StringBuild( Host, "(", String.valueOf( count ), ")" );
+
+            if ( ( config.getmotDCount() != 0 ) && ( count>config.getmotDCount() ) ) MsgNum++;
+            if ( ( config.getmotDMaxCount() != 0 ) && ( count>config.getmotDMaxCount() ) ) MsgNum = 1;
+            MotdMsg = Utility.StringBuild( MotdMsg, config.get2ndLine( MsgNum ) );
+            if ( MsgNum == 1 ) {
+                MotdMsg = MotdMsg.replace( "%count", String.valueOf( count ) );
+                MotdMsg = MotdMsg.replace( "%date", StatRec.getDateHost( event.getAddress().getHostAddress(), true ) );
+                //  True : カウントを開始した日を指定
+                //  False : 最後にカウントされた日を指定
+            }
+            event.setMotd( Utility.ReplaceString( MotdMsg, Names ) );
+        } else {
+            //  Configに既知のホスト登録があった場合
+            MsgColor = ChatColor.GRAY.toString();
+            Host = ChkHost;
+            MotdMsg = Utility.StringBuild( MotdMsg, config.get2ndLine( 4 ) );
+            event.setMotd( MotdMsg );
+        }
+
+        String msg = Utility.StringBuild( ChatColor.GREEN.toString(), "Ping from ", MsgColor, Host, ChatColor.YELLOW.toString(), " [", event.getAddress().getHostAddress(), "]" );
+        Utility.Prt( null, msg, config.DBFlag( PrtStatus ) );
+        Bukkit.getOnlinePlayers().stream().filter( ( p ) -> ( p.hasPermission( "LoginCtl.view" ) || p.isOp() ) ).forEachOrdered( ( p ) -> { p.sendMessage( msg ); } );
+    }
+
     @Override
     public boolean onCommand( CommandSender sender,Command cmd, String commandLabel, String[] args ) {
         boolean FullFlag = false;
@@ -269,175 +438,6 @@ public class LoginControl extends JavaPlugin implements Listener {
             return true;
         }
         return false;
-    }
-
-    @EventHandler
-    public void onPlayerLogin( PlayerJoinEvent event ) throws UnknownHostException {
-
-        Utility.Prt( null, "onPlayerLogin process", config.DBFlag( 2 ) );
-        event.setJoinMessage( null );
-        Player player = event.getPlayer();
-        StatRec.ChangeStatus( date, 1 );
-        StatRec.LogPrint( player, 5, false, config.getIgnoreName() );
-        StatRec.AddCountHost( player.getAddress().getHostString(), -1 );
-        StatRec.CheckIP( player, config.DBFlag( 1 ) );
-
-        if ( ( config.getJump() ) && ( ( !player.hasPlayedBefore() ) || config.OpJump( player.isOp() ) ) ) {
-            Utility.Prt( null, Utility.StringBuild( ChatColor.LIGHT_PURPLE.toString(), "The First Login Player" ), true );
-
-            List<String> present = config.getPresent();
-            present.stream().forEach( PR -> {
-                String[] itemdata = PR.split( ",", 0 );
-                player.getInventory().addItem( new ItemStack( Material.getMaterial( itemdata[0] ), Integer.parseInt( itemdata[1] ) ) );
-                Utility.Prt( null, Utility.StringBuild( ChatColor.AQUA.toString(), "Present Item : ", ChatColor.WHITE.toString(), itemdata[0], "(", itemdata[1], ")" ), config.DBFlag( 2 ) );
-            } );
-
-            Utility.Prt( null, "This player is first play to teleport", config.DBFlag( 1 ) );
-            World world = getWorld( config.getWorld() );
-            Location loc = new Location( world, config.getX(), config.getY(), config.getZ() );
-            loc.setPitch( config.getPitch() );
-            loc.setYaw( config.getYaw() );
-            player.teleport( loc );
-
-            if( config.NewJoin() ) {
-                String msg = StatRec.GetLocale( player.getAddress().getHostString(), config.DBFlag( 1 ) );
-                Utility.Prt( null, Utility.StringBuild( "Player host = ", player.getAddress().getHostString() ), config.DBFlag( 1 ) );
-                Utility.Prt( null, Utility.StringBuild( "Get Locale = ", msg ), config.DBFlag( 1 ) );
-                Bukkit.broadcastMessage( Utility.ReplaceString( config.NewJoinMessage( msg ), player.getDisplayName() ) );
-            }
-
-        } else {
-            Utility.Prt( null, "The Repeat Login Player", true );
-            if( config.ReturnJoin() && !player.hasPermission( "LoginCtl.silentjoin" ) ) {
-                Bukkit.broadcastMessage( Utility.ReplaceString( config.ReturnJoinMessage( StatRec.GetLocale( player.getAddress().getHostString(), config.DBFlag( 2 ) ) ), player.getDisplayName() ) );
-            }
-        }
-
-        if ( config.Announce() ) {
-            player.sendMessage( Utility.ReplaceString( config.AnnounceMessage(), player.getDisplayName() ).split( "/n" ) );
-        }
-    }
-
-    @EventHandler
-    public void onPlayerQuit( PlayerQuitEvent event ) {
-        if ( event.getPlayer().hasPermission( "LoginCtl.silentquit" ) ) {
-            event.setQuitMessage( null );
-            return;
-        }
-        if ( config.PlayerQuti() ) {
-            event.setQuitMessage( Utility.ReplaceString( config.PlayerQuitMessage(), event.getPlayer().getDisplayName() ) );
-        }
-    }
-
-    @EventHandler
-    public void onKickMessage( PlayerKickEvent event ) {
-        if ( config.PlayerKick() ) {
-            String msg = Utility.ReplaceString( config.KickMessage(),event.getPlayer().getDisplayName() );
-            if ( !event.getReason().equals( "" ) ) {
-                msg = msg.replace( "%Reason%", event.getReason() );
-            } else {
-                msg = msg.replace( "%Reason%", "Unknown Reason" );
-            }
-            Bukkit.broadcastMessage( msg );
-        }
-    }
-
-    @EventHandler
-    public void onPlayerDeath( PlayerDeathEvent event ) {
-        if ( config.DeathMessageFlag() ) {
-            Utility.Prt( null, Utility.StringBuild( "DeathMessage: ", event.getDeathMessage() ), config.DBFlag( 2 ) );
-            Utility.Prt( null, Utility.StringBuild( "DisplayName : ", event.getEntity().getDisplayName() ), config.DBFlag( 2 ) );
-            if ( event.getEntity().getLastDamageCause() instanceof EntityDamageByEntityEvent ) {
-                EntityDamageByEntityEvent lastcause = ( EntityDamageByEntityEvent ) event.getEntity().getLastDamageCause();
-                Entity entity = lastcause.getDamager();
-                Utility.Prt( null, Utility.StringBuild( "Killer Name : ", entity.getName() ), config.DBFlag( 2 ) );
-                String msg = config.DeathMessage( entity.getName().toUpperCase() );
-                msg = Utility.ReplaceString( msg, event.getEntity().getDisplayName() );
-                msg = msg.replace( "%mob%", entity.getName() );
-                //event.setDeathMessage( null );
-                Bukkit.broadcastMessage( msg );
-            } else {
-                Utility.Prt( null, "Other Death", config.DBFlag( 1 ) );
-                Bukkit.broadcastMessage(
-                    Utility.StringBuild(
-                        ChatColor.YELLOW.toString(), "[天の声] ",
-                        ChatColor.AQUA.toString(), event.getEntity().getDisplayName(),
-                        ChatColor.WHITE.toString(), "は",
-                        ChatColor.RED.toString(), "謎",
-                        ChatColor.WHITE.toString(), "の死を遂げた"
-                    )
-                );
-            }
-        }
-    }
-
-    @EventHandler
-    public void prePlayerLogin( AsyncPlayerPreLoginEvent event ) {
-        Utility.Prt( null, "PrePlayerLogin process", config.DBFlag( 2 ) );
-        date = new Date();
-        StatRec.PreSavePlayer( date, event.getName(), event.getUniqueId().toString(), event.getAddress().getHostAddress(), 0 );
-        StatRec.AddPlayerToSQL( event.getAddress().getHostAddress(), event.getName() );
-    }
-
-    @EventHandler
-    public void onServerListPing( ServerListPingEvent event ) throws UnknownHostException, ClassNotFoundException {
-        String Names = "Unknown";   // = StatRec.GetPlayerName( event.getAddress().getHostAddress() );
-        String Host;                // = ChatColor.WHITE + "Player(" + Names + ")";
-	int PrtStatus = 2;          // ConsoleLog Flag 2:Full 1:Normal(Playerのみ)
-
-        String MotdMsg = Utility.Replace( config.get1stLine() );
-        String MsgColor;
-
-        String ChkHost = config.KnownServers( event.getAddress().getHostAddress() );
-        if ( ChkHost == null ) {
-            //  簡易DNSからホスト名を取得
-            Host = StatRec.GetHost( event.getAddress().getHostAddress() );
-            int MsgNum = 0;
-            if ( Host.equals( "Unknown" ) ) {
-                //  DBに該当なしなので、DB登録
-                //  ホスト名が取得できなかった場合は、Unknown Player を File に記録し、新規登録
-                MsgColor = ChatColor.RED.toString();
-                Host = StatRec.getUnknownHost( event.getAddress().getHostAddress(), config.getCheckIP(), config.DBFlag( 2 ) );
-                //  新規ホストとして、Unknown.yml ファイルへ書き出し
-                StatRec.WriteFileUnknown( event.getAddress().getHostAddress(), this.getDataFolder().toString() );
-            } else {
-                //  未知のホスト名の場合は LIGHT_PURPLE , 既知のPlayerだった場合は WHITE になる
-                if ( Host.contains( "Player" ) ) {
-                    MsgColor = ChatColor.WHITE.toString();
-                    //  簡易DNSにプレイヤー登録されている場合は、ログイン履歴を参照して最新のプレイヤー名を取得する
-                    Names = StatRec.GetPlayerName( event.getAddress().getHostAddress() );
-                    MsgNum = 2;
-                    PrtStatus = 1;
-                } else {
-                    MsgColor = ChatColor.LIGHT_PURPLE.toString();
-                }
-            }
-            StatRec.AddCountHost( event.getAddress().getHostAddress(), 0 );
-
-            int count = StatRec.GetcountHosts( event.getAddress().getHostAddress() );
-            Host = Utility.StringBuild( Host, "(", String.valueOf( count ), ")" );
-
-            if ( ( config.getmotDCount() != 0 ) && ( count>config.getmotDCount() ) ) MsgNum++;
-            if ( ( config.getmotDMaxCount() != 0 ) && ( count>config.getmotDMaxCount() ) ) MsgNum = 1;
-            MotdMsg = Utility.StringBuild( MotdMsg, config.get2ndLine( MsgNum ) );
-            if ( MsgNum == 1 ) {
-                MotdMsg = MotdMsg.replace( "%count", String.valueOf( count ) );
-                MotdMsg = MotdMsg.replace( "%date", StatRec.getDateHost( event.getAddress().getHostAddress(), true ) );
-                //  True : カウントを開始した日を指定
-                //  False : 最後にカウントされた日を指定
-            }
-            event.setMotd( Utility.ReplaceString( MotdMsg, Names ) );
-        } else {
-            //  Configに既知のホスト登録があった場合
-            MsgColor = ChatColor.GRAY.toString();
-            Host = ChkHost;
-            MotdMsg = Utility.StringBuild( MotdMsg, config.get2ndLine( 4 ) );
-            event.setMotd( MotdMsg );
-        }
-
-        String msg = Utility.StringBuild( ChatColor.GREEN.toString(), "Ping from ", MsgColor, Host, ChatColor.YELLOW.toString(), " [", event.getAddress().getHostAddress(), "]" );
-        Utility.Prt( null, msg, config.DBFlag( PrtStatus ) );
-        Bukkit.getOnlinePlayers().stream().filter( ( p ) -> ( p.hasPermission( "LoginCtl.view" ) || p.isOp() ) ).forEachOrdered( ( p ) -> { p.sendMessage( msg ); } );
     }
 
     //
