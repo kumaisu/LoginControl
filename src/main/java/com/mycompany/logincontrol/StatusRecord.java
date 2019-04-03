@@ -271,6 +271,8 @@ public class StatusRecord {
             AddHostToSQL( IP, Utility.StringBuild( DataName, "none" ) );
         } else {
             if ( !GetName.contains( "Player" ) ) {
+                int dataLength = 60 - DataName.length();
+                if ( GetName.length() > dataLength ) { GetName = String.format( "%" + dataLength + "s", GetName ); }
                 chgUnknownHost( IP, Utility.StringBuild( DataName, GetName ) );
             }
         }
@@ -461,7 +463,7 @@ public class StatusRecord {
             openConnection();
             Statement stmt;
             stmt = connection.createStatement();
-            String sql = "SELECT * FROM hosts WHERE INET_NTOA(ip) = '" + IP + "' ORDER BY ip DESC;";
+            String sql = "SELECT * FROM hosts WHERE INET_NTOA(ip) = '" + IP + "';";
             ResultSet rs = stmt.executeQuery( sql );
             
             if ( rs.next() ) {
@@ -482,7 +484,7 @@ public class StatusRecord {
         try {
             openConnection();
             Statement stmt = connection.createStatement();
-            String sql = "SELECT * FROM hosts WHERE INET_NTOA(ip) = '" + IP + "' ORDER BY ip DESC;";
+            String sql = "SELECT * FROM hosts WHERE INET_NTOA(ip) = '" + IP + "';";
             ResultSet rs = stmt.executeQuery( sql );
             
             if ( rs.next() ) return rs.getInt( "count" );
@@ -498,7 +500,7 @@ public class StatusRecord {
         try {
             openConnection();
             Statement stmt = connection.createStatement();
-            String sql = "SELECT * FROM hosts WHERE INET_NTOA(ip) = '" + IP + "' ORDER BY ip DESC;";
+            String sql = "SELECT * FROM hosts WHERE INET_NTOA(ip) = '" + IP + "';";
             ResultSet rs = stmt.executeQuery( sql );
             
             if ( rs.next() ) {
@@ -522,10 +524,13 @@ public class StatusRecord {
     }
 
     public boolean chgUnknownHost( String IP, String Hostname ) {
+
+        if ( Hostname.length()>60 ) { Hostname = String.format( "%-60s", Hostname ); }
+
         try {
             openConnection();
             Statement stmt = connection.createStatement();
-            String sql = "SELECT * FROM hosts WHERE INET_NTOA(ip) = '" + IP + "' ORDER BY ip DESC;";
+            String sql = "SELECT * FROM hosts WHERE INET_NTOA(ip) = '" + IP + "';";
             ResultSet rs = stmt.executeQuery( sql );
             
             if ( rs.next() ) {
@@ -537,7 +542,9 @@ public class StatusRecord {
                 Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "could not get " + IP );
             }
         } catch ( ClassNotFoundException | SQLException e ) {
-            Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "[LoginControl] Change Database Error" );
+            Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "[LoginControl] Change Database Error [" + IP + "][" + Hostname + "]" );
+            //  エラー詳細ログの表示
+            Bukkit.getServer().getConsoleSender().sendMessage( e.getMessage() );
         }
         return false;
     }
@@ -561,6 +568,8 @@ public class StatusRecord {
             }
         } catch ( ClassNotFoundException | SQLException e ) {
             Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "[LoginControl] Error Information" );
+            //  エラー詳細ログの表示
+            Bukkit.getServer().getConsoleSender().sendMessage( e.getMessage() );
         }
     }
 
@@ -596,6 +605,8 @@ public class StatusRecord {
             Utility.Prt( p, ChatColor.GREEN + "================", ( p == null ) );
         } catch ( ClassNotFoundException | SQLException e ) {
             Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "Error Pingtop Listing ..." );
+            //  エラー詳細ログの表示
+            Bukkit.getServer().getConsoleSender().sendMessage( e.getMessage() );
         }
     }
 

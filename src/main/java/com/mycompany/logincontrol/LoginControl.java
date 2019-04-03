@@ -77,7 +77,7 @@ public class LoginControl extends JavaPlugin implements Listener {
                         FlightMode( p, false );
                         break;
                     default:
-                        Utility.Prt( p, Utility.StringBuild( ChatColor.GREEN.toString(), "Fly (on/off)" ), config.DBFlag( 1 ) );
+                        Utility.Prt( p, ChatColor.GREEN + "Fly (on/off)", config.DBFlag( 1 ) );
                 }
             }
             return true;
@@ -137,7 +137,7 @@ public class LoginControl extends JavaPlugin implements Listener {
                     Utility.Prt( p, msg, ( p == null ) );
                     return true;
                 } catch ( UnknownHostException ex ) {
-                    Utility.Prt( p, Utility.StringBuild( ChatColor.RED.toString(), "Ping Unknown Host." ), ( p == null ) );
+                    Utility.Prt( p, ChatColor.RED + "Ping Unknown Host.", ( p == null ) );
                 }
             }
         }
@@ -161,44 +161,48 @@ public class LoginControl extends JavaPlugin implements Listener {
                     config.Status( ( sender instanceof Player ) ? ( Player )sender:null );
                     return true;
                 case "chg":
-                    if ( StatRec.chgUnknownHost( IP, HostName ) ) {
-                        StatRec.infoUnknownHost( p, IP );
+                    if ( HostName.length() < 61 ) {
+                        if ( StatRec.chgUnknownHost( IP, HostName ) ) {
+                            StatRec.infoUnknownHost( p, IP );
+                        }
+                    } else {
+                        Utility.Prt( p, ChatColor.RED + "Hostname is limited to 60 characters", true );
                     }
                     break;
                 case "info":
                     if ( !IP.equals( "" ) ) {
-                        Utility.Prt( p, Utility.StringBuild( "Check Unknown IP Information [", IP, "]" ), ( p == null ) );
+                        Utility.Prt( p, "Check Unknown IP Information [" + IP + "]", ( p == null ) );
                         StatRec.infoUnknownHost( p, IP );
                     } else {
-                        Utility.Prt( p, "usage: info IPAddress", ( p == null ) );
+                        Utility.Prt( p, ChatColor.RED + "usage: info IPAddress", ( p == null ) );
                     }
                     break;
                 case "add":
                     if ( !IP.equals( "" ) ) {
-                        if ( StatRec.GetHost( IP ) == null ) {
+                        if ( StatRec.GetHost( IP ).equals( "Unknown" ) ) {
                             if ( !HostName.equals( "" ) ) {
                                 StatRec.AddHostToSQL( IP, HostName );
                             } else {
-                                Utility.Prt( p, Utility.StringBuild( ChatColor.RED.toString(), " Host name is required" ), true );
+                                Utility.Prt( p, ChatColor.RED + " Host name is required", true );
                             }
                         } else {
-                            Utility.Prt( p, Utility.StringBuild( ChatColor.RED.toString(), IP, " is already exists" ), true );
+                            Utility.Prt( p, ChatColor.RED + IP + " is already exists", true );
                         }
                         StatRec.infoUnknownHost( p, IP );
                     } else {
-                        Utility.Prt( p, "usage: add IPAddress [HostName]", true );
+                        Utility.Prt( p, ChatColor.RED + "usage: add IPAddress [HostName]", true );
                     }
                     break;
                 case "del":
                     if ( !IP.equals( "" ) ) {
                         if ( StatRec.DelHostFromSQL( IP ) ) {
-                            msg = Utility.StringBuild( ChatColor.GREEN.toString(), "Data Deleted [" );
+                            msg = ChatColor.GREEN + "Data Deleted [";
                         } else {
-                            msg = Utility.StringBuild( ChatColor.RED.toString(), "Failed to Delete Data [" );
+                            msg = ChatColor.RED + "Failed to Delete Data [";
                         }
-                        Utility.Prt( p, Utility.StringBuild( msg, IP, "]" ), true );
+                        Utility.Prt( p, msg + IP + "]", true );
                     } else {
-                        Utility.Prt( p, "usage: del IPAddress", true );
+                        Utility.Prt( p, ChatColor.RED + "usage: del IPAddress", true );
                     }
                     break;
                 case "count":
@@ -208,7 +212,7 @@ public class LoginControl extends JavaPlugin implements Listener {
                         try {
                             StatRec.AddCountHost( IP, Integer.parseInt( HostName ) );
                         } catch ( UnknownHostException ex ) {
-                            Utility.Prt( p, Utility.StringBuild( ChatColor.RED.toString(), ex.getMessage() ), true );
+                            Utility.Prt( p, ChatColor.RED + ex.getMessage(), true );
                         }
 
                         StatRec.infoUnknownHost( p, IP );
@@ -218,7 +222,7 @@ public class LoginControl extends JavaPlugin implements Listener {
                     if ( !IP.equals( "" ) ) {
                         StatRec.SearchHost( p, IP );
                     } else {
-                        Utility.Prt( p, "usage: search word", ( p == null ) );
+                        Utility.Prt( p, ChatColor.RED + "usage: search word", ( p == null ) );
                     }
                     break;
                 case "pingtop":
@@ -226,7 +230,7 @@ public class LoginControl extends JavaPlugin implements Listener {
                     try {
                         PTLines = Integer.parseInt( IP );
                     } catch ( NumberFormatException e ) {
-                        Utility.Prt( p, Utility.StringBuild( ChatColor.RED.toString(), "Please specify an integer" ), true );
+                        Utility.Prt( p, ChatColor.RED + "Please specify an integer", true );
                         PTLines = 10;
                     }
                     if ( PTLines < 1 ) { PTLines = 10; }
@@ -234,7 +238,10 @@ public class LoginControl extends JavaPlugin implements Listener {
                     break;
                 case "CheckIP":
                     config.setCheckIP( !config.getCheckIP() );
-                    Utility.Prt( p, Utility.StringBuild( ChatColor.GREEN.toString(), "Unknown IP Address Check Change to ", ChatColor.YELLOW.toString(), ( config.getCheckIP() ? "True":"False" ) ), true );
+                    Utility.Prt( p,
+                        ChatColor.GREEN + "Unknown IP Address Check Change to " +
+                        ChatColor.YELLOW + ( config.getCheckIP() ? "True":"False" ), true
+                    );
                     break;
                 case "Console":
                     switch ( IP ) {
@@ -250,7 +257,11 @@ public class LoginControl extends JavaPlugin implements Listener {
                         default:
                             Utility.Prt( p, "usage: loginctl Console [full/normal/none]", ( p == null ) );
                     }
-                    Utility.Prt( p, Utility.StringBuild( ChatColor.GREEN.toString(), "System Debug Mode is [ ", ChatColor.RED.toString(), config.DBString( config.getDebug() ), ChatColor.GREEN.toString(), " ]" ), ( p == null ) );
+                    Utility.Prt( p, 
+                        ChatColor.GREEN + "System Debug Mode is [ " +
+                        ChatColor.RED + config.DBString( config.getDebug() ) +
+                        ChatColor.GREEN + " ]", ( p == null )
+                    );
                     break;
                 default:
                     return false;
@@ -263,6 +274,7 @@ public class LoginControl extends JavaPlugin implements Listener {
     @EventHandler
     public void onPlayerLogin( PlayerJoinEvent event ) throws UnknownHostException {
 
+        Utility.Prt( null, "onPlayerLogin process", config.DBFlag( 2 ) );
         event.setJoinMessage( null );
         Player player = event.getPlayer();
         StatRec.ChangeStatus( date, 1 );
@@ -361,6 +373,7 @@ public class LoginControl extends JavaPlugin implements Listener {
 
     @EventHandler
     public void prePlayerLogin( AsyncPlayerPreLoginEvent event ) {
+        Utility.Prt( null, "PrePlayerLogin process", config.DBFlag( 2 ) );
         date = new Date();
         StatRec.PreSavePlayer( date, event.getName(), event.getUniqueId().toString(), event.getAddress().getHostAddress(), 0 );
         StatRec.AddPlayerToSQL( event.getAddress().getHostAddress(), event.getName() );
@@ -380,7 +393,7 @@ public class LoginControl extends JavaPlugin implements Listener {
             //  簡易DNSからホスト名を取得
             Host = StatRec.GetHost( event.getAddress().getHostAddress() );
             int MsgNum = 0;
-            if ( Host == null ) {
+            if ( Host.equals( "Unknown" ) ) {
                 //  DBに該当なしなので、DB登録
                 //  ホスト名が取得できなかった場合は、Unknown Player を File に記録し、新規登録
                 MsgColor = ChatColor.RED.toString();
