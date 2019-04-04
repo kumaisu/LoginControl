@@ -33,7 +33,7 @@ public class StatusRecord {
     private Connection connection;
     private final String host, database, port, username, password;
     private final boolean Kumaisu;
-    
+
     public StatusRecord( String CFhost, String CFdb, String CFport, String CFuser, String CFpass, boolean KumaFlag ) {
         Kumaisu = KumaFlag;
         host = CFhost;
@@ -42,7 +42,7 @@ public class StatusRecord {
         username = CFuser;
         password = CFpass;
     }
-    
+
     public static long ipToInt( Inet4Address ipAddr ) {
         long compacted = 0;
         byte[] bytes = ipAddr.getAddress();
@@ -51,7 +51,7 @@ public class StatusRecord {
         }
         return compacted;
     }
-    
+
     private static String toInetAddress( long ipAddress ) {
         long ip = ( ipAddress < 0 ) ? (long)Math.pow(2,32)+ipAddress : ipAddress;
         Inet4Address inetAddress = null;
@@ -66,25 +66,25 @@ public class StatusRecord {
         }
         Utility.Prt( p, message, ( p == null ) );
     }
-            
+
     @SuppressWarnings("CallToPrintStackTrace")
     public void LogPrint( Player player, int lines, boolean FullFlag, List Ignore ) {
-        
+
         Utility.Prt( player, "== Login List ==", ( player == null ) );
 
-        try {        
+        try {
             openConnection();
             Statement stmt = connection.createStatement();
             String sql = "SELECT * FROM list ORDER BY date DESC;";
             ResultSet rs = stmt.executeQuery( sql );
             boolean isOP = ( ( player == null ) ? true:player.isOp() );
-            
+
             int i = 0;
             String chk_name = "";
-            
+
             while( rs.next() && ( i<lines ) ) {
                 String GetName = rs.getString( "name" );
-                
+
                 if ( rs.getInt( "status" ) != 0 || player == null || player.hasPermission( "LoginCtl.view" ) || isOP ) {
                     if ( ( isOP || !Ignore.contains( GetName ) ) && ( ( !chk_name.equals( GetName ) ) || ( FullFlag ) ) ) {
                         i++;
@@ -104,7 +104,7 @@ public class StatusRecord {
     public void DateLogPrint( Player player, String ChkDate, boolean FullFlag, List Ignore ) {
         Utility.Prt( player, Utility.StringBuild( "== [", ChkDate, "] Login List ==" ), ( player == null ) );
 
-        try {        
+        try {
             String chk_name = "";
 
             openConnection();
@@ -115,13 +115,13 @@ public class StatusRecord {
 
             while( rs.next() ) {
                 String GetName = rs.getString( "name" );
-                
+
                 if ( ( isOP || !Ignore.contains( GetName )  ) && ( !chk_name.equals( GetName ) || ( FullFlag ) ) ) {
                     LineMsg( player, rs.getInt( "id" ), rs.getTimestamp( "date" ), rs.getString( "name" ), rs.getLong( "ip" ), rs.getInt( "status" ) );
                     chk_name = GetName;
                 }
             }
-                    
+
             Utility.Prt( player, "================", ( player == null ) );
 
         } catch ( ClassNotFoundException | SQLException e ) {
@@ -132,7 +132,7 @@ public class StatusRecord {
     public void NameLogPrint( Player player, String ChkName, boolean FullFlag, int Flag ) {
         Utility.Prt( player, Utility.StringBuild( "== [", ChkName, "] Login List ==" ), ( player == null ) );
 
-        try {        
+        try {
             openConnection();
             Statement stmt = connection.createStatement();
             String sql;
@@ -143,11 +143,11 @@ public class StatusRecord {
                 FullFlag = true;
             }
             ResultSet rs = stmt.executeQuery( sql );
-            
+
             SimpleDateFormat cdf = new SimpleDateFormat( "yyyyMMdd" );
             String ChkDate = "";
             int i = 0;
-            
+
             while( rs.next() && ( i<30 ) ) {
                 if ( !ChkDate.equals( cdf.format( rs.getTimestamp( "date" ) ) ) || FullFlag ) {
                     i++;
@@ -155,7 +155,7 @@ public class StatusRecord {
                     ChkDate = cdf.format( rs.getTimestamp( "date" ) );
                 }
             }
-                    
+
             Utility.Prt( player, "================", ( player == null ) );
 
         } catch ( ClassNotFoundException | SQLException e ) {
@@ -164,9 +164,9 @@ public class StatusRecord {
     }
 
     @SuppressWarnings("CallToPrintStackTrace")
-    public String GetPlayerName( String ip ) {
+    public String listGetPlayerName( String ip ) {
 
-        try {        
+        try {
             openConnection();
             Statement stmt = connection.createStatement();
             String sql = "SELECT * FROM list WHERE INET_NTOA(ip) = '" + ip + "' ORDER BY date DESC;";
@@ -175,20 +175,20 @@ public class StatusRecord {
         } catch ( ClassNotFoundException | SQLException e ) {
             e.printStackTrace();
         }
-        
+
         return ip;
     }
 
     @SuppressWarnings( "CallToPrintStackTrace" )
-    public void CheckIP( Player player, boolean Debug ) throws UnknownHostException {
+    public void listCheckIP( Player player, boolean Debug ) throws UnknownHostException {
         List<String> PrtData;
         PrtData = new ArrayList<>();
         List<String> NameData;
         NameData = new ArrayList<>();
-        
+
         PrtData.add( Utility.StringBuild( ChatColor.RED.toString(), "=== Check IP Address ===", ChatColor.YELLOW.toString(), "[", player.getAddress().getHostString(), "]" ) );
-        
-        try {        
+
+        try {
             openConnection();
             Statement stmt = connection.createStatement();
             String sql = "SELECT * FROM list WHERE INET_NTOA(ip) = '" + player.getAddress().getHostString() + "' ORDER BY date DESC;";
@@ -208,11 +208,11 @@ public class StatusRecord {
                     }
                 }
             }
-                    
+
         } catch ( ClassNotFoundException | SQLException e ) {
             e.printStackTrace();
         }
-        
+
         PrtData.add( Utility.StringBuild( ChatColor.RED.toString(), "=== end ===" ) );
 
         PrtData.stream().forEach( PD -> {
@@ -222,20 +222,20 @@ public class StatusRecord {
         } );
     }
 
-    public void ChangeStatus( Date date, int status ) {
+    public void listChangeStatus( Date date, int status ) {
         try {
             openConnection();
 
             String sql = "UPDATE list SET status = " + String.valueOf( status ) + " WHERE date = '" + sdf.format( date ) + "';";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.executeUpdate();
-            
+
         } catch ( ClassNotFoundException | SQLException e ) {
             Bukkit.getServer().getConsoleSender().sendMessage( "[LoginControl] Error ChangeStatus" );
         }
     }
-    
-    public void PreSavePlayer( Date date, String name, String UUID, String IP, int Status ) {
+
+    public void listPreSave( Date date, String name, String UUID, String IP, int Status ) {
 
         /*
         getLogger().log( Level.INFO, "Date   : {0}", sdf.format( date ) );
@@ -244,7 +244,7 @@ public class StatusRecord {
         getLogger().log( Level.INFO, "IP     : {0}", IP );
         getLogger().log( Level.INFO, "Status : {0}", Status );
         */
-        
+
         try {
             openConnection();
 
@@ -257,16 +257,16 @@ public class StatusRecord {
             preparedStatement.setInt(5, Status );
 
             preparedStatement.executeUpdate();
-            
+
         } catch ( ClassNotFoundException | SQLException e ) {
             Bukkit.getServer().getConsoleSender().sendMessage( "[LoginControl] Error PreSavePlayer" );
         }
     }
-    
+
     public void AddPlayerToSQL( String IP, String Name ) {
         String DataName = Utility.StringBuild( Name, ".Player." );
         String GetName = GetHost( IP );
-        
+
         if ( GetName.equals( "Unknown" ) ) {
             AddHostToSQL( IP, Utility.StringBuild( DataName, "none" ) );
         } else {
@@ -277,7 +277,7 @@ public class StatusRecord {
             }
         }
     }
-    
+
     private void openConnection() throws SQLException, ClassNotFoundException {
 
         if (connection != null && !connection.isClosed()) {
@@ -327,7 +327,7 @@ public class StatusRecord {
         }
         return "JP";
     }
-    
+
     public void AddHostToSQL( String IP, String Host ) {
         try {
             openConnection();
@@ -341,7 +341,7 @@ public class StatusRecord {
             preparedStatement.setString( 5, sdf.format( new Date() ) );
 
             preparedStatement.executeUpdate();
-            
+
         } catch ( ClassNotFoundException | SQLException e ) {
             Bukkit.getServer().getConsoleSender().sendMessage( "[LoginControl] Error AddHostToSQL" );
         }
@@ -381,7 +381,7 @@ public class StatusRecord {
             ResultSet rs = stmt.executeQuery( sql );
 
             Utility.Prt( p, Utility.StringBuild( ChatColor.YELLOW.toString(), "Search host [", word, "]..." ), ( p == null ) );
-            
+
             int DataNum = 0;
             while( rs.next() ) {
                 DataNum++;
@@ -402,7 +402,7 @@ public class StatusRecord {
             Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "[LoginControl] Search Error" );
         }
     }
-    
+
     public String getUnknownHost( String IP, boolean CheckFlag, boolean Debug ) throws UnknownHostException {
         Bukkit.getServer().getConsoleSender().sendMessage( Utility.StringBuild( ChatColor.RED.toString(), "[LC] Unknown New Record : ", ChatColor.AQUA.toString(), IP ) );
         String HostName = "Unknown(IP)";
@@ -427,7 +427,7 @@ public class StatusRecord {
         }
 
         if ( HostName.length()>60 ) { HostName = String.format( "%-60s", HostName ); }
-        
+
         Bukkit.getServer().getConsoleSender().sendMessage( Utility.StringBuild( ChatColor.GREEN.toString(), "[LC] Change Hostname = ", ChatColor.AQUA.toString(), HostName ) );
         AddHostToSQL( IP, HostName );
         return HostName;
@@ -443,7 +443,7 @@ public class StatusRecord {
         FileConfiguration UKData = YamlConfiguration.loadConfiguration( UKfile );
 
         SimpleDateFormat cdf = new SimpleDateFormat("yyyyMMddHHmmss");
-        
+
         UKData.set( cdf.format( new Date() ),Utility.StringBuild( IP, "[", GetHost( IP ), "]" ) );
         try {
             UKData.save( UKfile );
@@ -455,7 +455,7 @@ public class StatusRecord {
 
         return true;
     }
-    
+
     public String getDateHost( String IP, boolean newf ) throws ClassNotFoundException {
         //  True : カウントを開始した日を指定
         //  False : 最後にカウントされた日を指定
@@ -465,7 +465,7 @@ public class StatusRecord {
             stmt = connection.createStatement();
             String sql = "SELECT * FROM hosts WHERE INET_NTOA(ip) = '" + IP + "';";
             ResultSet rs = stmt.executeQuery( sql );
-            
+
             if ( rs.next() ) {
                 if ( newf ) {
                     return sdf.format( rs.getTimestamp( "newdate" ) );
@@ -486,7 +486,7 @@ public class StatusRecord {
             Statement stmt = connection.createStatement();
             String sql = "SELECT * FROM hosts WHERE INET_NTOA(ip) = '" + IP + "';";
             ResultSet rs = stmt.executeQuery( sql );
-            
+
             if ( rs.next() ) return rs.getInt( "count" );
 
         } catch ( ClassNotFoundException | SQLException e ) {
@@ -502,10 +502,10 @@ public class StatusRecord {
             Statement stmt = connection.createStatement();
             String sql = "SELECT * FROM hosts WHERE INET_NTOA(ip) = '" + IP + "';";
             ResultSet rs = stmt.executeQuery( sql );
-            
+
             if ( rs.next() ) {
                 String ResetDate = "";
-                
+
                 int count = ZeroF;
                 if ( ZeroF < 0 ) {
                     count = 0;
@@ -532,7 +532,7 @@ public class StatusRecord {
             Statement stmt = connection.createStatement();
             String sql = "SELECT * FROM hosts WHERE INET_NTOA(ip) = '" + IP + "';";
             ResultSet rs = stmt.executeQuery( sql );
-            
+
             if ( rs.next() ) {
                 String chg_sql = "UPDATE hosts SET host = '" + Hostname + "' WHERE INET_NTOA( ip ) = '" + IP + "';";
                 PreparedStatement preparedStatement = connection.prepareStatement(chg_sql);
@@ -555,7 +555,7 @@ public class StatusRecord {
             Statement stmt = connection.createStatement();
             String sql = "SELECT * FROM hosts WHERE INET_NTOA(ip) = '" + IP + "' ORDER BY ip DESC;";
             ResultSet rs = stmt.executeQuery( sql );
-            
+
             if ( rs.next() ) {
                 Utility.Prt( p, ChatColor.YELLOW + "Check Unknown IP Information.......", ( p == null ) );
                 Utility.Prt( p, ChatColor.GREEN + "IP Address  : " + ChatColor.WHITE + toInetAddress( rs.getLong( "ip" ) ), ( p == null ) );
@@ -576,18 +576,18 @@ public class StatusRecord {
     public void PingTop( Player p, int Lines ) {
         Utility.Prt( p, ChatColor.GREEN + "== Ping Count Top " + Lines + " ==", ( p == null ) );
 
-        try {        
+        try {
             openConnection();
             Statement stmt = connection.createStatement();
             String sql = "SELECT * FROM hosts ORDER BY count DESC;";
             ResultSet rs = stmt.executeQuery( sql );
-            
+
             int i = 0;
             String chk_name = "";
-            
+
             while( rs.next() && ( i<Lines ) ) {
                 String GetName = rs.getString( "host" );
-                
+
                 if ( !chk_name.equals( GetName ) ) {
                     i++;
                     Utility.Prt( p, 
@@ -614,7 +614,7 @@ public class StatusRecord {
     @SuppressWarnings("CallToPrintStackTrace")
     public void DataConv( CommandSender sender ) {
         sender.sendMessage( "== Data Convert List ==" );
-        try {        
+        try {
             openConnection();
             Statement stmt = connection.createStatement();
             String sql = "SELECT * FROM players ORDER BY date ASC;";
@@ -643,7 +643,7 @@ public class StatusRecord {
                 preparedStatement.executeUpdate();
                 sender.sendMessage( message );
             }
-                    
+
             sender.sendMessage( "================" );
         } catch ( ClassNotFoundException | SQLException e ) {
             e.printStackTrace();

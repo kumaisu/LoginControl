@@ -18,7 +18,7 @@ public class Config {
 
     private final Plugin plugin;
     private FileConfiguration config = null;
-    
+
     private String host;
     private String port;
     private String database;
@@ -45,13 +45,13 @@ public class Config {
     private List<String> IgnoreReportIP;
 
     private int DebugFlag;
-    
+
     public Config(Plugin plugin) {
         this.plugin = plugin;
         plugin.getLogger().info( "Config Loading now..." );
         load();
     }
-    
+
     /*
      * 設定をロードします
      */
@@ -109,9 +109,9 @@ public class Config {
         default:
             DebugFlag = 0;
         }
-        
+
     }
-    
+
     public void Prt( Player p, String s ) {
         if ( p == null ) {
             Bukkit.getServer().getConsoleSender().sendMessage( s );
@@ -119,7 +119,7 @@ public class Config {
             p.sendMessage( s );
         }
     }
-    
+
     public void Status( Player p ) {
         Prt( p, "=== LoginContrl Status ===" );
         Prt( p, Utility.StringBuild( "Degub Mode : ", DBString( DebugFlag ) ) );
@@ -145,15 +145,14 @@ public class Config {
 
         Prt( p, "Ignore IPs" );
         IgnoreReportIP.stream().forEach( IRI -> { Prt( p, Utility.StringBuild( " - ", IRI ) ); } );
-        
+
         Prt( p, Utility.StringBuild( "Unknown IP Check : ", ( CheckIPAddress ? "True":"False" ) ) );
         Prt( p, Utility.StringBuild( "MotD 1 Line : ", MotD1stLine ) );
         Prt( p, Utility.StringBuild( "MotD 2 Line(Unknown) : ", MotD2ndLine.get( 0 ) ) );
         Prt( p, Utility.StringBuild( "MotD 2 Line(Player ) : ", MotD2ndLine.get( 2 ) ) );
         Prt( p, "==========================" );
-        
     }
-    
+
     public int getDebug() {
         return DebugFlag;
     }
@@ -193,23 +192,23 @@ public class Config {
                 return "Error";
         }
     }
-    
+
     public String getHost() {
         return host;
     }
-    
+
     public String getPort() {
         return port;
     }
-    
+
     public String getDatabase() {
         return database;
     }
-    
+
     public String getUsername() {
         return username;
     }
-    
+
     public String getPassword() {
         return password;
     }
@@ -221,23 +220,23 @@ public class Config {
     public String getWorld() {
         return fworld;
     }
-    
+
     public int getX() {
         return fx;
     }
-    
+
     public int getY() {
         return fy;
     }
-    
+
     public int getZ() {
         return fz;
     }
-    
+
     public int getPitch() {
         return fpitch;
     }
-    
+
     public int getYaw() {
         return fyaw;
     }
@@ -245,11 +244,11 @@ public class Config {
     public String KnownServers( String IP ) {
         return config.getString( IP, null );
     }
-    
+
     public boolean OpJump( boolean isOP ) {
         return OpJumpStats && isOP;
     }
-    
+
     public List<String> getPresent() {
         return present;
     }
@@ -257,11 +256,11 @@ public class Config {
     public String get1stLine() {
         return MotD1stLine;
     }
-    
+
     public String get2ndLine( int num ) {
         return MotD2ndLine.get( num );
     }
-    
+
     public int getmotDCount() {
         return MotD_Count;
     }
@@ -297,7 +296,7 @@ public class Config {
     public boolean Announce() {
         return config.getBoolean( "ANNOUNCE.Enabled" );
     }
-    
+
     public String AnnounceMessage() {
         return config.getString( "ANNOUNCE.Message" );
     }
@@ -305,11 +304,11 @@ public class Config {
     public boolean NewJoin() {
         return config.getBoolean( "New_Join_Message.Enabled" );
     }
-    
+
     public String NewJoinMessage( String Lang ) {
         return config.getString( "New_Join_Message." + Lang, config.getString( "New_Join_Message.Message" ) );
     }
-    
+
     public boolean ReturnJoin() {
         return config.getBoolean( "Returning_Join_Message.Enabled" );
     }
@@ -317,19 +316,19 @@ public class Config {
     public String ReturnJoinMessage( String Lang ) {
         return config.getString( "Returning_Join_Message." + Lang, config.getString( "Returning_Join_Message.Message" ) );
     }
-    
-    public boolean PlayerQuti() {
+
+    public boolean PlayerQuit() {
         return config.getBoolean( "Quit_Message.Enabled" );
     }
 
     public String PlayerQuitMessage() {
         return config.getString( "Quit_Message.Message" );
     }
-    
+
     public boolean PlayerKick() {
         return config.getBoolean( "Kick_Message.Enabled" );
     }
-    
+
     public String KickMessage() {
         return config.getString( "Kick_Message.Message" );
     }
@@ -337,21 +336,21 @@ public class Config {
     public boolean DeathMessageFlag() {
         return config.getBoolean( "Death_Message.Enabled" );
     }
-    
+
     public String DeathMessage( String mob ) {
         String msg = config.getString( "Death_Message.Messages." + mob );
         if ( msg == null ) msg = config.getString( "Death_Message.Messages.DEFAULT" );
         return msg;
     }
-    
+
     public boolean getCheckIP() {
         return CheckIPAddress;
     }
-    
+
     public void setCheckIP( boolean flag ) {
         CheckIPAddress = flag;
     }
-    
+
     public boolean getKumaisu() {
         return config.getBoolean( "Kumaisu" );
     }

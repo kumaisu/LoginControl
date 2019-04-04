@@ -65,7 +65,7 @@ public class LoginControl extends JavaPlugin implements Listener {
     public void prePlayerLogin( AsyncPlayerPreLoginEvent event ) {
         Utility.Prt( null, "PrePlayerLogin process", config.DBFlag( 2 ) );
         date = new Date();
-        StatRec.PreSavePlayer( date, event.getName(), event.getUniqueId().toString(), event.getAddress().getHostAddress(), 0 );
+        StatRec.listPreSave( date, event.getName(), event.getUniqueId().toString(), event.getAddress().getHostAddress(), 0 );
         StatRec.AddPlayerToSQL( event.getAddress().getHostAddress(), event.getName() );
     }
 
@@ -75,32 +75,34 @@ public class LoginControl extends JavaPlugin implements Listener {
         Utility.Prt( null, "onPlayerLogin process", config.DBFlag( 2 ) );
         event.setJoinMessage( null );
         Player player = event.getPlayer();
-        StatRec.ChangeStatus( date, 1 );
+        StatRec.listChangeStatus( date, 1 );
         StatRec.LogPrint( player, 5, false, config.getIgnoreName() );
         StatRec.AddCountHost( player.getAddress().getHostString(), -1 );
-        StatRec.CheckIP( player, config.DBFlag( 1 ) );
+        StatRec.listCheckIP( player, config.DBFlag( 1 ) );
 
-        if ( ( config.getJump() ) && ( ( !player.hasPlayedBefore() ) || config.OpJump( player.isOp() ) ) ) {
-            Utility.Prt( null, Utility.StringBuild( ChatColor.LIGHT_PURPLE.toString(), "The First Login Player" ), true );
+        if ( !player.hasPlayedBefore() || config.OpJump( player.isOp() ) ) {
+            Utility.Prt( null, ChatColor.LIGHT_PURPLE + "The First Login Player", true );
 
             List<String> present = config.getPresent();
             present.stream().forEach( PR -> {
                 String[] itemdata = PR.split( ",", 0 );
                 player.getInventory().addItem( new ItemStack( Material.getMaterial( itemdata[0] ), Integer.parseInt( itemdata[1] ) ) );
-                Utility.Prt( null, Utility.StringBuild( ChatColor.AQUA.toString(), "Present Item : ", ChatColor.WHITE.toString(), itemdata[0], "(", itemdata[1], ")" ), config.DBFlag( 2 ) );
+                Utility.Prt( null, ChatColor.AQUA + "Present Item : " + ChatColor.WHITE + itemdata[0] + "(" + itemdata[1] + ")", config.DBFlag( 2 ) );
             } );
 
-            Utility.Prt( null, "This player is first play to teleport", config.DBFlag( 1 ) );
-            World world = getWorld( config.getWorld() );
-            Location loc = new Location( world, config.getX(), config.getY(), config.getZ() );
-            loc.setPitch( config.getPitch() );
-            loc.setYaw( config.getYaw() );
-            player.teleport( loc );
+            if ( config.getJump() ) {
+                Utility.Prt( null, "This player is first play to teleport", config.DBFlag( 1 ) );
+                World world = getWorld( config.getWorld() );
+                Location loc = new Location( world, config.getX(), config.getY(), config.getZ() );
+                loc.setPitch( config.getPitch() );
+                loc.setYaw( config.getYaw() );
+                player.teleport( loc );
+            }
 
             if( config.NewJoin() ) {
                 String msg = StatRec.GetLocale( player.getAddress().getHostString(), config.DBFlag( 1 ) );
-                Utility.Prt( null, Utility.StringBuild( "Player host = ", player.getAddress().getHostString() ), config.DBFlag( 1 ) );
-                Utility.Prt( null, Utility.StringBuild( "Get Locale = ", msg ), config.DBFlag( 1 ) );
+                Utility.Prt( null, "Player host = " + player.getAddress().getHostString(), config.DBFlag( 1 ) );
+                Utility.Prt( null, "Get Locale = " + msg, config.DBFlag( 1 ) );
                 Bukkit.broadcastMessage( Utility.ReplaceString( config.NewJoinMessage( msg ), player.getDisplayName() ) );
             }
 
@@ -122,7 +124,7 @@ public class LoginControl extends JavaPlugin implements Listener {
             event.setQuitMessage( null );
             return;
         }
-        if ( config.PlayerQuti() ) {
+        if ( config.PlayerQuit() ) {
             event.setQuitMessage( Utility.ReplaceString( config.PlayerQuitMessage(), event.getPlayer().getDisplayName() ) );
         }
     }
@@ -195,7 +197,7 @@ public class LoginControl extends JavaPlugin implements Listener {
                 if ( Host.contains( "Player" ) ) {
                     MsgColor = ChatColor.WHITE.toString();
                     //  簡易DNSにプレイヤー登録されている場合は、ログイン履歴を参照して最新のプレイヤー名を取得する
-                    Names = StatRec.GetPlayerName( event.getAddress().getHostAddress() );
+                    Names = StatRec.listGetPlayerName( event.getAddress().getHostAddress() );
                     MsgNum = 2;
                     PrtStatus = 1;
                 } else {
