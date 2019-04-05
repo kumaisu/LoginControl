@@ -61,6 +61,10 @@ public class LoginControl extends JavaPlugin implements Listener {
         super.onLoad(); //To change body of generated methods, choose Tools | Templates.
     }
 
+    /**
+     * 
+     * @param event 
+     */
     @EventHandler
     public void prePlayerLogin( AsyncPlayerPreLoginEvent event ) {
         Utility.Prt( null, "PrePlayerLogin process", config.DBFlag( 2 ) );
@@ -69,6 +73,11 @@ public class LoginControl extends JavaPlugin implements Listener {
         StatRec.AddPlayerToSQL( event.getAddress().getHostAddress(), event.getName() );
     }
 
+    /**
+     * 
+     * @param event
+     * @throws UnknownHostException 
+     */
     @EventHandler
     public void onPlayerLogin( PlayerJoinEvent event ) throws UnknownHostException {
 
@@ -118,6 +127,10 @@ public class LoginControl extends JavaPlugin implements Listener {
         }
     }
 
+    /**
+     * 
+     * @param event 
+     */
     @EventHandler
     public void onPlayerQuit( PlayerQuitEvent event ) {
         if ( event.getPlayer().hasPermission( "LoginCtl.silentquit" ) ) {
@@ -129,6 +142,10 @@ public class LoginControl extends JavaPlugin implements Listener {
         }
     }
 
+    /**
+     * 
+     * @param event 
+     */
     @EventHandler
     public void onKickMessage( PlayerKickEvent event ) {
         if ( config.PlayerKick() ) {
@@ -142,6 +159,10 @@ public class LoginControl extends JavaPlugin implements Listener {
         }
     }
 
+    /**
+     * 
+     * @param event 
+     */
     @EventHandler
     public void onPlayerDeath( PlayerDeathEvent event ) {
         if ( config.DeathMessageFlag() ) {
@@ -171,6 +192,12 @@ public class LoginControl extends JavaPlugin implements Listener {
         }
     }
 
+    /**
+     * 
+     * @param event
+     * @throws UnknownHostException
+     * @throws ClassNotFoundException 
+     */
     @EventHandler
     public void onServerListPing( ServerListPingEvent event ) throws UnknownHostException, ClassNotFoundException {
         String Names = "Unknown";   // = StatRec.GetPlayerName( event.getAddress().getHostAddress() );
@@ -232,6 +259,14 @@ public class LoginControl extends JavaPlugin implements Listener {
         Bukkit.getOnlinePlayers().stream().filter( ( p ) -> ( p.hasPermission( "LoginCtl.view" ) || p.isOp() ) ).forEachOrdered( ( p ) -> { p.sendMessage( msg ); } );
     }
 
+    /**
+     * 
+     * @param sender
+     * @param cmd
+     * @param commandLabel
+     * @param args
+     * @return 
+     */
     @Override
     public boolean onCommand( CommandSender sender,Command cmd, String commandLabel, String[] args ) {
         boolean FullFlag = false;
@@ -447,6 +482,11 @@ public class LoginControl extends JavaPlugin implements Listener {
     //  オプショナリーな機能
     //
 
+    /**
+     * 
+     * @param p
+     * @param flag 
+     */
     public void FlightMode( Player p, boolean flag ) {
         if ( flag ) {
             Utility.Prt( p, Utility.StringBuild( ChatColor.AQUA.toString(), "You can FLY !!" ), config.DBFlag( 1 ) );
@@ -461,6 +501,10 @@ public class LoginControl extends JavaPlugin implements Listener {
         }
     }
 
+    /**
+     * 
+     * @param event 
+     */
     @EventHandler
     public void onFlight( PlayerToggleFlightEvent event ) {
         Player p = event.getPlayer();
@@ -468,6 +512,10 @@ public class LoginControl extends JavaPlugin implements Listener {
         if ( !p.hasPermission( "LoginCtl.flight" ) ) FlightMode( p, false );
     }
 
+    /**
+     * 
+     * @param event 
+     */
     @EventHandler //    看板ブロックを右クリック
     public void onSignClick( PlayerInteractEvent event ) {
 

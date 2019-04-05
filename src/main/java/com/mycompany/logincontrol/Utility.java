@@ -11,7 +11,12 @@ import org.bukkit.entity.Player;
  * @author sugichan
  */
 public final class Utility {
-    
+
+    /**
+     * 
+     * @param StrItem
+     * @return 
+     */
     public static String StringBuild( String ... StrItem ) {
         StringBuilder buf = new StringBuilder();
 
@@ -20,10 +25,21 @@ public final class Utility {
         return buf.toString();
     }
 
+    /**
+     * 
+     * @param data
+     * @return 
+     */
     public static String Replace( String data ) {
         return data.replace( "%$", "§" );
     }
 
+    /**
+     * 
+     * @param data
+     * @param Names
+     * @return 
+     */
     public static String ReplaceString( String data, String Names ) {
         String RetStr;
         RetStr = data.replace( "%player%", Names );
@@ -32,6 +48,12 @@ public final class Utility {
         return RetStr;
     }
 
+    /**
+     * 
+     * @param player
+     * @param msg
+     * @param console 
+     */
     public static void Prt( Player player, String msg, boolean console ) {
         if ( console ) Bukkit.getServer().getConsoleSender().sendMessage( msg );
         if ( player != null ) player.sendMessage( msg );

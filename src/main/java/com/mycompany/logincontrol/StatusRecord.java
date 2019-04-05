@@ -43,6 +43,11 @@ public class StatusRecord {
         password = CFpass;
     }
 
+    /**
+     * 
+     * @param ipAddr
+     * @return 
+     */
     public static long ipToInt( Inet4Address ipAddr ) {
         long compacted = 0;
         byte[] bytes = ipAddr.getAddress();
@@ -52,6 +57,11 @@ public class StatusRecord {
         return compacted;
     }
 
+    /**
+     * 
+     * @param ipAddress
+     * @return 
+     */
     private static String toInetAddress( long ipAddress ) {
         long ip = ( ipAddress < 0 ) ? (long)Math.pow(2,32)+ipAddress : ipAddress;
         Inet4Address inetAddress = null;
@@ -59,6 +69,15 @@ public class StatusRecord {
         return addr;
     }
 
+    /**
+     * 
+     * @param p
+     * @param id
+     * @param date
+     * @param name
+     * @param ip
+     * @param status 
+     */
     public void LineMsg( Player p, int id, Date date, String name, long ip , int status ) {
         String message = Utility.StringBuild( String.format( "%6d", id ), ": ", sdf.format( date ), " ", String.format( "%-20s", name ) );
         if ( ( p == null ) || p.hasPermission( "LoginCtl.view" ) || p.isOp() ) {
@@ -67,6 +86,13 @@ public class StatusRecord {
         Utility.Prt( p, message, ( p == null ) );
     }
 
+    /**
+     * 
+     * @param player
+     * @param lines
+     * @param FullFlag
+     * @param Ignore 
+     */
     @SuppressWarnings("CallToPrintStackTrace")
     public void LogPrint( Player player, int lines, boolean FullFlag, List Ignore ) {
 
@@ -101,6 +127,13 @@ public class StatusRecord {
         }
     }
 
+    /**
+     * 
+     * @param player
+     * @param ChkDate
+     * @param FullFlag
+     * @param Ignore 
+     */
     public void DateLogPrint( Player player, String ChkDate, boolean FullFlag, List Ignore ) {
         Utility.Prt( player, Utility.StringBuild( "== [", ChkDate, "] Login List ==" ), ( player == null ) );
 
@@ -129,6 +162,13 @@ public class StatusRecord {
         }
     }
 
+    /**
+     * 
+     * @param player
+     * @param ChkName
+     * @param FullFlag
+     * @param Flag 
+     */
     public void NameLogPrint( Player player, String ChkName, boolean FullFlag, int Flag ) {
         Utility.Prt( player, Utility.StringBuild( "== [", ChkName, "] Login List ==" ), ( player == null ) );
 
@@ -163,6 +203,11 @@ public class StatusRecord {
         }
     }
 
+    /**
+     * 
+     * @param ip
+     * @return 
+     */
     @SuppressWarnings("CallToPrintStackTrace")
     public String listGetPlayerName( String ip ) {
 
@@ -179,6 +224,12 @@ public class StatusRecord {
         return ip;
     }
 
+    /**
+     * 
+     * @param player
+     * @param Debug
+     * @throws UnknownHostException 
+     */
     @SuppressWarnings( "CallToPrintStackTrace" )
     public void listCheckIP( Player player, boolean Debug ) throws UnknownHostException {
         List<String> PrtData;
@@ -222,6 +273,11 @@ public class StatusRecord {
         } );
     }
 
+    /**
+     * 
+     * @param date
+     * @param status 
+     */
     public void listChangeStatus( Date date, int status ) {
         try {
             openConnection();
@@ -235,6 +291,14 @@ public class StatusRecord {
         }
     }
 
+    /**
+     * 
+     * @param date
+     * @param name
+     * @param UUID
+     * @param IP
+     * @param Status 
+     */
     public void listPreSave( Date date, String name, String UUID, String IP, int Status ) {
 
         /*
@@ -263,6 +327,11 @@ public class StatusRecord {
         }
     }
 
+    /**
+     * 
+     * @param IP
+     * @param Name 
+     */
     public void AddPlayerToSQL( String IP, String Name ) {
         String DataName = Utility.StringBuild( Name, ".Player." );
         String GetName = GetHost( IP );
@@ -278,6 +347,11 @@ public class StatusRecord {
         }
     }
 
+    /**
+     * 
+     * @throws SQLException
+     * @throws ClassNotFoundException 
+     */
     private void openConnection() throws SQLException, ClassNotFoundException {
 
         if (connection != null && !connection.isClosed()) {
@@ -307,6 +381,12 @@ public class StatusRecord {
         }
     }
 
+    /**
+     * 
+     * @param IP
+     * @param Debug
+     * @return 
+     */
     public String GetLocale( String IP, boolean Debug ) {
         try {
             openConnection();
@@ -328,6 +408,11 @@ public class StatusRecord {
         return "JP";
     }
 
+    /**
+     * 
+     * @param IP
+     * @param Host 
+     */
     public void AddHostToSQL( String IP, String Host ) {
         try {
             openConnection();
@@ -347,6 +432,11 @@ public class StatusRecord {
         }
     }
 
+    /**
+     * 
+     * @param IP
+     * @return 
+     */
     public boolean DelHostFromSQL( String IP ) {
         try {
             openConnection();
@@ -360,6 +450,11 @@ public class StatusRecord {
         }
     }
 
+    /**
+     * 
+     * @param IP
+     * @return 
+     */
     public String GetHost( String IP ) {
         try {
             openConnection();
@@ -373,6 +468,11 @@ public class StatusRecord {
         return "Unknown";
     }
 
+    /**
+     * 
+     * @param p
+     * @param word 
+     */
     public void SearchHost( Player p, String word ) {
         try {
             openConnection();
@@ -403,6 +503,14 @@ public class StatusRecord {
         }
     }
 
+    /**
+     * 
+     * @param IP
+     * @param CheckFlag
+     * @param Debug
+     * @return
+     * @throws UnknownHostException 
+     */
     public String getUnknownHost( String IP, boolean CheckFlag, boolean Debug ) throws UnknownHostException {
         Bukkit.getServer().getConsoleSender().sendMessage( Utility.StringBuild( ChatColor.RED.toString(), "[LC] Unknown New Record : ", ChatColor.AQUA.toString(), IP ) );
         String HostName = "Unknown(IP)";
@@ -433,6 +541,12 @@ public class StatusRecord {
         return HostName;
     }
 
+    /**
+     * 
+     * @param IP
+     * @return
+     * @throws UnknownHostException 
+     */
     public String ping( String IP ) throws UnknownHostException {
         Inet4Address inet = ( Inet4Address ) Inet4Address.getByName( IP );
         return inet.getHostName();
@@ -456,6 +570,13 @@ public class StatusRecord {
         return true;
     }
 
+    /**
+     * 
+     * @param IP
+     * @param newf
+     * @return
+     * @throws ClassNotFoundException 
+     */
     public String getDateHost( String IP, boolean newf ) throws ClassNotFoundException {
         //  True : カウントを開始した日を指定
         //  False : 最後にカウントされた日を指定
@@ -479,6 +600,12 @@ public class StatusRecord {
         return "";
     }
 
+    /**
+     * 
+     * @param IP
+     * @return
+     * @throws UnknownHostException 
+     */
     @SuppressWarnings("CallToPrintStackTrace")
     public int GetcountHosts( String IP ) throws UnknownHostException {
         try {
@@ -495,6 +622,12 @@ public class StatusRecord {
         return 0;
     }
 
+    /**
+     * 
+     * @param IP
+     * @param ZeroF
+     * @throws UnknownHostException 
+     */
     @SuppressWarnings("CallToPrintStackTrace")
     public void AddCountHost( String IP, int ZeroF ) throws UnknownHostException {
         try {
@@ -523,6 +656,12 @@ public class StatusRecord {
         }
     }
 
+    /**
+     * 
+     * @param IP
+     * @param Hostname
+     * @return 
+     */
     public boolean chgUnknownHost( String IP, String Hostname ) {
 
         if ( Hostname.length()>60 ) { Hostname = String.format( "%-60s", Hostname ); }
@@ -549,6 +688,11 @@ public class StatusRecord {
         return false;
     }
 
+    /**
+     * 
+     * @param p
+     * @param IP 
+     */
     public void infoUnknownHost( Player p, String IP ) {
         try {
             openConnection();
@@ -573,6 +717,11 @@ public class StatusRecord {
         }
     }
 
+    /**
+     * 
+     * @param p
+     * @param Lines 
+     */
     public void PingTop( Player p, int Lines ) {
         Utility.Prt( p, ChatColor.GREEN + "== Ping Count Top " + Lines + " ==", ( p == null ) );
 
