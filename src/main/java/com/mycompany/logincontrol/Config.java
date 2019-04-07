@@ -5,7 +5,6 @@ package com.mycompany.logincontrol;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -112,45 +111,38 @@ public class Config {
 
     }
 
-    public void Prt( Player p, String s ) {
-        if ( p == null ) {
-            Bukkit.getServer().getConsoleSender().sendMessage( s );
-        } else {
-            p.sendMessage( s );
-        }
-    }
-
     public void Status( Player p ) {
-        Prt( p, "=== LoginContrl Status ===" );
-        Prt( p, Utility.StringBuild( "Degub Mode : ", DBString( DebugFlag ) ) );
-        Prt( p, Utility.StringBuild( "Mysql : ", host, ":", port ) );
-        Prt( p, Utility.StringBuild( "DB Name : ", database ) );
-        Prt( p, Utility.StringBuild( "FirstJump : ", ( ( JumpStats ) ? "True":"None" ) ) );
+        boolean consolePrintFlag = ( p == null );
+        Utility.Prt( p, "=== LoginContrl Status ===", consolePrintFlag );
+        Utility.Prt( p, "Degub Mode : " + DBString( DebugFlag ), consolePrintFlag );
+        Utility.Prt( p, "Mysql : " + host + ":" + port, consolePrintFlag );
+        Utility.Prt( p, "DB Name : " + database, consolePrintFlag );
+        Utility.Prt( p, "FirstJump : " + ( ( JumpStats ) ? "True":"None" ), consolePrintFlag );
         if ( JumpStats ) {
-            Prt( p, Utility.StringBuild( "  world:", fworld ) );
-            Prt( p, Utility.StringBuild( "  x:", String.valueOf( fx ) ) );
-            Prt( p, Utility.StringBuild( "  y:", String.valueOf( fy ) ) );
-            Prt( p, Utility.StringBuild( "  z:", String.valueOf( fz ) ) );
-            Prt( p, Utility.StringBuild( "  p:", String.valueOf( fpitch ) ) );
-            Prt( p, Utility.StringBuild( "  y:", String.valueOf( fyaw ) ) );
+            Utility.Prt( p, "  world:" + fworld, consolePrintFlag );
+            Utility.Prt( p, "  x:" + String.valueOf( fx ), consolePrintFlag );
+            Utility.Prt( p, "  y:" + String.valueOf( fy ), consolePrintFlag );
+            Utility.Prt( p, "  z:" + String.valueOf( fz ), consolePrintFlag );
+            Utility.Prt( p, "  p:" + String.valueOf( fpitch ), consolePrintFlag );
+            Utility.Prt( p, "  y:" + String.valueOf( fyaw ), consolePrintFlag );
         }
-        Prt( p, "Present Items" );
+        Utility.Prt( p, "Present Items", consolePrintFlag );
         present.stream().forEach( pr -> {
             String[] itemdata = pr.split( ",", 0 );
-            Prt( p, Utility.StringBuild( " - ", itemdata[0], "(", itemdata[1], ")" ) );
+            Utility.Prt( p, " - " + itemdata[0] + "(" + itemdata[1] + ")", consolePrintFlag );
         } );
 
-        Prt( p, "Ignore Names" );
-        IgnoreReportName.stream().forEach( IRN -> { Prt( p, Utility.StringBuild( " - ", IRN ) ); } );
+        Utility.Prt( p, "Ignore Names", consolePrintFlag );
+        IgnoreReportName.stream().forEach( IRN -> { Utility.Prt( p, " - " + IRN, consolePrintFlag ); } );
 
-        Prt( p, "Ignore IPs" );
-        IgnoreReportIP.stream().forEach( IRI -> { Prt( p, Utility.StringBuild( " - ", IRI ) ); } );
+        Utility.Prt( p, "Ignore IPs", consolePrintFlag );
+        IgnoreReportIP.stream().forEach( IRI -> { Utility.Prt( p, " - " + IRI, consolePrintFlag ); } );
 
-        Prt( p, Utility.StringBuild( "Unknown IP Check : ", ( CheckIPAddress ? "True":"False" ) ) );
-        Prt( p, Utility.StringBuild( "MotD 1 Line : ", MotD1stLine ) );
-        Prt( p, Utility.StringBuild( "MotD 2 Line(Unknown) : ", MotD2ndLine.get( 0 ) ) );
-        Prt( p, Utility.StringBuild( "MotD 2 Line(Player ) : ", MotD2ndLine.get( 2 ) ) );
-        Prt( p, "==========================" );
+        Utility.Prt( p, "Unknown IP Check : " + ( CheckIPAddress ? "True":"False" ), consolePrintFlag );
+        Utility.Prt( p, "MotD 1 Line : " + MotD1stLine, consolePrintFlag );
+        Utility.Prt( p, "MotD 2 Line(Unknown) : " + MotD2ndLine.get( 0 ), consolePrintFlag );
+        Utility.Prt( p, "MotD 2 Line(Player ) : " + MotD2ndLine.get( 2 ), consolePrintFlag );
+        Utility.Prt( p, "==========================", consolePrintFlag );
     }
 
     public int getDebug() {
