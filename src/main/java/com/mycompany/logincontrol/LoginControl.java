@@ -62,6 +62,8 @@ public class LoginControl extends JavaPlugin implements Listener {
     }
 
     /**
+     * プレイヤーがログインしようとした時に起きるイベント
+     * BANなどされていてもこのイベントは発生する
      * 
      * @param event 
      */
@@ -74,6 +76,8 @@ public class LoginControl extends JavaPlugin implements Listener {
     }
 
     /**
+     * プレイヤーがログインを成功すると発生するイベント
+     * ここでプレイヤーに対して、様々な処理を実行する
      * 
      * @param event
      * @throws UnknownHostException 
@@ -128,6 +132,7 @@ public class LoginControl extends JavaPlugin implements Listener {
     }
 
     /**
+     * プレイヤーがログアウトした時に発生するイベント
      * 
      * @param event 
      */
@@ -143,6 +148,7 @@ public class LoginControl extends JavaPlugin implements Listener {
     }
 
     /**
+     * サーバー内でルール違反等がありキックされた時に発生するイベント
      * 
      * @param event 
      */
@@ -160,39 +166,8 @@ public class LoginControl extends JavaPlugin implements Listener {
     }
 
     /**
-     * 
-     * @param event 
-     */
-    @EventHandler
-    public void onPlayerDeath( PlayerDeathEvent event ) {
-        if ( config.DeathMessageFlag() ) {
-            Utility.Prt( null, Utility.StringBuild( "DeathMessage: ", event.getDeathMessage() ), config.DBFlag( 2 ) );
-            Utility.Prt( null, Utility.StringBuild( "DisplayName : ", event.getEntity().getDisplayName() ), config.DBFlag( 2 ) );
-            if ( event.getEntity().getLastDamageCause() instanceof EntityDamageByEntityEvent ) {
-                EntityDamageByEntityEvent lastcause = ( EntityDamageByEntityEvent ) event.getEntity().getLastDamageCause();
-                Entity entity = lastcause.getDamager();
-                Utility.Prt( null, Utility.StringBuild( "Killer Name : ", entity.getName() ), config.DBFlag( 2 ) );
-                String msg = config.DeathMessage( entity.getName().toUpperCase() );
-                msg = Utility.ReplaceString( msg, event.getEntity().getDisplayName() );
-                msg = msg.replace( "%mob%", entity.getName() );
-                //event.setDeathMessage( null );
-                Bukkit.broadcastMessage( msg );
-            } else {
-                Utility.Prt( null, "Other Death", config.DBFlag( 1 ) );
-                Bukkit.broadcastMessage(
-                    Utility.StringBuild(
-                        ChatColor.YELLOW.toString(), "[天の声] ",
-                        ChatColor.AQUA.toString(), event.getEntity().getDisplayName(),
-                        ChatColor.WHITE.toString(), "は",
-                        ChatColor.RED.toString(), "謎",
-                        ChatColor.WHITE.toString(), "の死を遂げた"
-                    )
-                );
-            }
-        }
-    }
-
-    /**
+     * サーバーへのリスト照会が来た時に起きるイベント
+     * プレイヤーのサーバーリストへの文言（MotD）の内容を個別に修正して返信する
      * 
      * @param event
      * @throws UnknownHostException
@@ -260,6 +235,7 @@ public class LoginControl extends JavaPlugin implements Listener {
     }
 
     /**
+     * コマンド入力があった場合に発生するイベント
      * 
      * @param sender
      * @param cmd
@@ -483,6 +459,43 @@ public class LoginControl extends JavaPlugin implements Listener {
     //
 
     /**
+     * サーバー内で死亡した時に発生するイベント
+     * 現在はイベントを拾って、単純に表示する程度の中途半端
+     * 将来的には死因やキラーの表示をちゃんと出来るようにしたい（修正中）
+     * 
+     * @param event 
+     */
+    @EventHandler
+    public void onPlayerDeath( PlayerDeathEvent event ) {
+        if ( config.DeathMessageFlag() ) {
+            Utility.Prt( null, Utility.StringBuild( "DeathMessage: ", event.getDeathMessage() ), config.DBFlag( 2 ) );
+            Utility.Prt( null, Utility.StringBuild( "DisplayName : ", event.getEntity().getDisplayName() ), config.DBFlag( 2 ) );
+            if ( event.getEntity().getLastDamageCause() instanceof EntityDamageByEntityEvent ) {
+                EntityDamageByEntityEvent lastcause = ( EntityDamageByEntityEvent ) event.getEntity().getLastDamageCause();
+                Entity entity = lastcause.getDamager();
+                Utility.Prt( null, Utility.StringBuild( "Killer Name : ", entity.getName() ), config.DBFlag( 2 ) );
+                String msg = config.DeathMessage( entity.getName().toUpperCase() );
+                msg = Utility.ReplaceString( msg, event.getEntity().getDisplayName() );
+                msg = msg.replace( "%mob%", entity.getName() );
+                //event.setDeathMessage( null );
+                Bukkit.broadcastMessage( msg );
+            } else {
+                Utility.Prt( null, "Other Death", config.DBFlag( 1 ) );
+                Bukkit.broadcastMessage(
+                    Utility.StringBuild(
+                        ChatColor.YELLOW.toString(), "[天の声] ",
+                        ChatColor.AQUA.toString(), event.getEntity().getDisplayName(),
+                        ChatColor.WHITE.toString(), "は",
+                        ChatColor.RED.toString(), "謎",
+                        ChatColor.WHITE.toString(), "の死を遂げた"
+                    )
+                );
+            }
+        }
+    }
+
+    /**
+     * プレイヤーのフライを設定または解除する
      * 
      * @param p
      * @param flag 
@@ -502,6 +515,7 @@ public class LoginControl extends JavaPlugin implements Listener {
     }
 
     /**
+     * フライが禁止されているプレイヤーのフライを強制解除する
      * 
      * @param event 
      */
@@ -513,6 +527,7 @@ public class LoginControl extends JavaPlugin implements Listener {
     }
 
     /**
+     * 看板をクリックした時に発生するイベント
      * 
      * @param event 
      */

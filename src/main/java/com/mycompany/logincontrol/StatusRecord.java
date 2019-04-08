@@ -537,6 +537,7 @@ public class StatusRecord {
     }
 
     /**
+     * Internet DNS に対してホスト名を照会するためにIPを使ってPingを打つ
      * 
      * @param IP
      * @return
@@ -548,6 +549,7 @@ public class StatusRecord {
     }
 
     /**
+     * 新規の照会があった場合に、テキストファイルへ日時と共に記録する
      * 
      * @param IP
      * @param DataFolder
@@ -572,9 +574,10 @@ public class StatusRecord {
     }
 
     /**
+     * IPアドレスから初アクセスまたは、最終アクセス日を取得する
      * 
      * @param IP
-     * @param newf
+     * @param newf  True:初アクセス　False:最終アクセス
      * @return
      * @throws ClassNotFoundException 
      */
@@ -602,6 +605,7 @@ public class StatusRecord {
     }
 
     /**
+     * IPアドレスの参照回数を取得する
      * 
      * @param IP
      * @return
@@ -658,6 +662,7 @@ public class StatusRecord {
     }
 
     /**
+     * IPアドレスの登録ホスト名を変更する
      * 
      * @param IP
      * @param Hostname
@@ -675,7 +680,7 @@ public class StatusRecord {
 
             if ( rs.next() ) {
                 String chg_sql = "UPDATE hosts SET host = '" + Hostname + "' WHERE INET_NTOA( ip ) = '" + IP + "';";
-                PreparedStatement preparedStatement = connection.prepareStatement(chg_sql);
+                PreparedStatement preparedStatement = connection.prepareStatement( chg_sql );
                 preparedStatement.executeUpdate();
                 return true;
             } else {
@@ -690,6 +695,7 @@ public class StatusRecord {
     }
 
     /**
+     * 登録されているIPの情報を表示する
      * 
      * @param p
      * @param IP 
@@ -719,9 +725,10 @@ public class StatusRecord {
     }
 
     /**
+     * サーバーへの照会回数が多い順位表示
      * 
      * @param p
-     * @param Lines 
+     * @param Lines 表示する順位の人数
      */
     public void PingTop( Player p, int Lines ) {
         Utility.Prt( p, ChatColor.GREEN + "== Ping Count Top " + Lines + " ==", ( p == null ) );
