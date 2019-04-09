@@ -64,8 +64,8 @@ public class LoginControl extends JavaPlugin implements Listener {
     /**
      * プレイヤーがログインしようとした時に起きるイベント
      * BANなどされていてもこのイベントは発生する
-     * 
-     * @param event 
+     *
+     * @param event
      */
     @EventHandler
     public void prePlayerLogin( AsyncPlayerPreLoginEvent event ) {
@@ -78,9 +78,9 @@ public class LoginControl extends JavaPlugin implements Listener {
     /**
      * プレイヤーがログインを成功すると発生するイベント
      * ここでプレイヤーに対して、様々な処理を実行する
-     * 
+     *
      * @param event
-     * @throws UnknownHostException 
+     * @throws UnknownHostException
      */
     @EventHandler
     public void onPlayerLogin( PlayerJoinEvent event ) throws UnknownHostException {
@@ -133,8 +133,8 @@ public class LoginControl extends JavaPlugin implements Listener {
 
     /**
      * プレイヤーがログアウトした時に発生するイベント
-     * 
-     * @param event 
+     *
+     * @param event
      */
     @EventHandler
     public void onPlayerQuit( PlayerQuitEvent event ) {
@@ -149,8 +149,8 @@ public class LoginControl extends JavaPlugin implements Listener {
 
     /**
      * サーバー内でルール違反等がありキックされた時に発生するイベント
-     * 
-     * @param event 
+     *
+     * @param event
      */
     @EventHandler
     public void onKickMessage( PlayerKickEvent event ) {
@@ -168,10 +168,10 @@ public class LoginControl extends JavaPlugin implements Listener {
     /**
      * サーバーへのリスト照会が来た時に起きるイベント
      * プレイヤーのサーバーリストへの文言（MotD）の内容を個別に修正して返信する
-     * 
+     *
      * @param event
      * @throws UnknownHostException
-     * @throws ClassNotFoundException 
+     * @throws ClassNotFoundException
      */
     @EventHandler
     public void onServerListPing( ServerListPingEvent event ) throws UnknownHostException, ClassNotFoundException {
@@ -236,12 +236,12 @@ public class LoginControl extends JavaPlugin implements Listener {
 
     /**
      * コマンド入力があった場合に発生するイベント
-     * 
+     *
      * @param sender
      * @param cmd
      * @param commandLabel
      * @param args
-     * @return 
+     * @return
      */
     @Override
     public boolean onCommand( CommandSender sender,Command cmd, String commandLabel, String[] args ) {
@@ -462,8 +462,8 @@ public class LoginControl extends JavaPlugin implements Listener {
      * サーバー内で死亡した時に発生するイベント
      * 現在はイベントを拾って、単純に表示する程度の中途半端
      * 将来的には死因やキラーの表示をちゃんと出来るようにしたい（修正中）
-     * 
-     * @param event 
+     *
+     * @param event
      */
     @EventHandler
     public void onPlayerDeath( PlayerDeathEvent event ) {
@@ -496,9 +496,9 @@ public class LoginControl extends JavaPlugin implements Listener {
 
     /**
      * プレイヤーのフライを設定または解除する
-     * 
+     *
      * @param p
-     * @param flag 
+     * @param flag
      */
     public void FlightMode( Player p, boolean flag ) {
         if ( flag ) {
@@ -516,8 +516,8 @@ public class LoginControl extends JavaPlugin implements Listener {
 
     /**
      * フライが禁止されているプレイヤーのフライを強制解除する
-     * 
-     * @param event 
+     *
+     * @param event
      */
     @EventHandler
     public void onFlight( PlayerToggleFlightEvent event ) {
@@ -528,8 +528,8 @@ public class LoginControl extends JavaPlugin implements Listener {
 
     /**
      * 看板をクリックした時に発生するイベント
-     * 
-     * @param event 
+     *
+     * @param event
      */
     @EventHandler //    看板ブロックを右クリック
     public void onSignClick( PlayerInteractEvent event ) {

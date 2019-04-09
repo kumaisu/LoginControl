@@ -25,7 +25,7 @@ import org.bukkit.entity.Player;
 
 /**
  * 主にmySQLとの通信を司るライブラリ
- * 
+ *
  * @author sugichan
  */
 public class StatusRecord {
@@ -47,7 +47,7 @@ public class StatusRecord {
     /**
      * ユーザー情報を1ラインで表紙成形する関数
      * Permission保持者には追加情報も付随する
-     * 
+     *
      * @param p         表示したいプレイヤー
      * @param id        表示番号
      * @param date      日付
@@ -65,7 +65,7 @@ public class StatusRecord {
 
     /**
      * 直近のログインプレイヤーリストを表示する関数
-     * 
+     *
      * @param player    表示するプレイヤー
      * @param lines     リストに表示する人数（過去lines人分)
      * @param FullFlag  重複ログインを省略しないか？
@@ -107,7 +107,7 @@ public class StatusRecord {
 
     /**
      * 指定した日にログインしたプレイヤーの一覧表示
-     * 
+     *
      * @param player    結果を表示するプレイヤー
      * @param ChkDate   検索する日時
      * @param FullFlag  重複したプレイヤーを省略しないか？
@@ -143,7 +143,7 @@ public class StatusRecord {
 
     /**
      * ChkNameに該当するログイン履歴を表示する
-     * 
+     *
      * @param player    結果を表示するプレイヤー
      * @param ChkName   検索する文字列
      * @param FullFlag  重複したプレイヤーを省略しないか？
@@ -185,7 +185,7 @@ public class StatusRecord {
 
     /**
      * IPアドレスから、最後にログインしたプレイヤー名を取得
-     * 
+     *
      * @param ip
      * @return     取得成功時はプレイヤー名、記録が無い時はUnknownを戻す
      *              SQLエラーが発生した場合は、IPアドレスを戻す
@@ -208,10 +208,10 @@ public class StatusRecord {
 
     /**
      * 同一IPアドレスで別名のログインがあるかのチェックを行う
-     * 
+     *
      * @param player    結果を表示するプレイヤー
      * @param Debug     コンソール表示するか？
-     * @throws UnknownHostException 
+     * @throws UnknownHostException
      */
     @SuppressWarnings( "CallToPrintStackTrace" )
     public void listCheckIP( Player player, boolean Debug ) throws UnknownHostException {
@@ -258,9 +258,9 @@ public class StatusRecord {
 
     /**
      * リストステータスを変更する
-     * 
+     *
      * @param date
-     * @param status 
+     * @param status
      */
     public void listChangeStatus( Date date, int status ) {
         try {
@@ -277,12 +277,12 @@ public class StatusRecord {
 
     /**
      * リストステータスを新規に追加する
-     * 
+     *
      * @param date
      * @param name
      * @param UUID
      * @param IP
-     * @param Status 
+     * @param Status
      */
     public void listPreSave( Date date, String name, String UUID, String IP, int Status ) {
 
@@ -315,9 +315,9 @@ public class StatusRecord {
     /**
      * データベースにプレイヤー情報を付加する
      * データが無い場合は新規に追加する
-     * 
+     *
      * @param IP
-     * @param Name 
+     * @param Name
      */
     public void AddPlayerToSQL( String IP, String Name ) {
         String DataName = Utility.StringBuild( Name, ".Player." );
@@ -336,9 +336,9 @@ public class StatusRecord {
 
     /**
      * MySQLへのコネクション処理
-     * 
+     *
      * @throws SQLException
-     * @throws ClassNotFoundException 
+     * @throws ClassNotFoundException
      */
     private void openConnection() throws SQLException, ClassNotFoundException {
 
@@ -371,10 +371,10 @@ public class StatusRecord {
 
     /**
      * IPアドレスからホスト名を取得、接続国を特定する
-     * 
+     *
      * @param IP
      * @param Debug
-     * @return 
+     * @return
      */
     public String GetLocale( String IP, boolean Debug ) {
         try {
@@ -399,9 +399,9 @@ public class StatusRecord {
 
     /**
      * ホスト名を新規追加する
-     * 
+     *
      * @param IP
-     * @param Host 
+     * @param Host
      */
     public void AddHostToSQL( String IP, String Host ) {
         try {
@@ -424,9 +424,9 @@ public class StatusRecord {
 
     /**
      * 登録IPアドレスを削除する
-     * 
+     *
      * @param IP
-     * @return 
+     * @return
      */
     public boolean DelHostFromSQL( String IP ) {
         try {
@@ -443,9 +443,9 @@ public class StatusRecord {
 
     /**
      * IPアドレスからホスト名を取得する
-     * 
+     *
      * @param IP
-     * @return 
+     * @return
      */
     public String GetHost( String IP ) {
         try {
@@ -462,9 +462,9 @@ public class StatusRecord {
 
     /**
      * hosts からキーワードに該当するホストを取得する
-     * 
+     *
      * @param p
-     * @param word 
+     * @param word
      */
     public void SearchHost( Player p, String word ) {
         try {
@@ -499,12 +499,12 @@ public class StatusRecord {
     /**
      * 新規IPをhostsへ登録する処理
      * クマイス鯖特有のホスト名変更処理
-     * 
+     *
      * @param IP
      * @param CheckFlag
      * @param Debug
      * @return
-     * @throws UnknownHostException 
+     * @throws UnknownHostException
      */
     public String getUnknownHost( String IP, boolean CheckFlag, boolean Debug ) throws UnknownHostException {
         Bukkit.getServer().getConsoleSender().sendMessage( Utility.StringBuild( ChatColor.RED.toString(), "[LC] Unknown New Record : ", ChatColor.AQUA.toString(), IP ) );
@@ -538,10 +538,10 @@ public class StatusRecord {
 
     /**
      * Internet DNS に対してホスト名を照会するためにIPを使ってPingを打つ
-     * 
+     *
      * @param IP
      * @return
-     * @throws UnknownHostException 
+     * @throws UnknownHostException
      */
     public String ping( String IP ) throws UnknownHostException {
         Inet4Address inet = ( Inet4Address ) Inet4Address.getByName( IP );
@@ -550,10 +550,10 @@ public class StatusRecord {
 
     /**
      * 新規の照会があった場合に、テキストファイルへ日時と共に記録する
-     * 
+     *
      * @param IP
      * @param DataFolder
-     * @return 
+     * @return
      */
     public boolean WriteFileUnknown( String IP, String DataFolder ) {
         File UKfile = new File( DataFolder, "UnknownIP.yml" );
@@ -575,11 +575,11 @@ public class StatusRecord {
 
     /**
      * IPアドレスから初アクセスまたは、最終アクセス日を取得する
-     * 
+     *
      * @param IP
      * @param newf  True:初アクセス　False:最終アクセス
      * @return
-     * @throws ClassNotFoundException 
+     * @throws ClassNotFoundException
      */
     public String getDateHost( String IP, boolean newf ) throws ClassNotFoundException {
         //  True : カウントを開始した日を指定
@@ -606,10 +606,10 @@ public class StatusRecord {
 
     /**
      * IPアドレスの参照回数を取得する
-     * 
+     *
      * @param IP
      * @return
-     * @throws UnknownHostException 
+     * @throws UnknownHostException
      */
     @SuppressWarnings("CallToPrintStackTrace")
     public int GetcountHosts( String IP ) throws UnknownHostException {
@@ -631,7 +631,7 @@ public class StatusRecord {
      * 
      * @param IP
      * @param ZeroF
-     * @throws UnknownHostException 
+     * @throws UnknownHostException
      */
     @SuppressWarnings("CallToPrintStackTrace")
     public void AddCountHost( String IP, int ZeroF ) throws UnknownHostException {
@@ -666,7 +666,7 @@ public class StatusRecord {
      * 
      * @param IP
      * @param Hostname
-     * @return 
+     * @return
      */
     public boolean chgUnknownHost( String IP, String Hostname ) {
 
@@ -698,7 +698,7 @@ public class StatusRecord {
      * 登録されているIPの情報を表示する
      * 
      * @param p
-     * @param IP 
+     * @param IP
      */
     public void infoUnknownHost( Player p, String IP ) {
         try {
