@@ -251,7 +251,7 @@ public class StatusRecord {
 
         PrtData.stream().forEach( PD -> {
             String msg = PD;
-            if ( NameData.size() > 1 ) Utility.Prt( player, msg, Debug );
+            Utility.Prt( ( ( NameData.size() > 1 ) ? player:null ), msg, Debug );
             Bukkit.getOnlinePlayers().stream().filter( ( p ) -> ( ( player != p ) && ( p.hasPermission( "LoginCtl.view" ) || p.isOp() ) ) ).forEachOrdered( ( p ) -> { p.sendMessage( msg ); } );
         } );
     }
