@@ -9,14 +9,14 @@ import org.bukkit.entity.Player;
 
 /**
  * 各プラグイン共通の関数群.....にするつもりのもの
- * 
+ *
  * @author sugichan
  */
 public final class Utility {
 
     /**
      * IPアドレスを整数化する関数
-     * 
+     *
      * @param ipAddr    xxx.xxx.xxx.xxx 形式のアドレス
      * @return          整数化されたアドレス
      */
@@ -31,7 +31,7 @@ public final class Utility {
 
     /**
      * 整数化されたアドレスをIPアドレスに変更する関数
-     * 
+     *
      * @param ipAddress 整数化されたアドレス
      * @return          xxx.xxx.xxx.xxx 形式のアドレス文字列
      */
@@ -52,7 +52,7 @@ public final class Utility {
         StringBuilder buf = new StringBuilder();
 
         for ( String StrItem1 : StrItem ) buf.append( StrItem1 );
- 
+
         return buf.toString();
     }
 
@@ -75,7 +75,7 @@ public final class Utility {
         String RetStr;
         RetStr = data.replace( "%player%", Names );
         RetStr = Replace( RetStr );
-        
+
         return RetStr;
     }
 

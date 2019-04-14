@@ -105,6 +105,49 @@ public class StatusRecord {
         }
     }
 
+    public boolean exLogPrint( Player player, String checkString, boolean FullFlag, List Ignore, int PrtMode, int lines )  {
+        String sqlCmd = "";
+        String checkName = "";
+        boolean isOP = ( ( player == null ) ? true:player.isOp() );
+
+        Utility.Prt( player, "== [" + checkString + "] Login List ==", ( player == null ) );
+
+        switch( PrtMode ) {
+            case 1:
+                sqlCmd = "SELECT * FROM list WHERE date BETWEEN '" + checkString + " 00:00:00' AND '" + checkString + " 23:59:59' ORDER BY date DESC;";
+                break;
+            case 2:
+                sqlCmd = "SELECT * FROM list WHERE name = '" + checkString + "' ORDER BY date DESC;";
+                break;
+            case 3:
+                sqlCmd = "SELECT * FROM list WHERE INET_NTOA(ip) = '" + checkString + "' ORDER BY date DESC;";
+                break;
+            default:
+                return false;
+        }
+
+        try {
+            openConnection();
+            Statement stmt = connection.createStatement();
+            ResultSet rs = stmt.executeQuery( sqlCmd );
+
+            while( rs.next() ) {
+                String getName = rs.getString( "nname" );
+
+                if ( ( isOP || !Ignore.contains( getName ) ) && ( !checkName.equals( getName ) || FullFlag ) ) {
+                    LineMsg( player, rs.getInt( "id" ), rs.getTimestamp( "date" ), rs.getString( "name" ), rs.getLong( "ip" ), rs.getInt( "status" ) );
+                    checkName = getName;
+                }
+            }
+
+            Utility.Prt( player, "================", ( player == null ) );
+
+        } catch ( ClassNotFoundException | SQLException e ) {
+            Bukkit.getServer().getConsoleSender().sendMessage( "[LoginControl] Error exLogPrint" );
+        }
+        return true;
+    }
+
     /**
      * 指定した日にログインしたプレイヤーの一覧表示
      *
