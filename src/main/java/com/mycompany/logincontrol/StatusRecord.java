@@ -62,6 +62,17 @@ public class StatusRecord {
         }
         Utility.Prt( p, message, ( p == null ) );
     }
+    public void LinePrt( Player p, ResultSet gs ) {
+        try {
+            String message = Utility.StringBuild( String.format( "%6d", gs.getInt( "id" ) ), ": ", sdf.format( gs.getTimestamp( "date" ) ), " ", String.format( "%-20s", gs.getString( "name" ) ) );
+            if ( ( p == null ) || p.hasPermission( "LoginCtl.view" ) || p.isOp() ) {
+                message = Utility.StringBuild( message, ChatColor.YELLOW.toString(), "[", String.format( "%-15s", Utility.toInetAddress( gs.getLong( "ip" ) ) ), "]", ChatColor.RED.toString(), "(", ( gs.getInt( "status" )==0 ? "Attempted":"Logged in" ), ")" );
+            }
+            Utility.Prt( p, message, ( p == null ) );
+        } catch ( SQLException e ) {
+            e.printStackTrace();
+        }
+    }
 
     /**
      * 直近のログインプレイヤーリストを表示する関数
@@ -131,11 +142,13 @@ public class StatusRecord {
             Statement stmt = connection.createStatement();
             ResultSet rs = stmt.executeQuery( sqlCmd );
 
-            while( rs.next() ) {
+            int loopCount = 0;
+            while( rs.next() && ( loopCount<lines ) ) {
                 String getName = rs.getString( "nname" );
 
                 if ( ( isOP || !Ignore.contains( getName ) ) && ( !checkName.equals( getName ) || FullFlag ) ) {
-                    LineMsg( player, rs.getInt( "id" ), rs.getTimestamp( "date" ), rs.getString( "name" ), rs.getLong( "ip" ), rs.getInt( "status" ) );
+                    loopCount++;
+                    LinePrt( player, rs );
                     checkName = getName;
                 }
             }
@@ -144,6 +157,7 @@ public class StatusRecord {
 
         } catch ( ClassNotFoundException | SQLException e ) {
             Bukkit.getServer().getConsoleSender().sendMessage( "[LoginControl] Error exLogPrint" );
+            return false;
         }
         return true;
     }
