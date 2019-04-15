@@ -47,21 +47,10 @@ public class StatusRecord {
     /**
      * ユーザー情報を1ラインで表紙成形する関数
      * Permission保持者には追加情報も付随する
-     *
+     * 
      * @param p         表示したいプレイヤー
-     * @param id        表示番号
-     * @param date      日付
-     * @param name      プレイヤー名
-     * @param ip        IPアドレス
-     * @param status    Login成功可否のステータス
+     * @param gs        DBから取得したデータ
      */
-    public void LineMsg( Player p, int id, Date date, String name, long ip , int status ) {
-        String message = Utility.StringBuild( String.format( "%6d", id ), ": ", sdf.format( date ), " ", String.format( "%-20s", name ) );
-        if ( ( p == null ) || p.hasPermission( "LoginCtl.view" ) || p.isOp() ) {
-            message = Utility.StringBuild( message, ChatColor.YELLOW.toString(), "[", String.format( "%-15s", Utility.toInetAddress( ip ) ), "]", ChatColor.RED.toString(), "(", ( status==0 ? "Attempted":"Logged in" ), ")" );
-        }
-        Utility.Prt( p, message, ( p == null ) );
-    }
     public void LinePrt( Player p, ResultSet gs ) {
         try {
             String message = Utility.StringBuild( String.format( "%6d", gs.getInt( "id" ) ), ": ", sdf.format( gs.getTimestamp( "date" ) ), " ", String.format( "%-20s", gs.getString( "name" ) ) );
@@ -69,9 +58,7 @@ public class StatusRecord {
                 message = Utility.StringBuild( message, ChatColor.YELLOW.toString(), "[", String.format( "%-15s", Utility.toInetAddress( gs.getLong( "ip" ) ) ), "]", ChatColor.RED.toString(), "(", ( gs.getInt( "status" )==0 ? "Attempted":"Logged in" ), ")" );
             }
             Utility.Prt( p, message, ( p == null ) );
-        } catch ( SQLException e ) {
-            e.printStackTrace();
-        }
+        } catch ( SQLException e ) {}
     }
 
     /**
@@ -103,7 +90,7 @@ public class StatusRecord {
                 if ( rs.getInt( "status" ) != 0 || player == null || player.hasPermission( "LoginCtl.view" ) || isOP ) {
                     if ( ( isOP || !Ignore.contains( GetName ) ) && ( ( !chk_name.equals( GetName ) ) || ( FullFlag ) ) ) {
                         i++;
-                        LineMsg( player, rs.getInt( "id" ), rs.getTimestamp( "date" ), rs.getString( "name" ), rs.getLong( "ip" ), rs.getInt( "status" ) );
+                        LinePrt( player, rs );
                         chk_name = GetName;
                     }
                 }
@@ -116,8 +103,20 @@ public class StatusRecord {
         }
     }
 
-    public boolean exLogPrint( Player player, String checkString, boolean FullFlag, List Ignore, int PrtMode, int lines )  {
-        String sqlCmd = "";
+    /**
+     * 色々な形式でのプレイヤー一覧を表示する関数
+     * 
+     * @param player        結果を表示するプレイヤー、nullならばコンソール表示
+     * @param checkString   検索する目的の文字列（プレイヤー名や日付など)
+     * @param FullFlag      重複プレイヤーの表示可否（true:全部,false:省略)
+     * @param ignoreName    非表示にするプレイヤー名リスト
+     * @param ignoreIP      非表示にするIPアドレスリスト
+     * @param PrtMode       一覧の形式指定（1:指定日の一覧,2:プレイヤーの履歴,3:IPアドレスの履歴）
+     * @param lines         表示する行数指定
+     * @return 
+     */
+    public boolean exLogPrint( Player player, String checkString, boolean FullFlag, List ignoreName, List ignoreIP, int PrtMode, int lines )  {
+        String sqlCmd;
         String checkName = "";
         boolean isOP = ( ( player == null ) ? true:player.isOp() );
 
@@ -143,13 +142,42 @@ public class StatusRecord {
             ResultSet rs = stmt.executeQuery( sqlCmd );
 
             int loopCount = 0;
-            while( rs.next() && ( loopCount<lines ) ) {
-                String getName = rs.getString( "nname" );
+            boolean checkPrint;
+            SimpleDateFormat cdf = new SimpleDateFormat( "yyyyMMdd" );
 
-                if ( ( isOP || !Ignore.contains( getName ) ) && ( !checkName.equals( getName ) || FullFlag ) ) {
+            while( rs.next() && ( loopCount<lines ) ) {
+                String getName = rs.getString( "name" );
+
+                switch( PrtMode ) {
+                    case 1:
+                        checkPrint = ( ( isOP || !ignoreName.contains( getName ) )  && ( !checkName.equals( getName ) || FullFlag ) );
+                        break;
+                    case 2:
+                    case 3:
+                        checkPrint = (
+                            ( isOP || ( !ignoreName.contains( getName ) && !ignoreIP.contains( Utility.toInetAddress( rs.getLong( "ip" ) ) ) ) )
+                            &&
+                            ( !checkName.equals( cdf.format( rs.getTimestamp( "date" ) ) ) || FullFlag )
+                        );
+                        break;
+                    default:
+                        checkPrint = false;
+                }
+
+                if ( checkPrint ) {
                     loopCount++;
                     LinePrt( player, rs );
-                    checkName = getName;
+                    switch( PrtMode ) {
+                        case 1:
+                            checkName = getName;
+                            break;
+                        case 2:
+                        case 3:
+                            checkName = cdf.format( rs.getTimestamp( "date" ) );
+                            break;
+                        default:
+                            checkName = "";
+                    }
                 }
             }
 
@@ -160,84 +188,6 @@ public class StatusRecord {
             return false;
         }
         return true;
-    }
-
-    /**
-     * 指定した日にログインしたプレイヤーの一覧表示
-     *
-     * @param player    結果を表示するプレイヤー
-     * @param ChkDate   検索する日時
-     * @param FullFlag  重複したプレイヤーを省略しないか？
-     * @param Ignore    Ignoreに記録されていプレイヤーを表示するか？
-     */
-    public void DateLogPrint( Player player, String ChkDate, boolean FullFlag, List Ignore ) {
-        Utility.Prt( player, Utility.StringBuild( "== [", ChkDate, "] Login List ==" ), ( player == null ) );
-
-        try {
-            String chk_name = "";
-
-            openConnection();
-            Statement stmt = connection.createStatement();
-            String sql = "SELECT * FROM list WHERE date BETWEEN '" + ChkDate + " 00:00:00' AND '" + ChkDate + " 23:59:59' ORDER BY date DESC;";
-            ResultSet rs = stmt.executeQuery( sql );
-            boolean isOP = ( ( player == null ) ? true:player.isOp() );
-
-            while( rs.next() ) {
-                String GetName = rs.getString( "name" );
-
-                if ( ( isOP || !Ignore.contains( GetName )  ) && ( !chk_name.equals( GetName ) || ( FullFlag ) ) ) {
-                    LineMsg( player, rs.getInt( "id" ), rs.getTimestamp( "date" ), rs.getString( "name" ), rs.getLong( "ip" ), rs.getInt( "status" ) );
-                    chk_name = GetName;
-                }
-            }
-
-            Utility.Prt( player, "================", ( player == null ) );
-
-        } catch ( ClassNotFoundException | SQLException e ) {
-            Bukkit.getServer().getConsoleSender().sendMessage( "[LoginControl] Error DateLogPrint" );
-        }
-    }
-
-    /**
-     * ChkNameに該当するログイン履歴を表示する
-     *
-     * @param player    結果を表示するプレイヤー
-     * @param ChkName   検索する文字列
-     * @param FullFlag  重複したプレイヤーを省略しないか？
-     * @param Flag      ２：プレイヤー名、その他：IPアドレス
-     */
-    public void NameLogPrint( Player player, String ChkName, boolean FullFlag, int Flag ) {
-        Utility.Prt( player, Utility.StringBuild( "== [", ChkName, "] Login List ==" ), ( player == null ) );
-
-        try {
-            openConnection();
-            Statement stmt = connection.createStatement();
-            String sql;
-            if ( Flag == 2 ) {
-                sql = "SELECT * FROM list WHERE name = '" + ChkName + "' ORDER BY date DESC;";
-            } else {
-                sql = "SELECT * FROM list WHERE INET_NTOA(ip) = '" + ChkName + "' ORDER BY date DESC;";
-                FullFlag = true;
-            }
-            ResultSet rs = stmt.executeQuery( sql );
-
-            SimpleDateFormat cdf = new SimpleDateFormat( "yyyyMMdd" );
-            String ChkDate = "";
-            int i = 0;
-
-            while( rs.next() && ( i<30 ) ) {
-                if ( !ChkDate.equals( cdf.format( rs.getTimestamp( "date" ) ) ) || FullFlag ) {
-                    i++;
-                    LineMsg( player, rs.getInt( "id" ), rs.getTimestamp( "date" ), rs.getString( "name" ), rs.getLong( "ip" ), rs.getInt( "status" ) );
-                    ChkDate = cdf.format( rs.getTimestamp( "date" ) );
-                }
-            }
-
-            Utility.Prt( player, "================", ( player == null ) );
-
-        } catch ( ClassNotFoundException | SQLException e ) {
-            Bukkit.getServer().getConsoleSender().sendMessage( "[LoginControl] Error NameLogPrint" );
-        }
     }
 
     /**

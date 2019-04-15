@@ -246,6 +246,7 @@ public class LoginControl extends JavaPlugin implements Listener {
     @Override
     public boolean onCommand( CommandSender sender,Command cmd, String commandLabel, String[] args ) {
         boolean FullFlag = false;
+        int lineSet = 30;
         Player p = ( sender instanceof Player ) ? ( Player )sender:( Player )null;
 
         if ( cmd.getName().toLowerCase().equalsIgnoreCase( "flight" ) ) {
@@ -277,19 +278,26 @@ public class LoginControl extends JavaPlugin implements Listener {
                         Param = param[1];
                         break;
                     case "u":
-                        PrtF = ( config.getIgnoreName().contains( Param ) ? -1 : 2 );
+                        PrtF = 2;
                         Param = param[1];
                         break;
                     case "i":
-                        PrtF = ( config.getIgnoreIP().contains( Param ) ? -1 : 3 );
+                        PrtF = 3;
                         Param = param[1];
                         break;
+                    case "l":
+                        try {
+                            lineSet = Integer.parseInt( param[1] );
+                        } catch ( NumberFormatException e ) {
+                            lineSet = 30;
+                        }
+                        break;
                     case "full":
-                        Utility.Prt( (Player)sender, Utility.Replace( config.LogFull() ),config.DBFlag( 2 ) );
+                        Utility.Prt( p, Utility.Replace( config.LogFull() ),config.DBFlag( 2 ) );
                         FullFlag = true;
                         break;
                     default:
-                        Utility.Prt( (Player)sender, Utility.Replace( config.ArgsErr() ),config.DBFlag( 2 ) );
+                        Utility.Prt( p, Utility.Replace( config.ArgsErr() ),config.DBFlag( 2 ) );
                         return false;
                 }
             }
@@ -299,14 +307,12 @@ public class LoginControl extends JavaPlugin implements Listener {
                     StatRec.LogPrint( p, ( sender instanceof Player ) ? 15:30, FullFlag, config.getIgnoreName() );
                     break;
                 case 1:
-                    StatRec.DateLogPrint( p, Param, FullFlag, config.getIgnoreName() );
-                    break;
                 case 2:
                 case 3:
-                    StatRec.NameLogPrint( p, Param, FullFlag, PrtF );
+                    StatRec.exLogPrint( p, Param, FullFlag, config.getIgnoreName(), config.getIgnoreIP(), PrtF, lineSet );
                     break;
                 default:
-                    Utility.Prt( (Player)sender, Utility.Replace( config.OptError() ),config.DBFlag( 2 ) );
+                    Utility.Prt( p, Utility.Replace( config.OptError() ),config.DBFlag( 2 ) );
                     return false;
             }
             return true;
@@ -337,10 +343,10 @@ public class LoginControl extends JavaPlugin implements Listener {
             switch ( CtlCmd ) {
                 case "reload":
                     config = new Config( this );
-                    Utility.Prt( (Player)sender, Utility.Replace( config.Reload() ), true );
+                    Utility.Prt( p, Utility.Replace( config.Reload() ), true );
                     return true;
                 case "status":
-                    config.Status( ( sender instanceof Player ) ? ( Player )sender:null );
+                    config.Status( p );
                     return true;
                 case "chg":
                     if ( HostName.length() < 61 ) {
