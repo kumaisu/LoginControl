@@ -35,6 +35,16 @@ public class StatusRecord {
     private final String host, database, port, username, password;
     private final boolean Kumaisu;
 
+    /**
+     * ライブラリー読込時の初期設定
+     * 
+     * @param CFhost
+     * @param CFdb
+     * @param CFport
+     * @param CFuser
+     * @param CFpass
+     * @param KumaFlag 
+     */
     public StatusRecord( String CFhost, String CFdb, String CFport, String CFuser, String CFpass, boolean KumaFlag ) {
         Kumaisu = KumaFlag;
         host = CFhost;
@@ -50,15 +60,21 @@ public class StatusRecord {
      *
      * @param p         表示したいプレイヤー
      * @param gs        DBから取得したデータ
+     * @return          成形されたメッセージ
      */
-    public void LinePrt( Player p, ResultSet gs ) {
+    public String LinePrt( Player p, ResultSet gs ) {
+        String message = "";
         try {
-            String message = Utility.StringBuild( String.format( "%6d", gs.getInt( "id" ) ), ": ", sdf.format( gs.getTimestamp( "date" ) ), " ", String.format( "%-20s", gs.getString( "name" ) ) );
+            message = Utility.StringBuild(
+                    ChatColor.WHITE.toString(), String.format( "%6d", gs.getInt( "id" ) ), ": ",
+                    ChatColor.GREEN.toString(), sdf.format( gs.getTimestamp( "date" ) ), " ",
+                    ChatColor.AQUA.toString(), String.format( "%-20s", gs.getString( "name" ) ) );
             if ( ( p == null ) || p.hasPermission( "LoginCtl.view" ) || p.isOp() ) {
                 message = Utility.StringBuild( message, ChatColor.YELLOW.toString(), "[", String.format( "%-15s", Utility.toInetAddress( gs.getLong( "ip" ) ) ), "]", ChatColor.RED.toString(), "(", ( gs.getInt( "status" )==0 ? "Attempted":"Logged in" ), ")" );
             }
-            Utility.Prt( p, message, ( p == null ) );
         } catch ( SQLException e ) {}
+
+        return message;
     }
 
     /**
@@ -71,15 +87,16 @@ public class StatusRecord {
      */
     @SuppressWarnings("CallToPrintStackTrace")
     public void LogPrint( Player player, int lines, boolean FullFlag, List Ignore ) {
+        boolean consolePrint = ( player == null );
+        boolean isOP = ( consolePrint ? true:player.isOp() );
 
-        Utility.Prt( player, "== Login List ==", ( player == null ) );
+        Utility.Prt( player, "== Login List ==", consolePrint );
 
         try {
             openConnection();
             Statement stmt = connection.createStatement();
             String sql = "SELECT * FROM list ORDER BY date DESC;";
             ResultSet rs = stmt.executeQuery( sql );
-            boolean isOP = ( ( player == null ) ? true:player.isOp() );
 
             int i = 0;
             String chk_name = "";
@@ -87,16 +104,16 @@ public class StatusRecord {
             while( rs.next() && ( i<lines ) ) {
                 String GetName = rs.getString( "name" );
 
-                if ( rs.getInt( "status" ) != 0 || player == null || player.hasPermission( "LoginCtl.view" ) || isOP ) {
+                if ( rs.getInt( "status" ) != 0 || consolePrint || player.hasPermission( "LoginCtl.view" ) || isOP ) {
                     if ( ( isOP || !Ignore.contains( GetName ) ) && ( ( !chk_name.equals( GetName ) ) || ( FullFlag ) ) ) {
                         i++;
-                        LinePrt( player, rs );
+                        Utility.Prt( player, LinePrt( player, rs ), consolePrint );
                         chk_name = GetName;
                     }
                 }
             }
 
-            Utility.Prt( player, "================", ( player == null ) );
+            Utility.Prt( player, "================", consolePrint );
 
         } catch ( ClassNotFoundException | SQLException e ) {
             e.printStackTrace();
@@ -118,9 +135,10 @@ public class StatusRecord {
     public boolean exLogPrint( Player player, String checkString, boolean FullFlag, List ignoreName, List ignoreIP, int PrtMode, int lines )  {
         String sqlCmd;
         String checkName = "";
-        boolean isOP = ( ( player == null ) ? true:player.isOp() );
+        boolean consolePrint = ( player == null );
+        boolean isOP = ( consolePrint ? true:player.isOp() );
 
-        Utility.Prt( player, "== [" + checkString + "] Login List ==", ( player == null ) );
+        Utility.Prt( player, "== [" + checkString + "] Login List ==", consolePrint );
 
         switch( PrtMode ) {
             case 1:
@@ -142,46 +160,47 @@ public class StatusRecord {
             ResultSet rs = stmt.executeQuery( sqlCmd );
 
             int loopCount = 0;
-            boolean checkPrint;
             SimpleDateFormat cdf = new SimpleDateFormat( "yyyyMMdd" );
 
             while( rs.next() && ( loopCount<lines ) ) {
                 String getName = rs.getString( "name" );
+                String getDate = cdf.format( rs.getTimestamp( "date" ) );
+                if ( isOP || ( !ignoreName.contains( getName ) && !ignoreIP.contains( Utility.toInetAddress( rs.getLong( "ip" ) ) ) ) ) {
+                    boolean checkPrint;
 
-                switch( PrtMode ) {
-                    case 1:
-                        checkPrint = ( ( isOP || !ignoreName.contains( getName ) )  && ( !checkName.equals( getName ) || FullFlag ) );
-                        break;
-                    case 2:
-                    case 3:
-                        checkPrint = (
-                            ( isOP || ( !ignoreName.contains( getName ) && !ignoreIP.contains( Utility.toInetAddress( rs.getLong( "ip" ) ) ) ) )
-                            &&
-                            ( !checkName.equals( cdf.format( rs.getTimestamp( "date" ) ) ) || FullFlag )
-                        );
-                        break;
-                    default:
-                        checkPrint = false;
-                }
-
-                if ( checkPrint ) {
-                    loopCount++;
-                    LinePrt( player, rs );
                     switch( PrtMode ) {
                         case 1:
-                            checkName = getName;
+                            checkPrint = !checkName.equals( getName );
                             break;
                         case 2:
                         case 3:
-                            checkName = cdf.format( rs.getTimestamp( "date" ) );
+                            checkPrint = !checkName.equals( getDate );
                             break;
                         default:
-                            checkName = "";
+                            checkPrint = false;
+                    }
+
+                    if ( checkPrint || FullFlag ) {
+                        loopCount++;
+                        Utility.Prt( player, LinePrt( player, rs ), consolePrint );
+
+                        switch( PrtMode ) {
+                            case 1:
+                                checkName = getName;
+                                break;
+                            case 2:
+                            case 3:
+                                checkName = getDate;
+                                break;
+                            default:
+                                checkName = "";
+                        }
+
                     }
                 }
             }
 
-            Utility.Prt( player, "================", ( player == null ) );
+            Utility.Prt( player, "================", consolePrint );
 
         } catch ( ClassNotFoundException | SQLException e ) {
             Bukkit.getServer().getConsoleSender().sendMessage( "[LoginControl] Error exLogPrint" );
@@ -245,7 +264,7 @@ public class StatusRecord {
                     if ( !NameData.contains( GetName ) ) {
                         i++;
                         NameData.add( GetName );
-                        PrtData.add( Utility.StringBuild( ChatColor.WHITE.toString(), String.format( "%6d", rs.getInt( "id" ) ), ": ", ChatColor.GREEN.toString(), sdf.format( rs.getTimestamp( "date" ) ), " ", String.format( "%-20s", GetName ) ) );
+                        PrtData.add( LinePrt( player,rs ) );
                     }
                 }
             }
