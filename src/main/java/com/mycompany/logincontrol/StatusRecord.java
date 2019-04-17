@@ -47,7 +47,7 @@ public class StatusRecord {
     /**
      * ユーザー情報を1ラインで表紙成形する関数
      * Permission保持者には追加情報も付随する
-     * 
+     *
      * @param p         表示したいプレイヤー
      * @param gs        DBから取得したデータ
      */
@@ -105,7 +105,7 @@ public class StatusRecord {
 
     /**
      * 色々な形式でのプレイヤー一覧を表示する関数
-     * 
+     *
      * @param player        結果を表示するプレイヤー、nullならばコンソール表示
      * @param checkString   検索する目的の文字列（プレイヤー名や日付など)
      * @param FullFlag      重複プレイヤーの表示可否（true:全部,false:省略)
@@ -113,7 +113,7 @@ public class StatusRecord {
      * @param ignoreIP      非表示にするIPアドレスリスト
      * @param PrtMode       一覧の形式指定（1:指定日の一覧,2:プレイヤーの履歴,3:IPアドレスの履歴）
      * @param lines         表示する行数指定
-     * @return 
+     * @return
      */
     public boolean exLogPrint( Player player, String checkString, boolean FullFlag, List ignoreName, List ignoreIP, int PrtMode, int lines )  {
         String sqlCmd;
@@ -635,7 +635,8 @@ public class StatusRecord {
     }
 
     /**
-     * 
+     * 照会回数を加算する
+     *
      * @param IP
      * @param ZeroF
      * @throws UnknownHostException
@@ -670,7 +671,7 @@ public class StatusRecord {
 
     /**
      * IPアドレスの登録ホスト名を変更する
-     * 
+     *
      * @param IP
      * @param Hostname
      * @return
@@ -703,7 +704,7 @@ public class StatusRecord {
 
     /**
      * 登録されているIPの情報を表示する
-     * 
+     *
      * @param p
      * @param IP
      */
@@ -733,7 +734,7 @@ public class StatusRecord {
 
     /**
      * サーバーへの照会回数が多い順位表示
-     * 
+     *
      * @param p
      * @param Lines 表示する順位の人数
      */
