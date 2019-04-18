@@ -148,24 +148,6 @@ public class LoginControl extends JavaPlugin implements Listener {
     }
 
     /**
-     * サーバー内でルール違反等がありキックされた時に発生するイベント
-     *
-     * @param event
-     */
-    @EventHandler
-    public void onKickMessage( PlayerKickEvent event ) {
-        if ( config.PlayerKick() ) {
-            String msg = Utility.ReplaceString( config.KickMessage(),event.getPlayer().getDisplayName() );
-            if ( !event.getReason().equals( "" ) ) {
-                msg = msg.replace( "%Reason%", event.getReason() );
-            } else {
-                msg = msg.replace( "%Reason%", "Unknown Reason" );
-            }
-            Bukkit.broadcastMessage( msg );
-        }
-    }
-
-    /**
      * サーバーへのリスト照会が来た時に起きるイベント
      * プレイヤーのサーバーリストへの文言（MotD）の内容を個別に修正して返信する
      *
@@ -463,6 +445,24 @@ public class LoginControl extends JavaPlugin implements Listener {
     //  Extra Command
     //  オプショナリーな機能
     //
+
+    /**
+     * サーバー内でルール違反等がありキックされた時に発生するイベント
+     *
+     * @param event
+     */
+    @EventHandler
+    public void onKickMessage( PlayerKickEvent event ) {
+        if ( config.PlayerKick() ) {
+            String msg = Utility.ReplaceString( config.KickMessage(),event.getPlayer().getDisplayName() );
+            if ( !event.getReason().equals( "" ) ) {
+                msg = msg.replace( "%Reason%", event.getReason() );
+            } else {
+                msg = msg.replace( "%Reason%", "Unknown Reason" );
+            }
+            Bukkit.broadcastMessage( msg );
+        }
+    }
 
     /**
      * サーバー内で死亡した時に発生するイベント

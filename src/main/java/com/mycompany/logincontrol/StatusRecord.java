@@ -73,7 +73,7 @@ public class StatusRecord {
                 message = Utility.StringBuild(
                         message,
                         ChatColor.YELLOW.toString(), "[", String.format( "%-15s", Utility.toInetAddress( gs.getLong( "ip" ) ) ), "]",
-                        ChatColor.RED.toString(), "(", ( gs.getInt( "status" )==0 ? "Failed":"Logged" ), ")" );
+                        ChatColor.RED.toString(), " ", ( gs.getInt( "status" )==0 ? "Fail":"Sucee" ) );
             }
         } catch ( SQLException e ) {}
 
@@ -796,45 +796,4 @@ public class StatusRecord {
             Bukkit.getServer().getConsoleSender().sendMessage( e.getMessage() );
         }
     }
-
-    /*
-    @SuppressWarnings("CallToPrintStackTrace")
-    public void DataConv( CommandSender sender ) {
-        sender.sendMessage( "== Data Convert List ==" );
-        try {
-            openConnection();
-            Statement stmt = connection.createStatement();
-            String sql = "SELECT * FROM players ORDER BY date ASC;";
-            ResultSet rs = stmt.executeQuery(sql);
-            while( rs.next() ) {
-                //  String sql = "CREATE TABLE IF NOT EXISTS players(id int auto_increment, date DATETIME,name varchar(20), uuid varchar(36), ip varchar(22), status varchar(10), index(id))";
-                int GetID = rs.getInt( "id" );
-                Date GetData = rs.getTimestamp( "date" );
-                String GetName = rs.getString( "name" );
-                String GetUUID = rs.getString( "uuid" );
-                String GetIP = rs.getString( "ip" );
-                String GetSts = rs.getString( "status" );
-                String message = String.format("%6d", GetID) + ": " + sdf.format(GetData) + " " + String.format("%-10s", GetName) + ChatColor.RED + "[" + String.format("%-15s", GetIP ) + "]";
-                //  sql = "CREATE TABLE IF NOT EXISTS list(id int auto_increment, date DATETIME,name varchar(20), uuid varchar(36), ip INTEGER UNSIGNED, status byte, index(id))";
-                String add_sql = "INSERT INTO list ( date, name, uuid, ip, status ) VALUES ( ?, ?, ?, INET_ATON( ? ), ? );";
-                PreparedStatement preparedStatement = connection.prepareStatement( add_sql );
-                preparedStatement.setString( 1, sdf.format( GetData ) );
-                preparedStatement.setString( 2, GetName );
-                preparedStatement.setString( 3, GetUUID );
-                preparedStatement.setString( 4, GetIP );
-                if ( GetSts.equals( "Logged in" ) ) {
-                    preparedStatement.setInt( 5, 1 );
-                } else {
-                    preparedStatement.setInt( 5, 0 );
-                }
-                preparedStatement.executeUpdate();
-                sender.sendMessage( message );
-            }
-
-            sender.sendMessage( "================" );
-        } catch ( ClassNotFoundException | SQLException e ) {
-            e.printStackTrace();
-        }
-    }
-    */
 }
