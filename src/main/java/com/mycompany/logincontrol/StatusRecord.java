@@ -37,13 +37,13 @@ public class StatusRecord {
 
     /**
      * ライブラリー読込時の初期設定
-     * 
+     *
      * @param CFhost
      * @param CFdb
      * @param CFport
      * @param CFuser
      * @param CFpass
-     * @param KumaFlag 
+     * @param KumaFlag
      */
     public StatusRecord( String CFhost, String CFdb, String CFport, String CFuser, String CFpass, boolean KumaFlag ) {
         Kumaisu = KumaFlag;
@@ -70,7 +70,10 @@ public class StatusRecord {
                     ChatColor.GREEN.toString(), sdf.format( gs.getTimestamp( "date" ) ), " ",
                     ChatColor.AQUA.toString(), String.format( "%-20s", gs.getString( "name" ) ) );
             if ( ( p == null ) || p.hasPermission( "LoginCtl.view" ) || p.isOp() ) {
-                message = Utility.StringBuild( message, ChatColor.YELLOW.toString(), "[", String.format( "%-15s", Utility.toInetAddress( gs.getLong( "ip" ) ) ), "]", ChatColor.RED.toString(), "(", ( gs.getInt( "status" )==0 ? "Attempted":"Logged in" ), ")" );
+                message = Utility.StringBuild(
+                        message,
+                        ChatColor.YELLOW.toString(), "[", String.format( "%-15s", Utility.toInetAddress( gs.getLong( "ip" ) ) ), "]",
+                        ChatColor.RED.toString(), "(", ( gs.getInt( "status" )==0 ? "Failed":"Logged" ), ")" );
             }
         } catch ( SQLException e ) {}
 
@@ -105,7 +108,7 @@ public class StatusRecord {
                 String GetName = rs.getString( "name" );
 
                 if ( rs.getInt( "status" ) != 0 || consolePrint || player.hasPermission( "LoginCtl.view" ) || isOP ) {
-                    if ( ( isOP || !Ignore.contains( GetName ) ) && ( ( !chk_name.equals( GetName ) ) || ( FullFlag ) ) ) {
+                    if ( ( !Ignore.contains( GetName ) || isOP ) && ( !chk_name.equals( GetName ) || FullFlag ) ) {
                         i++;
                         Utility.Prt( player, LinePrt( player, rs ), consolePrint );
                         chk_name = GetName;
