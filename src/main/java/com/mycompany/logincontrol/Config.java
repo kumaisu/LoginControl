@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 /**
+ * 設定ファイルを読み込む
  *
  * @author sugichan
  */

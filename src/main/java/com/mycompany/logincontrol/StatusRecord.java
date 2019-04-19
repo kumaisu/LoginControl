@@ -66,7 +66,7 @@ public class StatusRecord {
         String message = "";
         try {
             message = Utility.StringBuild(
-                    ChatColor.WHITE.toString(), String.format( "%6d", gs.getInt( "id" ) ), ": ",
+                    ChatColor.WHITE.toString(), String.format( "%6d", gs.getInt( "id" ) ), ":",
                     ChatColor.GREEN.toString(), sdf.format( gs.getTimestamp( "date" ) ), " ",
                     ChatColor.AQUA.toString(), String.format( "%-20s", gs.getString( "name" ) ) );
             if ( ( p == null ) || p.hasPermission( "LoginCtl.view" ) || p.isOp() ) {
