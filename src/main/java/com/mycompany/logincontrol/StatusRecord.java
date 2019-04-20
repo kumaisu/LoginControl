@@ -525,6 +525,44 @@ public class StatusRecord {
         }
     }
 
+    public String changeHostName( String hostName, boolean debug ) {
+        if ( hostName.contains( "gae.google" ) ) { hostName = "gae.googleusercontent.com"; }
+        if ( hstName.contains( "bbtec.net" ) ) { hostName = "softbank.bbtec.net"; }
+        if ( hostName.contains( "ec2" ) ) {
+            String[] NameItem = hostName.split( "\\.", 0 );
+            StringBuilder buf = new StringBuilder();
+            for( int i = 1; i < NameItem.length; i++ ){
+                if ( debug ) Bukkit.getServer().getConsoleSender().sendMessage( i + " : " + NameItem[i] );
+                if( i != 1 ) buf.append( "." );
+                buf.append( NameItem[i] );
+            }
+            hostName = buf.toString();
+        }
+        return hostName;
+    }
+
+    public void convertHostName() {
+        try {
+            openConnection();
+            Statement stmt = connection.createStatement();
+            String sql = "SELECT * FROM hosts;";
+            ResultSet rs = stmt.executeQuery( sql );
+
+            while( rs.next() ) {
+                String orgHostName = rs.getString( "host" );
+                String getHostName = changeHostName( orgHostName, false );
+                if ( orgHostName != getHostName ) {
+                    Bukkit.getServer().getConsoleSender.sendMessage( "Change " + orgHostName + " to " + getHostName );
+                    String chg_sql = "UPDATE hosts SET host = '" + Hostname + "' WHERE ip = " + rs.getLong( "ip" ) + ";";
+                    PreparedStatement preparedStatement = connection.prepareStatement( chg_sql );
+                    preparedStatement.executeUpdate();
+                }
+            }
+        } catch ( ClassNotFoundException | SQLException e ) {
+            Bukkit.getServer().getConsoleSender().sendMessage( "[LoginControl] HostName Convert Error" );
+        }
+    }
+
     /**
      * 新規IPをhostsへ登録する処理
      * クマイス鯖特有のホスト名変更処理
@@ -546,16 +584,7 @@ public class StatusRecord {
         //  クマイス鯖特有の特別処理
         if ( Kumaisu ) {
             if ( Debug ) Bukkit.getServer().getConsoleSender().sendMessage( Utility.StringBuild( ChatColor.GREEN.toString(), "[LC] Original Hostname = ", ChatColor.AQUA.toString(), HostName ) );
-            if ( HostName.contains( "ec2" ) ) {
-                String[] NameItem = HostName.split( "\\.", 0 );
-                StringBuilder buf = new StringBuilder();
-                for( int i = 1; i < NameItem.length; i++ ){
-                    if ( Debug ) Bukkit.getServer().getConsoleSender().sendMessage( i + " : " + NameItem[i] );
-                    if( i != 1 ) buf.append( "." );
-                    buf.append( NameItem[i] );
-                }
-                HostName = buf.toString();
-            }
+            HostName = changeHostName( HostName, Debug );
         }
 
         if ( HostName.length()>60 ) { HostName = String.format( "%-60s", HostName ); }
