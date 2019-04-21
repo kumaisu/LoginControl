@@ -525,9 +525,16 @@ public class StatusRecord {
         }
     }
 
+    /**
+     * クマイス鯖専用関数、特定のホスト名を決め打ちのホスト名に変換
+     * 
+     * @param hostName  チェックするホスト名
+     * @param debug     コンソール表示
+     * @return 
+     */
     public String changeHostName( String hostName, boolean debug ) {
         if ( hostName.contains( "gae.google" ) ) { hostName = "gae.googleusercontent.com"; }
-        if ( hstName.contains( "bbtec.net" ) ) { hostName = "softbank.bbtec.net"; }
+        if ( hostName.contains( "bbtec.net" ) ) { hostName = "softbank.bbtec.net"; }
         if ( hostName.contains( "ec2" ) ) {
             String[] NameItem = hostName.split( "\\.", 0 );
             StringBuilder buf = new StringBuilder();
@@ -541,7 +548,12 @@ public class StatusRecord {
         return hostName;
     }
 
-    public void convertHostName() {
+    /**
+     * データベース内で未変換のホスト名を一括返還する
+     * 
+     */
+    public void convertHostName( Player p ) {
+        Utility.Prt( p, ChatColor.YELLOW + "Kumaisu Data Converter Execute", ( p == null ) );
         try {
             openConnection();
             Statement stmt = connection.createStatement();
@@ -551,13 +563,14 @@ public class StatusRecord {
             while( rs.next() ) {
                 String orgHostName = rs.getString( "host" );
                 String getHostName = changeHostName( orgHostName, false );
-                if ( orgHostName != getHostName ) {
-                    Bukkit.getServer().getConsoleSender.sendMessage( "Change " + orgHostName + " to " + getHostName );
-                    String chg_sql = "UPDATE hosts SET host = '" + Hostname + "' WHERE ip = " + rs.getLong( "ip" ) + ";";
+                if ( !orgHostName.equals( getHostName ) ) {
+                    Bukkit.getServer().getConsoleSender().sendMessage( "Change " + orgHostName + " to " + getHostName );
+                    String chg_sql = "UPDATE hosts SET host = '" + getHostName + "' WHERE ip = " + rs.getLong( "ip" ) + ";";
                     PreparedStatement preparedStatement = connection.prepareStatement( chg_sql );
                     preparedStatement.executeUpdate();
                 }
             }
+            Utility.Prt( p, ChatColor.YELLOW + "Convert Finished", ( p == null ) );
         } catch ( ClassNotFoundException | SQLException e ) {
             Bukkit.getServer().getConsoleSender().sendMessage( "[LoginControl] HostName Convert Error" );
         }

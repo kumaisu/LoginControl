@@ -433,6 +433,9 @@ public class LoginControl extends JavaPlugin implements Listener {
                         ChatColor.GREEN + " ]", ( p == null )
                     );
                     break;
+                case "Convert":
+                    StatRec.convertHostName( p );
+                    break;
                 default:
                     return false;
             }
