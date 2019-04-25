@@ -43,11 +43,13 @@ public class LoginControl extends JavaPlugin implements Listener {
     private Config config;
     private Date date;
     private StatusRecord StatRec;
+    private MotDControl MotData;
 
     @Override
     public void onEnable() {
         this.getServer().getPluginManager().registerEvents( this, this );
         config = new Config( this );
+        MotData = new MotDControl( this, config );
         StatRec = new StatusRecord( config.getHost(), config.getDatabase(), config.getPort(), config.getUsername(), config.getPassword(), config.getKumaisu() );
     }
 
@@ -161,7 +163,7 @@ public class LoginControl extends JavaPlugin implements Listener {
         String Host;                // = ChatColor.WHITE + "Player(" + Names + ")";
 	int PrtStatus = 2;          // ConsoleLog Flag 2:Full 1:Normal(Playerのみ)
 
-        String MotdMsg = Utility.Replace( config.get1stLine() );
+        String MotdMsg = Utility.Replace( MotData.get1stLine() );
         String MsgColor;
 
         String ChkHost = config.KnownServers( event.getAddress().getHostAddress() );
@@ -193,21 +195,30 @@ public class LoginControl extends JavaPlugin implements Listener {
             int count = StatRec.GetcountHosts( event.getAddress().getHostAddress() );
             Host = Utility.StringBuild( Host, "(", String.valueOf( count ), ")" );
 
-            if ( ( config.getmotDCount() != 0 ) && ( count>config.getmotDCount() ) ) MsgNum++;
-            if ( ( config.getmotDMaxCount() != 0 ) && ( count>config.getmotDMaxCount() ) ) MsgNum = 1;
-            MotdMsg = Utility.StringBuild( MotdMsg, config.get2ndLine( MsgNum ) );
-            if ( MsgNum == 1 ) {
-                MotdMsg = MotdMsg.replace( "%count", String.valueOf( count ) );
-                MotdMsg = MotdMsg.replace( "%date", StatRec.getDateHost( event.getAddress().getHostAddress(), true ) );
+            String changeMessage = MotData.getModifyMessage( Names, event.getAddress().getHostAddress() );
+
+            if ( "".equals( changeMessage ) ) {
+                if ( ( MotData.getmotDCount() != 0 ) && ( count>MotData.getmotDCount() ) ) MsgNum++;
+                if ( ( MotData.getmotDMaxCount() != 0 ) && ( count>MotData.getmotDMaxCount() ) ) MsgNum = 1;
+
+                String Motd2ndLine = MotData.get2ndLine( MsgNum );
+                Motd2ndLine = Motd2ndLine.replace( "%count", String.valueOf( count ) );
+                Motd2ndLine = Motd2ndLine.replace( "%date", StatRec.getDateHost( event.getAddress().getHostAddress(), true ) );
                 //  True : カウントを開始した日を指定
                 //  False : 最後にカウントされた日を指定
+                MotdMsg = Utility.StringBuild( MotdMsg, Motd2ndLine );
+                Utility.Prt( null, "MotD = " + ChatColor.YELLOW + Motd2ndLine, config.DBFlag( 2 ) );
+            } else {
+                MotdMsg = changeMessage;
+                Utility.Prt( null, "Change = " + ChatColor.BLUE + changeMessage, config.DBFlag( 2 ) );
             }
+
             event.setMotd( Utility.ReplaceString( MotdMsg, Names ) );
         } else {
             //  Configに既知のホスト登録があった場合
             MsgColor = ChatColor.GRAY.toString();
             Host = ChkHost;
-            MotdMsg = Utility.StringBuild( MotdMsg, config.get2ndLine( 4 ) );
+            MotdMsg = Utility.StringBuild( MotdMsg, MotData.get2ndLine( 4 ) );
             event.setMotd( MotdMsg );
         }
 

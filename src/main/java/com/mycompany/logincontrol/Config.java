@@ -36,11 +36,6 @@ public class Config {
     private int fyaw;
     private String fworld;
 
-    private int MotD_Count;
-    private int MotD_MaxCount;
-    private String MotD1stLine;
-    private List<String> MotD2ndLine;
-
     private List<String> IgnoreReportName;
     private List<String> IgnoreReportIP;
 
@@ -82,19 +77,9 @@ public class Config {
         fpitch = config.getInt( "pitch" );
         fyaw = config.getInt( "yaw" );
         present = config.getStringList( "Present" );
-        MotD1stLine = config.getString( "MotD1st" );
-        MotD_Count = config.getInt( "MotD2nd-Ping-Count" );
-        MotD_MaxCount = config.getInt( "MotD2nd-Ping-Max-Count", 0 );
         IgnoreReportName = config.getStringList( "Ignore-Names" );
         IgnoreReportIP = config.getStringList( "Ignore-IP" );
         CheckIPAddress = config.getBoolean( "CheckIP" );
-
-        MotD2ndLine = new ArrayList<>();
-        MotD2ndLine.add( config.getString( "MotD2nd-Unknown" ) );
-        MotD2ndLine.add( config.getString( "MotD2nd-Ping" ) );
-        MotD2ndLine.add( config.getString( "MotD2nd-Player" ) );
-        MotD2ndLine.add( config.getString( "MotD2nd-Ping-Player" ) );
-        MotD2ndLine.add( config.getString( "MotD2nd-Alive" ) );
 
         switch ( config.getString( "Debug" ) ) {
         case "full":
@@ -140,9 +125,6 @@ public class Config {
         IgnoreReportIP.stream().forEach( IRI -> { Utility.Prt( p, " - " + IRI, consolePrintFlag ); } );
 
         Utility.Prt( p, "Unknown IP Check : " + ( CheckIPAddress ? "True":"False" ), consolePrintFlag );
-        Utility.Prt( p, "MotD 1 Line : " + MotD1stLine, consolePrintFlag );
-        Utility.Prt( p, "MotD 2 Line(Unknown) : " + MotD2ndLine.get( 0 ), consolePrintFlag );
-        Utility.Prt( p, "MotD 2 Line(Player ) : " + MotD2ndLine.get( 2 ), consolePrintFlag );
         Utility.Prt( p, "==========================", consolePrintFlag );
     }
 
@@ -244,22 +226,6 @@ public class Config {
 
     public List<String> getPresent() {
         return present;
-    }
-
-    public String get1stLine() {
-        return MotD1stLine;
-    }
-
-    public String get2ndLine( int num ) {
-        return MotD2ndLine.get( num );
-    }
-
-    public int getmotDCount() {
-        return MotD_Count;
-    }
-
-    public int getmotDMaxCount() {
-        return MotD_MaxCount;
     }
 
     public List<String> getIgnoreName() {
