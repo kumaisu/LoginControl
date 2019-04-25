@@ -207,10 +207,10 @@ public class LoginControl extends JavaPlugin implements Listener {
                 //  True : カウントを開始した日を指定
                 //  False : 最後にカウントされた日を指定
                 MotdMsg = Utility.StringBuild( MotdMsg, Motd2ndLine );
-                Utility.Prt( null, "MotD = " + ChatColor.YELLOW + Motd2ndLine, config.DBFlag( 2 ) );
+                Utility.Prt( null, "MotD = " + Utility.ReplaceString( Motd2ndLine, Names ), config.DBFlag( 2 ) );
             } else {
                 MotdMsg = changeMessage;
-                Utility.Prt( null, "Change = " + ChatColor.BLUE + changeMessage, config.DBFlag( 2 ) );
+                Utility.Prt( null, "Change = " + Utility.ReplaceString( changeMessage.replace( "\n", " " ), Names ), config.DBFlag( 2 ) );
             }
 
             event.setMotd( Utility.ReplaceString( MotdMsg, Names ) );

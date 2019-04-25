@@ -22,3 +22,4 @@ BanMotD2nd: "%$4あなたは、このサーバーで接続拒否されていま�
 #   個別メッセージ
 #   Individual message
 110.132.242.177: "貴方は接続を拒否されています\nサーバールール違反です"
+Kumaisu: "%$eYou are Banned at this Server\n%$4あなたは、このサーバーで追放されています"
