@@ -25,24 +25,29 @@ public class MotDControl {
     private int MotD_MaxCount;
     private String MotD1stLine;
     private List<String> MotD2ndLine;
-    
+
+    String resourceFile = "MotD.yml";
     File UKfile;
     FileConfiguration UKData;
 
     public MotDControl( Plugin plugin, Config config ) {
         this.plugin = plugin;
         this.config = config;
-        UKfile = new File( plugin.getDataFolder(), "MotD.yml" );
+        UKfile = new File( plugin.getDataFolder(), resourceFile );
         UKData = YamlConfiguration.loadConfiguration( UKfile );
         load();
     }
 
     /**
      * 設定をロードします
-     * @return 
+     * @return
      */
-    public boolean load() {
-        if( !UKfile.exists() ) { return false; }
+    public void load() {
+        if( !UKfile.exists() ) {
+            plugin.getResource( resourceFile );
+            plugin.saveResource( plugin.getDataFolder() + File.separator + resourceFile, false );
+            // return false;
+        }
 
         MotD1stLine = UKData.getString( "MotD1st", "" );
         MotD_Count = UKData.getInt( "MotD2nd-Ping-Count", 0 );
@@ -54,8 +59,8 @@ public class MotDControl {
         MotD2ndLine.add( UKData.getString( "MotD2nd-Player", "Player" ) );
         MotD2ndLine.add( UKData.getString( "MotD2nd-Ping-Player", "PlayerPing" ) );
         MotD2ndLine.add( UKData.getString( "MotD2nd-Alive", "Alive" ) );
-        
-        return true;
+
+        // return true;
     }
 
     /**

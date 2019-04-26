@@ -18,8 +18,9 @@ BanMotD2nd: "%$4あなたは、このサーバーで接続拒否されていま�
 # MotD2nd-Player: "%$e%player%%$aさん、まってますよ"
 # MotD2nd-Ping: "貴方は %date から生存確認を %count 回実施しています"
 # MotD2nd-Ping-Player: "%$e%player%%$a,さん、たまには如何でしょうか"
+# MotD2nd-Alive: "サーバーは元気に稼働中"
 
 #   個別メッセージ
 #   Individual message
 110.132.242.177: "貴方は接続を拒否されています\nサーバールール違反です"
-Kumaisu: "%$eYou are Banned at this Server\n%$4あなたは、このサーバーで追放されています"
+Kumaisu: "%$eYou are Banned from this Server\n%$4あなたは、このサーバーから追放されています"
