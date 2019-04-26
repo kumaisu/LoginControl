@@ -26,28 +26,24 @@ public class MotDControl {
     private String MotD1stLine;
     private List<String> MotD2ndLine;
 
-    String resourceFile = "MotD.yml";
-    File UKfile;
-    FileConfiguration UKData;
+    private final String resourceFile = "MotD.yml";
+    private final File UKfile;
+    private FileConfiguration UKData; // = new YamlConfiguration();
 
     public MotDControl( Plugin plugin, Config config ) {
         this.plugin = plugin;
         this.config = config;
         UKfile = new File( plugin.getDataFolder(), resourceFile );
-        UKData = YamlConfiguration.loadConfiguration( UKfile );
+        // UKData = YamlConfiguration.loadConfiguration( UKfile );
         load();
     }
 
     /**
      * 設定をロードします
-     * @return
      */
     public void load() {
-        if( !UKfile.exists() ) {
-            plugin.getResource( resourceFile );
-            plugin.saveResource( plugin.getDataFolder() + File.separator + resourceFile, false );
-            // return false;
-        }
+        if ( !UKfile.exists() ) { plugin.saveResource( resourceFile, false ); }
+        if ( UKData == null ) { UKData = YamlConfiguration.loadConfiguration( UKfile ); }
 
         MotD1stLine = UKData.getString( "MotD1st", "" );
         MotD_Count = UKData.getInt( "MotD2nd-Ping-Count", 0 );
@@ -80,7 +76,7 @@ public class MotDControl {
             UKData.save( UKfile );
         }
         catch (IOException e) {
-            plugin.getServer().getLogger().log( Level.WARNING, "{0}Could not save UnknownIP File.", ChatColor.RED );
+            plugin.getServer().getLogger().log( Level.WARNING, "{0}Could not save MotD.yaml File.", ChatColor.RED );
         }
     }
 
