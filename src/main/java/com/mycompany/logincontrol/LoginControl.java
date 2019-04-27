@@ -199,7 +199,7 @@ public class LoginControl extends JavaPlugin implements Listener {
 
             if ( "".equals( changeMessage ) ) {
                 if ( ( MotData.getmotDCount() != 0 ) && ( count>MotData.getmotDCount() ) ) MsgNum++;
-                if ( ( MotData.getmotDMaxCount() != 0 ) && ( count>MotData.getmotDMaxCount() ) ) MsgNum = 1;
+                if ( ( MotData.getmotDMaxCount() != 0 ) && ( count>MotData.getmotDMaxCount() ) ) MsgNum = 4;
 
                 String Motd2ndLine = MotData.get2ndLine( MsgNum );
                 Motd2ndLine = Motd2ndLine.replace( "%count", String.valueOf( count ) );

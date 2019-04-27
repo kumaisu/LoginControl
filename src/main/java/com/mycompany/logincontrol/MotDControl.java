@@ -14,7 +14,8 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 
 /**
- *
+ * MotDメッセージ関するライブラリ
+ * 
  * @author sugichan
  */
 public class MotDControl {
@@ -80,22 +81,58 @@ public class MotDControl {
         }
     }
 
+    /**
+     * MotD 1行目のメッセージ取得
+     * 
+     * @return 
+     */
     public String get1stLine() {
         return MotD1stLine;
     }
 
+    /**
+     * MotD 2行目のメッセージ取得
+     * 0:Unknownへのメッセージ
+     * 1:参照回数が規定を越えた時の0へのメッセージ
+     * 2:参加プレイヤーへのメッセージ
+     * 3:参照回数が規定を越えた時の参加プレイヤーへのメッセージ
+     * 4:Configで指定されたIPへのメッセージ
+     * 
+     * @param num
+     * @return 
+     */
     public String get2ndLine( int num ) {
         return MotD2ndLine.get( num );
     }
 
+    /**
+     * 参照規定回数
+     * 
+     * @return 
+     */
     public int getmotDCount() {
         return MotD_Count;
     }
 
+    /**
+     * 参照回数最大値設定
+     * この回数を越えると、強制的に2ndLineの設定が4になる
+     * 
+     * @return 
+     */
     public int getmotDMaxCount() {
         return MotD_MaxCount;
     }
 
+    /**
+     * 個別指定がある場合のメッセージ内容
+     * 指定が無い場合は""が返される
+     * プレイヤー名指定が優先されるので注意
+     * 
+     * @param name
+     * @param IP
+     * @return 
+     */
     public String getModifyMessage( String name, String IP ) {
         String returnMessage = UKData.getString( name, "" );
         if ( "".equals( returnMessage ) ) { returnMessage = UKData.getString( IP, "" ); }
