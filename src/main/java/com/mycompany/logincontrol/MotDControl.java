@@ -11,11 +11,12 @@ import java.util.logging.Level;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 /**
  * MotDメッセージ関するライブラリ
- * 
+ *
  * @author sugichan
  */
 public class MotDControl {
@@ -83,7 +84,7 @@ public class MotDControl {
 
     /**
      * MotD 1行目のメッセージ取得
-     * 
+     *
      * @return 
      */
     public String get1stLine() {
@@ -97,7 +98,7 @@ public class MotDControl {
      * 2:参加プレイヤーへのメッセージ
      * 3:参照回数が規定を越えた時の参加プレイヤーへのメッセージ
      * 4:Configで指定されたIPへのメッセージ
-     * 
+     *
      * @param num
      * @return 
      */
@@ -107,7 +108,7 @@ public class MotDControl {
 
     /**
      * 参照規定回数
-     * 
+     *
      * @return 
      */
     public int getmotDCount() {
@@ -117,7 +118,7 @@ public class MotDControl {
     /**
      * 参照回数最大値設定
      * この回数を越えると、強制的に2ndLineの設定が4になる
-     * 
+     *
      * @return 
      */
     public int getmotDMaxCount() {
@@ -128,7 +129,7 @@ public class MotDControl {
      * 個別指定がある場合のメッセージ内容
      * 指定が無い場合は""が返される
      * プレイヤー名指定が優先されるので注意
-     * 
+     *
      * @param name
      * @param IP
      * @return 
@@ -137,5 +138,24 @@ public class MotDControl {
         String returnMessage = UKData.getString( name, "" );
         if ( "".equals( returnMessage ) ) { returnMessage = UKData.getString( IP, "" ); }
         return returnMessage;
+    }
+
+    /**
+     * MotD Message Setting Print
+     */
+    public void getStatus( Player p ) {
+        boolean consolePrintFlag = ( p == null );
+        Utility.Prt( p, "=== LoginControl MotD Messages ===", consolePrintFlag );
+        Utility.Prt( p, "Ping Count : " + String.valueOf( MotD_Count ), consolePrintFlag );
+        Utility.Prt( p, "Max Count  : " + String.valueOf( MotD_MaxCount ), consolePrintFlag );
+        Utility.Prt( p, "MotD Message:", consolePrintFlag );
+        Utility.Prt( p, "1st Line : " + MotD1stLine, consolePrintFlag );
+        Utility.Prt( p, "2nd Line:", consolePrintFlag );
+        Utility.Prt( p, "Unknown       : " + MotD2ndLine.get( 0 ), consolePrintFlag );
+        Utility.Prt( p, "Unknown Count : " + MotD2ndLine.get( 1 ), consolePrintFlag );
+        Utility.Prt( p, "Player        : " + MotD2ndLine.get( 2 ), consolePrintFlag );
+        Utility.Prt( p, "Player Count  : " + MotD2ndLine.get( 3 ), consolePrintFlag );
+        Utility.Prt( p, "Alive         : " + MotD2ndLine.get( 4 ), consolePrintFlag );
+        Utility.Prt( p, "==================================", consolePrintFlag );
     }
 }

@@ -27,6 +27,7 @@ commands:
         usage: |
             /<command> reload
             /<command> status
+            /<command> motd
             /<command> info IPAddress
             /<command> chg IPAddress HostName
             /<command> add IPAddress [HostName]

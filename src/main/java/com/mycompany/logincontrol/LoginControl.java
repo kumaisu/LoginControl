@@ -341,6 +341,9 @@ public class LoginControl extends JavaPlugin implements Listener {
                 case "status":
                     config.Status( p );
                     return true;
+                case "motd":
+                    MotData.getStatus( p );
+                    return true;
                 case "chg":
                     if ( HostName.length() < 61 ) {
                         if ( StatRec.chgUnknownHost( IP, HostName ) ) {
