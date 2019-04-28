@@ -77,7 +77,7 @@ public class MotDControl {
         try {
             UKData.save( UKfile );
         }
-        catch (IOException e) {
+        catch ( IOException e ) {
             plugin.getServer().getLogger().log( Level.WARNING, "{0}Could not save MotD.yaml File.", ChatColor.RED );
         }
     }
@@ -142,6 +142,8 @@ public class MotDControl {
 
     /**
      * MotD Message Setting Print
+     *
+     * @param p
      */
     public void getStatus( Player p ) {
         boolean consolePrintFlag = ( p == null );
@@ -149,7 +151,7 @@ public class MotDControl {
         Utility.Prt( p, "Ping Count : " + String.valueOf( MotD_Count ), consolePrintFlag );
         Utility.Prt( p, "Max Count  : " + String.valueOf( MotD_MaxCount ), consolePrintFlag );
         Utility.Prt( p, "MotD Message:", consolePrintFlag );
-        Utility.Prt( p, "1st Line : " + MotD1stLine, consolePrintFlag );
+        Utility.Prt( p, "1st Line : " + MotD1stLine.replace( "\n", "*" ), consolePrintFlag );
         Utility.Prt( p, "2nd Line:", consolePrintFlag );
         Utility.Prt( p, "Unknown       : " + MotD2ndLine.get( 0 ), consolePrintFlag );
         Utility.Prt( p, "Unknown Count : " + MotD2ndLine.get( 1 ), consolePrintFlag );
