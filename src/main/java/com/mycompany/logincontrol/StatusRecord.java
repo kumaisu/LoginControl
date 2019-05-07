@@ -527,10 +527,10 @@ public class StatusRecord {
 
     /**
      * クマイス鯖専用関数、特定のホスト名を決め打ちのホスト名に変換
-     * 
+     *
      * @param hostName  チェックするホスト名
      * @param debug     コンソール表示
-     * @return 
+     * @return
      */
     public String changeHostName( String hostName, boolean debug ) {
         if ( hostName.contains( "gae.google" ) ) { hostName = "gae.googleusercontent.com"; }
@@ -550,7 +550,7 @@ public class StatusRecord {
 
     /**
      * データベース内で未変換のホスト名を一括返還する
-     * 
+     *
      */
     public void convertHostName( Player p ) {
         Utility.Prt( p, ChatColor.YELLOW + "Kumaisu Data Converter Execute", ( p == null ) );
@@ -592,6 +592,8 @@ public class StatusRecord {
         if ( CheckFlag ) {
             Inet4Address inet = ( Inet4Address ) Inet4Address.getByName( IP );
             if ( !inet.getHostName().equals( IP ) ) { HostName = inet.getHostName(); }
+            Bukkit.getServer().getConsoleSender().sendMessage( inet.getHostAddress() );
+            // Bukkit.getServer().getConsoleSender().sendMessage( inet.getNetworkPrefixLength() );
         }
 
         //  クマイス鯖特有の特別処理
