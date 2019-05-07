@@ -145,7 +145,7 @@ Message:
 104.20.7.164: Minecraft-mp.com
 104.31.90.225: mcserverstatus.com
 
-#CDIR Host List
+#CIDR Host List
 107.178.192.0/18: GoogleIncUS,MountainView)
 54.216.0.0/15: AmazonCom(Ireland,Dublin)
 

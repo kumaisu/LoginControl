@@ -592,8 +592,6 @@ public class StatusRecord {
         if ( CheckFlag ) {
             Inet4Address inet = ( Inet4Address ) Inet4Address.getByName( IP );
             if ( !inet.getHostName().equals( IP ) ) { HostName = inet.getHostName(); }
-            Bukkit.getServer().getConsoleSender().sendMessage( inet.getHostAddress() );
-            // Bukkit.getServer().getConsoleSender().sendMessage( inet.getNetworkPrefixLength() );
         }
 
         //  クマイス鯖特有の特別処理
