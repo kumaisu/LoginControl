@@ -75,6 +75,14 @@ public class StatusRecord {
                         ChatColor.YELLOW.toString(), "[", String.format( "%-15s", Utility.toInetAddress( gs.getLong( "ip" ) ) ), "]",
                         ChatColor.RED.toString(), " ", ( gs.getInt( "status" )==0 ? "Fail":"Sucee" ) );
             }
+            if ( p == null ) {
+                message = Utility.StringBuild(
+                        message,
+                        ChatColor.YELLOW.toString(),
+                        " [",
+                        GetHost( Utility.toInetAddress( gs.getLong( "ip" ) ) ),
+                        "]" );
+            }
         } catch ( SQLException e ) {}
 
         return message;
@@ -141,7 +149,11 @@ public class StatusRecord {
         boolean consolePrint = ( player == null );
         boolean isOP = ( consolePrint ? true:player.isOp() );
 
-        Utility.Prt( player, "== [" + checkString + "] Login List ==", consolePrint );
+        String titleMessage = ChatColor.WHITE + "== [" + checkString + "] Login List ==";
+        if ( PrtMode == 3 && isOP ) {
+            titleMessage += ChatColor.YELLOW + " [" + GetHost( checkString ) + "]";
+        }
+        Utility.Prt( player, titleMessage, consolePrint );
 
         switch( PrtMode ) {
             case 1:
