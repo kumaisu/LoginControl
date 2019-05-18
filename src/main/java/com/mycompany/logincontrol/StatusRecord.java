@@ -76,7 +76,7 @@ public class StatusRecord {
                         ChatColor.RED + " " + ( gs.getInt( "status" )==0 ? ChatColor.RED + "X":ChatColor.WHITE+"O" );
             }
             if ( p == null ) {
-                message += ChatColor.YELLOW + " [" + GetHost( Utility.toInetAddress( gs.getLong( "ip" ) ) ) + "]";
+                message += " [" + GetHost( Utility.toInetAddress( gs.getLong( "ip" ) ) ) + "]";
             }
         } catch ( SQLException e ) {}
 
