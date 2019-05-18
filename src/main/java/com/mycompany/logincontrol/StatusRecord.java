@@ -65,23 +65,18 @@ public class StatusRecord {
     public String LinePrt( Player p, ResultSet gs ) {
         String message = "";
         try {
-            message = Utility.StringBuild(
-                    ChatColor.WHITE.toString(), String.format( "%6d", gs.getInt( "id" ) ), ":",
-                    ChatColor.GREEN.toString(), sdf.format( gs.getTimestamp( "date" ) ), " ",
-                    ChatColor.AQUA.toString(), String.format( "%-20s", gs.getString( "name" ) ) );
+            message +=
+                    ChatColor.WHITE + String.format( "%6d", gs.getInt( "id" ) ) + ":" +
+                    ChatColor.GREEN + sdf.format( gs.getTimestamp( "date" ) ) + " " +
+                    ChatColor.AQUA + String.format( "%-20s", gs.getString( "name" ) );
             if ( ( p == null ) || p.hasPermission( "LoginCtl.view" ) || p.isOp() ) {
-                message = Utility.StringBuild(
-                        message,
-                        ChatColor.YELLOW.toString(), "[", String.format( "%-15s", Utility.toInetAddress( gs.getLong( "ip" ) ) ), "]",
-                        ChatColor.RED.toString(), " ", ( gs.getInt( "status" )==0 ? "Fail":"Sucee" ) );
+                //  ChatColor.RED.toString(), " ", ( gs.getInt( "status" )==0 ? "Fail":"Sucee" ) );
+                message +=
+                        ChatColor.YELLOW + "[" + String.format( "%-15s", Utility.toInetAddress( gs.getLong( "ip" ) ) ) + "]" +
+                        ChatColor.RED + " " + ( gs.getInt( "status" )==0 ? ChatColor.RED + "X":ChatColor.WHITE+"O" );
             }
             if ( p == null ) {
-                message = Utility.StringBuild(
-                        message,
-                        ChatColor.YELLOW.toString(),
-                        " [",
-                        GetHost( Utility.toInetAddress( gs.getLong( "ip" ) ) ),
-                        "]" );
+                message += ChatColor.YELLOW + " [" + GetHost( Utility.toInetAddress( gs.getLong( "ip" ) ) ) + "]";
             }
         } catch ( SQLException e ) {}
 
