@@ -66,18 +66,23 @@ public class StatusRecord {
         String message = "";
         try {
             message +=
-                    ChatColor.WHITE + String.format( "%6d", gs.getInt( "id" ) ) + ":" +
-                    ChatColor.GREEN + sdf.format( gs.getTimestamp( "date" ) ) + " " +
-                    ChatColor.AQUA + String.format( "%-20s", gs.getString( "name" ) );
+                    ChatColor.WHITE + String.format( "%6d", gs.getInt( "id" ) ) + ": " +
+                    ChatColor.GREEN + sdf.format( gs.getTimestamp( "date" ) ) + " ";
+
             if ( ( p == null ) || p.hasPermission( "LoginCtl.view" ) || p.isOp() ) {
-                //  ChatColor.RED.toString(), " ", ( gs.getInt( "status" )==0 ? "Fail":"Sucee" ) );
-                message +=
-                        ChatColor.YELLOW + "[" + String.format( "%-15s", Utility.toInetAddress( gs.getLong( "ip" ) ) ) + "]" +
-                        ChatColor.RED + " " + ( gs.getInt( "status" )==0 ? ChatColor.RED + "X":ChatColor.WHITE+"O" );
+                message += ChatColor.YELLOW + "[" + String.format( "%-15s", Utility.toInetAddress( gs.getLong( "ip" ) ) ) + "] ";
             }
+
+            message += ( gs.getInt( "status" )==0 ? ChatColor.RED:ChatColor.AQUA );
             if ( p == null ) {
-                message += " [" + GetHost( Utility.toInetAddress( gs.getLong( "ip" ) ) ) + "]";
+                message +=
+                    String.format( "%-20s", gs.getString( "name" ) ) +
+                    ( gs.getInt( "status" )==0 ? ChatColor.RED:ChatColor.WHITE ) + " [" +
+                    GetHost( Utility.toInetAddress( gs.getLong( "ip" ) ) ) + "]";
+            } else {
+                message += gs.getString( "name" );
             }
+
         } catch ( SQLException e ) {}
 
         return message;
