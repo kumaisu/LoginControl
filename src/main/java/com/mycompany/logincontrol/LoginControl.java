@@ -160,14 +160,13 @@ public class LoginControl extends JavaPlugin implements Listener {
     @EventHandler
     public void onServerListPing( ServerListPingEvent event ) throws UnknownHostException, ClassNotFoundException {
         String Names = "Unknown";   // = StatRec.GetPlayerName( event.getAddress().getHostAddress() );
-        String Host;                // = ChatColor.WHITE + "Player(" + Names + ")";
 	int PrtStatus = 2;          // ConsoleLog Flag 2:Full 1:Normal(Playerのみ)
 
         String MotdMsg = Utility.Replace( MotData.get1stLine() );
-        String MsgColor;
+        String MsgColor = ChatColor.GRAY.toString();
+        String Host = config.KnownServers( event.getAddress().getHostAddress() );
 
-        String ChkHost = config.KnownServers( event.getAddress().getHostAddress() );
-        if ( ChkHost == null ) {
+        if ( Host == null ) {
             //  簡易DNSからホスト名を取得
             Host = StatRec.GetHost( event.getAddress().getHostAddress() );
             int MsgNum = 0;
@@ -198,8 +197,11 @@ public class LoginControl extends JavaPlugin implements Listener {
             String changeMessage = MotData.getModifyMessage( Names, event.getAddress().getHostAddress() );
 
             if ( "".equals( changeMessage ) ) {
-                if ( ( MotData.getmotDCount() != 0 ) && ( count>MotData.getmotDCount() ) ) MsgNum++;
-                if ( ( MotData.getmotDMaxCount() != 0 ) && ( count>MotData.getmotDMaxCount() ) ) MsgNum = 4;
+                if ( ( MotData.getmotDMaxCount() != 0 ) && ( count>MotData.getmotDMaxCount() ) ) {
+                    MsgNum = 4;
+                } else {
+                    if ( ( MotData.getmotDCount() != 0 ) && ( count>MotData.getmotDCount() ) ) MsgNum++;
+                }
 
                 String Motd2ndLine = MotData.get2ndLine( MsgNum );
                 Motd2ndLine = Motd2ndLine.replace( "%count", String.valueOf( count ) );
@@ -216,8 +218,6 @@ public class LoginControl extends JavaPlugin implements Listener {
             event.setMotd( Utility.ReplaceString( MotdMsg, Names ) );
         } else {
             //  Configに既知のホスト登録があった場合
-            MsgColor = ChatColor.GRAY.toString();
-            Host = ChkHost;
             MotdMsg = Utility.StringBuild( MotdMsg, MotData.get2ndLine( 4 ) );
             event.setMotd( MotdMsg );
         }
