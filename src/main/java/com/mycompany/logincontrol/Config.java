@@ -39,7 +39,7 @@ public class Config {
     private List<String> IgnoreReportName;
     private List<String> IgnoreReportIP;
 
-    private int DebugFlag;
+    private Utility.consoleMode DebugFlag;
 
     public Config(Plugin plugin) {
         this.plugin = plugin;
@@ -81,26 +81,13 @@ public class Config {
         IgnoreReportIP = config.getStringList( "Ignore-IP" );
         CheckIPAddress = config.getBoolean( "CheckIP" );
 
-        switch ( config.getString( "Debug" ) ) {
-        case "full":
-            DebugFlag = 2;
-            break;
-        case "normal":
-            DebugFlag = 1;
-            break;
-        case "none":
-            DebugFlag = 0;
-            break;
-        default:
-            DebugFlag = 0;
-        }
-
+        DebugFlag = Utility.consoleMode.valueOf( config.getString( "Debug" ) );
     }
 
     public void Status( Player p ) {
         boolean consolePrintFlag = ( p == null );
         Utility.Prt( p, "=== LoginContrl Status ===", consolePrintFlag );
-        Utility.Prt( p, "Degub Mode : " + DBString( DebugFlag ), consolePrintFlag );
+        Utility.Prt( p, "Degub Mode : " + DebugFlag.toString(), consolePrintFlag );
         Utility.Prt( p, "Mysql : " + host + ":" + port, consolePrintFlag );
         Utility.Prt( p, "DB Name : " + database, consolePrintFlag );
         Utility.Prt( p, "FirstJump : " + ( ( JumpStats ) ? "True":"None" ), consolePrintFlag );
@@ -128,44 +115,37 @@ public class Config {
         Utility.Prt( p, "==========================", consolePrintFlag );
     }
 
-    public int getDebug() {
+    /**
+     * DebugMode を数値で受け取る
+     *
+     * @return 
+     */
+    public Utility.consoleMode getDebug() {
         return DebugFlag;
     }
 
-    public void setDebug( int num ) {
-        DebugFlag = num;
+    /**
+     * 一時的にDebugModeを設定しなおす
+     * ただし、Config.ymlには反映しない
+     *
+     * @param key 
+     */
+    public void setDebug( String key ) {
+        try {
+            DebugFlag = Utility.consoleMode.valueOf( key );
+        } catch( IllegalArgumentException e ) {
+            DebugFlag = Utility.consoleMode.none;
+        }
     }
 
-    public boolean DBFlag( int lvl ) {
-    // 0:none 1:normal 2:full
-        Boolean prtf;
-        switch ( DebugFlag ) {
-            case 0:
-                prtf = ( lvl == 0 );
-                break;
-            case 1:
-                prtf = ( lvl == 1 );
-                break;
-            case 2:
-                prtf = true;
-                break;
-            default:
-                prtf = false;
-        }
-        return prtf;
-    }
-
-    public String DBString( int lvl ) {
-        switch ( lvl ) {
-            case 0:
-                return "none";
-            case 1:
-                return "normal";
-            case 2:
-                return "full";
-            default:
-                return "Error";
-        }
+    /**
+     * keyに対して、設定されているDebugMode下での可否判定を返す
+     *
+     * @param key
+     * @return 
+     */
+    public boolean isDebugFlag( Utility.consoleMode key ) {
+        return ( DebugFlag.ordinal() >= key.ordinal() );
     }
 
     public String getHost() {

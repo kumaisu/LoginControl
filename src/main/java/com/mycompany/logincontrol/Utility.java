@@ -15,6 +15,8 @@ import org.bukkit.entity.Player;
  */
 public final class Utility {
 
+    public static enum consoleMode { none, normal, full, max }
+
     /**
      * IPアドレスを整数化する関数
      *
@@ -163,6 +165,7 @@ public final class Utility {
      * @param ip    IPアドレス
      * @param sb    サブネットマスク
      * @return      ネットワークアドレス
+     * @throws java.net.UnknownHostException
      */
     public static String getNetworkAddress( String ip, String sb ) throws UnknownHostException {
         byte[] bIP = Inet4Address.getByName( ip ).getAddress();
