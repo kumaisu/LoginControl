@@ -161,7 +161,6 @@ public class LoginControl extends JavaPlugin implements Listener {
     public void onServerListPing( ServerListPingEvent event ) throws UnknownHostException, ClassNotFoundException {
         String Names = "Unknown";
 	Utility.consoleMode PrtStatus = Utility.consoleMode.full;   // ConsoleLog Flag 2:Full 1:Normal(Playerのみ)
-        
 
         String MotdMsg = Utility.Replace( MotData.get1stLine() );
         String MsgColor = ChatColor.GRAY.toString();
@@ -222,6 +221,8 @@ public class LoginControl extends JavaPlugin implements Listener {
             MotdMsg = Utility.StringBuild( MotdMsg, MotData.get2ndLine( 4 ) );
             event.setMotd( MotdMsg );
         }
+
+        event.getNumPlayers().set( 30 );
 
         String msg = Utility.StringBuild( ChatColor.GREEN.toString(), "Ping from ", MsgColor, Host, ChatColor.YELLOW.toString(), " [", event.getAddress().getHostAddress(), "]" );
         Utility.Prt( null, msg, config.isDebugFlag( PrtStatus ) );
@@ -430,7 +431,7 @@ public class LoginControl extends JavaPlugin implements Listener {
                     break;
                 case "Console":
                     config.setDebug( IP );
-                    Utility.Prt( p, 
+                    Utility.Prt( p,
                         ChatColor.GREEN + "System Debug Mode is [ " +
                         ChatColor.RED + config.getDebug().toString() +
                         ChatColor.GREEN + " ]", ( p == null )
