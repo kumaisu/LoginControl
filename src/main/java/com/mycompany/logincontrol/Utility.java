@@ -93,6 +93,10 @@ public final class Utility {
         if ( player != null ) player.sendMessage( msg );
     }
 
+    public static void Prt( Player player, String msg ) {
+        Prt( player, msg, ( player == null ) );
+    }
+
     /**
      * サブネット(CIDER表記)をIPv4形式に変換する。
      *

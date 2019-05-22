@@ -62,7 +62,7 @@ public class StatusRecord {
      * @param gs        DBから取得したデータ
      * @return          成形されたメッセージ
      */
-    public String LinePrt( Player p, ResultSet gs ) {
+    public String LinePrt( Player player, ResultSet gs, boolean hasPermission ) {
         String message = "";
         try {
             message = Utility.StringBuild( message,
@@ -70,14 +70,15 @@ public class StatusRecord {
                     ChatColor.GREEN.toString(), sdf.format( gs.getTimestamp( "date" ) ), " "
             );
 
-            if ( ( p == null ) || p.hasPermission( "LoginCtl.view" ) || p.isOp() ) {
+            if ( hasPermission ) {
                 message = Utility.StringBuild( message,
                         ChatColor.YELLOW.toString(), "[", String.format( "%-15s", Utility.toInetAddress( gs.getLong( "ip" ) ) ), "] "
                 );
             }
 
             message = Utility.StringBuild( message, gs.getInt( "status" )==0 ? ChatColor.RED.toString():ChatColor.AQUA.toString() );
-            if ( p == null ) {
+
+            if ( player == null ) {
                 message = Utility.StringBuild( message,
                     String.format( "%-20s", gs.getString( "name" ) ),
                     ( gs.getInt( "status" )==0 ? ChatColor.RED.toString():ChatColor.WHITE.toString() ), " [",
@@ -92,6 +93,10 @@ public class StatusRecord {
         return message;
     }
 
+    public String LinePrt( Player player, ResultSet gs ) {
+        return LinePrt( player, gs, ( ( player == null ) || player.isOp() || player.hasPermission( "LoginCtl.view" ) ) );
+    }
+
     /**
      * 直近のログインプレイヤーリストを表示する関数
      *
@@ -103,7 +108,7 @@ public class StatusRecord {
     @SuppressWarnings("CallToPrintStackTrace")
     public void LogPrint( Player player, int lines, boolean FullFlag, List Ignore ) {
         boolean consolePrint = ( player == null );
-        boolean isOP = ( consolePrint ? true:player.isOp() );
+        boolean hasPermission = ( ( player == null ) || player.isOp() || player.hasPermission( "LoginCtl.view" ) );
 
         Utility.Prt( player, "== Login List ==", consolePrint );
 
@@ -119,10 +124,10 @@ public class StatusRecord {
             while( rs.next() && ( i<lines ) ) {
                 String GetName = rs.getString( "name" );
 
-                if ( rs.getInt( "status" ) != 0 || consolePrint || player.hasPermission( "LoginCtl.view" ) || isOP ) {
-                    if ( ( !Ignore.contains( GetName ) || isOP ) && ( !chk_name.equals( GetName ) || FullFlag ) ) {
+                if ( rs.getInt( "status" ) != 0 || hasPermission ) {
+                    if ( ( !Ignore.contains( GetName ) || hasPermission ) && ( !chk_name.equals( GetName ) || FullFlag ) ) {
                         i++;
-                        Utility.Prt( player, LinePrt( player, rs ), consolePrint );
+                        Utility.Prt( player, LinePrt( player, rs, hasPermission ),  consolePrint );
                         chk_name = GetName;
                     }
                 }
