@@ -58,7 +58,8 @@ public class StatusRecord {
      * ユーザー情報を1ラインで表紙成形する関数
      * Permission保持者には追加情報も付随する
      *
-     * @param p         表示したいプレイヤー
+     * @param player    表示したいプレイヤー
+     * @param hasPermission
      * @param gs        DBから取得したデータ
      * @return          成形されたメッセージ
      */

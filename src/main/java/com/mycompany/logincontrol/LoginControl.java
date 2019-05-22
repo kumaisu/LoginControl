@@ -64,8 +64,10 @@ public class LoginControl extends JavaPlugin implements Listener {
     }
 
     /**
+     * コンソール表示のみを実施する場合で、デバッグフラグをチェックしてからするもの
      *
-     *
+     * @param msg
+     * @param mode
      */
     public void consolePrint( String msg, Utility.consoleMode mode ) {
         if ( config.isDebugFlag( mode ) ) {
@@ -171,7 +173,9 @@ public class LoginControl extends JavaPlugin implements Listener {
     @EventHandler
     public void onServerListPing( ServerListPingEvent event ) throws UnknownHostException, ClassNotFoundException {
         String Names = "Unknown";
-	Utility.consoleMode PrtStatus = Utility.consoleMode.full;   // ConsoleLog Flag 2:Full 1:Normal(Playerのみ)
+        // ConsoleLog Flag 2:Full 1:Normal(Playerのみ)
+	Utility.consoleMode PrtStatus;
+        PrtStatus = Utility.consoleMode.full;
 
         String MotdMsg = Utility.Replace( MotData.get1stLine() );
         String MsgColor = ChatColor.GRAY.toString();
@@ -254,7 +258,8 @@ public class LoginControl extends JavaPlugin implements Listener {
         boolean FullFlag = false;
         int lineSet = 30;
         Player p = ( sender instanceof Player ) ? ( Player )sender:( Player )null;
-        boolean checkConsoleFlag = ( config.isDebugFlag( Utility.consoleMode.normal ) || ( p == null ) );
+        boolean checkConsoleFlag;
+        checkConsoleFlag = ( config.isDebugFlag( Utility.consoleMode.normal ) || ( p == null ) );
 
         if ( cmd.getName().toLowerCase().equalsIgnoreCase( "flight" ) ) {
             if ( p == null ) return false;
