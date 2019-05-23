@@ -174,10 +174,9 @@ public class LoginControl extends JavaPlugin implements Listener {
     public void onServerListPing( ServerListPingEvent event ) throws UnknownHostException, ClassNotFoundException {
         String Names = "Unknown";
         // ConsoleLog Flag 2:Full 1:Normal(Playerのみ)
-	Utility.consoleMode PrtStatus;
-        PrtStatus = Utility.consoleMode.full;
+	Utility.consoleMode PrtStatus = Utility.consoleMode.full;
 
-        String MotdMsg = Utility.Replace( MotData.get1stLine() );
+        String MotdMsg = MotData.get1stLine();
         String MsgColor = ChatColor.GRAY.toString();
         String Host = config.KnownServers( event.getAddress().getHostAddress() );
 
@@ -209,34 +208,33 @@ public class LoginControl extends JavaPlugin implements Listener {
             int count = StatRec.GetcountHosts( event.getAddress().getHostAddress() );
             Host = Utility.StringBuild( Host, "(", String.valueOf( count ), ")" );
 
-            String changeMessage = MotData.getModifyMessage( Names, event.getAddress().getHostAddress() );
+            String Motd2ndLine = MotData.getModifyMessage( Names, event.getAddress().getHostAddress() );
 
-            if ( "".equals( changeMessage ) ) {
+            if ( "".equals( Motd2ndLine ) ) {
                 if ( ( MotData.getmotDMaxCount() != 0 ) && ( count>MotData.getmotDMaxCount() ) ) {
                     MsgNum = 4;
                 } else {
                     if ( ( MotData.getmotDCount() != 0 ) && ( count>MotData.getmotDCount() ) ) MsgNum++;
                 }
 
-                String Motd2ndLine = MotData.get2ndLine( MsgNum );
+                Motd2ndLine = MotData.get2ndLine( MsgNum );
                 Motd2ndLine = Motd2ndLine.replace( "%count", String.valueOf( count ) );
-                Motd2ndLine = Motd2ndLine.replace( "%date", StatRec.getDateHost( event.getAddress().getHostAddress(), true ) );
                 //  True : カウントを開始した日を指定
                 //  False : 最後にカウントされた日を指定
+                Motd2ndLine = Motd2ndLine.replace( "%date", StatRec.getDateHost( event.getAddress().getHostAddress(), true ) );
                 MotdMsg = Utility.StringBuild( MotdMsg, Motd2ndLine );
-                consolePrint( "MotD = " + Utility.ReplaceString( Motd2ndLine, Names ), Utility.consoleMode.full );
+                consolePrint( Utility.StringBuild( "MotD = ", Utility.ReplaceString( Motd2ndLine, Names ) ), Utility.consoleMode.full );
             } else {
-                MotdMsg = changeMessage;
-                consolePrint( "Change = " + Utility.ReplaceString( changeMessage.replace( "\n", " " ), Names ), Utility.consoleMode.full );
+                MotdMsg = Motd2ndLine;
+                consolePrint( Utility.StringBuild( "Change = ", Utility.ReplaceString( Motd2ndLine.replace( "\n", " " ), Names ) ), Utility.consoleMode.full );
             }
 
-            event.setMotd( Utility.ReplaceString( MotdMsg, Names ) );
         } else {
             //  Configに既知のホスト登録があった場合
             MotdMsg = Utility.StringBuild( MotdMsg, MotData.get2ndLine( 4 ) );
-            event.setMotd( MotdMsg );
         }
 
+        event.setMotd( Utility.ReplaceString( MotdMsg, Names ) );
         // event.getNumPlayers().set( 30 );
 
         String msg = Utility.StringBuild( ChatColor.GREEN.toString(), "Ping from ", MsgColor, Host, ChatColor.YELLOW.toString(), " [", event.getAddress().getHostAddress(), "]" );
@@ -305,11 +303,11 @@ public class LoginControl extends JavaPlugin implements Listener {
                         }
                         break;
                     case "full":
-                        Utility.Prt( p, Utility.Replace( config.LogFull() ),config.isDebugFlag( Utility.consoleMode.full ) );
+                        Utility.Prt( p, Utility.ReplaceString( config.LogFull() ),config.isDebugFlag( Utility.consoleMode.full ) );
                         FullFlag = true;
                         break;
                     default:
-                        Utility.Prt( p, Utility.Replace( config.ArgsErr() ),config.isDebugFlag( Utility.consoleMode.full ) );
+                        Utility.Prt( p, Utility.ReplaceString( config.ArgsErr() ),config.isDebugFlag( Utility.consoleMode.full ) );
                         return false;
                 }
             }
@@ -324,7 +322,7 @@ public class LoginControl extends JavaPlugin implements Listener {
                     StatRec.exLogPrint( p, Param, FullFlag, config.getIgnoreName(), config.getIgnoreIP(), PrtF, lineSet );
                     break;
                 default:
-                    Utility.Prt( p, Utility.Replace( config.OptError() ),config.isDebugFlag( Utility.consoleMode.full ) );
+                    Utility.Prt( p, Utility.ReplaceString( config.OptError() ),config.isDebugFlag( Utility.consoleMode.full ) );
                     return false;
             }
             return true;
@@ -355,7 +353,7 @@ public class LoginControl extends JavaPlugin implements Listener {
             switch ( CtlCmd ) {
                 case "reload":
                     config = new Config( this );
-                    Utility.Prt( p, Utility.Replace( config.Reload() ), checkConsoleFlag );
+                    Utility.Prt( p, Utility.ReplaceString( config.Reload() ), checkConsoleFlag );
                     return true;
                 case "status":
                     config.Status( p );

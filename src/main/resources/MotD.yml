@@ -5,6 +5,10 @@ MotD2nd-Ping-Count: 100
 MotD2nd-Ping-Max-Count: 1000
 
 #ModD Default Message
+#   %$n         : ChatColor Code
+#   %player%    : Player Name
+#   %count      : Reference count
+#   %date       : Reference start date
 MotD1st: "%$dWelcome to Minecraft Server\n"
 MotD2nd-Unknown: "%$3Let's play together"
 MotD2nd-Ping: "You are going to confirm host survival %count times since %date"

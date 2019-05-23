@@ -147,17 +147,17 @@ public class MotDControl {
      */
     public void getStatus( Player p ) {
         boolean consolePrintFlag = ( p == null );
-        Utility.Prt( p, "=== LoginControl MotD Messages ===", consolePrintFlag );
-        Utility.Prt( p, "Ping Count : " + String.valueOf( MotD_Count ), consolePrintFlag );
-        Utility.Prt( p, "Max Count  : " + String.valueOf( MotD_MaxCount ), consolePrintFlag );
-        Utility.Prt( p, "MotD Message:", consolePrintFlag );
-        Utility.Prt( p, "1st Line : " + MotD1stLine.replace( "\n", "*" ), consolePrintFlag );
-        Utility.Prt( p, "2nd Line:", consolePrintFlag );
-        Utility.Prt( p, "Unknown       : " + MotD2ndLine.get( 0 ), consolePrintFlag );
-        Utility.Prt( p, "Unknown Count : " + MotD2ndLine.get( 1 ), consolePrintFlag );
-        Utility.Prt( p, "Player        : " + MotD2ndLine.get( 2 ), consolePrintFlag );
-        Utility.Prt( p, "Player Count  : " + MotD2ndLine.get( 3 ), consolePrintFlag );
-        Utility.Prt( p, "Alive         : " + MotD2ndLine.get( 4 ), consolePrintFlag );
-        Utility.Prt( p, "==================================", consolePrintFlag );
+        Utility.Prt( p, ChatColor.GREEN + "=== LoginControl MotD Messages ===", consolePrintFlag );
+        Utility.Prt( p, ChatColor.WHITE + "Ping Count : " + ChatColor.YELLOW + String.valueOf( MotD_Count ), consolePrintFlag );
+        Utility.Prt( p, ChatColor.WHITE + "Max Count  : " + ChatColor.YELLOW + String.valueOf( MotD_MaxCount ), consolePrintFlag );
+        Utility.Prt( p, ChatColor.WHITE + "MotD Message:", consolePrintFlag );
+        Utility.Prt( p, ChatColor.WHITE + "1st Line : " + ChatColor.YELLOW + MotD1stLine.replace( "\n", "*" ), consolePrintFlag );
+        Utility.Prt( p, ChatColor.WHITE + "2nd Line:", consolePrintFlag );
+        Utility.Prt( p, ChatColor.WHITE + "Unknown       : " + ChatColor.YELLOW + MotD2ndLine.get( 0 ), consolePrintFlag );
+        Utility.Prt( p, ChatColor.WHITE + "Unknown Count : " + ChatColor.YELLOW + MotD2ndLine.get( 1 ), consolePrintFlag );
+        Utility.Prt( p, ChatColor.WHITE + "Player        : " + ChatColor.YELLOW + MotD2ndLine.get( 2 ), consolePrintFlag );
+        Utility.Prt( p, ChatColor.WHITE + "Player Count  : " + ChatColor.YELLOW + MotD2ndLine.get( 3 ), consolePrintFlag );
+        Utility.Prt( p, ChatColor.WHITE + "Alive         : " + ChatColor.YELLOW + MotD2ndLine.get( 4 ), consolePrintFlag );
+        Utility.Prt( p, ChatColor.GREEN + "==================================", consolePrintFlag );
     }
 }

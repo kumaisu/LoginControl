@@ -64,7 +64,7 @@ public final class Utility {
      * @param data  書き換え元の文章
      * @return      書き換え後の文章
      */
-    public static String Replace( String data ) {
+    public static String ReplaceString( String data ) {
         return data.replace( "%$", "§" );
     }
 
@@ -75,13 +75,9 @@ public final class Utility {
      * @return          差し替え後の文章
      */
     public static String ReplaceString( String data, String Names ) {
-        String RetStr;
-        RetStr = data.replace( "%player%", Names );
-        RetStr = Replace( RetStr );
-
-        return RetStr;
+        return ReplaceString( data.replace( "%player%", Names ) );
     }
-
+    
     /**
      * メッセージ表示
      * @param player    表示するプレイヤー
