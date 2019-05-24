@@ -22,6 +22,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import com.mycompany.kumaisulibraries.Utility;
+import com.mycompany.kumaisulibraries.InetCalc;
 
 /**
  * 主にmySQLとの通信を司るライブラリ
@@ -73,7 +75,7 @@ public class StatusRecord {
 
             if ( hasPermission ) {
                 message = Utility.StringBuild( message,
-                        ChatColor.YELLOW.toString(), "[", String.format( "%-15s", Utility.toInetAddress( gs.getLong( "ip" ) ) ), "] "
+                        ChatColor.YELLOW.toString(), "[", String.format( "%-15s", InetCalc.toInetAddress( gs.getLong( "ip" ) ) ), "] "
                 );
             }
 
@@ -83,7 +85,7 @@ public class StatusRecord {
                 message = Utility.StringBuild( message,
                     String.format( "%-20s", gs.getString( "name" ) ),
                     ( gs.getInt( "status" )==0 ? ChatColor.RED.toString():ChatColor.WHITE.toString() ), " [",
-                    GetHost( Utility.toInetAddress( gs.getLong( "ip" ) ) ), "]"
+                    GetHost( InetCalc.toInetAddress( gs.getLong( "ip" ) ) ), "]"
                 );
             } else {
                 message = Utility.StringBuild( message, gs.getString( "name" ) );
@@ -190,7 +192,7 @@ public class StatusRecord {
             while( rs.next() && ( loopCount<lines ) ) {
                 String getName = rs.getString( "name" );
                 String getDate = cdf.format( rs.getTimestamp( "date" ) );
-                if ( isOP || ( !ignoreName.contains( getName ) && !ignoreIP.contains( Utility.toInetAddress( rs.getLong( "ip" ) ) ) ) ) {
+                if ( isOP || ( !ignoreName.contains( getName ) && !ignoreIP.contains( InetCalc.toInetAddress( rs.getLong( "ip" ) ) ) ) ) {
                     boolean checkPrint;
 
                     switch( PrtMode ) {
@@ -534,7 +536,7 @@ public class StatusRecord {
                         ChatColor.WHITE.toString(), String.valueOf( DataNum ), ":",
                         ChatColor.GRAY.toString(), rs.getString( "host" ),
                         ChatColor.GREEN.toString(), "(", String.valueOf( rs.getInt( "count" ) ), ")",
-                        ChatColor.YELLOW.toString(), "[", Utility.toInetAddress( rs.getLong( "ip" ) ), "]",
+                        ChatColor.YELLOW.toString(), "[", InetCalc.toInetAddress( rs.getLong( "ip" ) ), "]",
                         ChatColor.WHITE.toString(), sdf.format( rs.getTimestamp( "lastdate" ) )
                     ), ( p == null )
                 );
@@ -804,7 +806,7 @@ public class StatusRecord {
 
             if ( rs.next() ) {
                 Utility.Prt( p, ChatColor.YELLOW + "Check Unknown IP Information.......", ( p == null ) );
-                Utility.Prt( p, ChatColor.GREEN + "IP Address  : " + ChatColor.WHITE + Utility.toInetAddress( rs.getLong( "ip" ) ), ( p == null ) );
+                Utility.Prt( p, ChatColor.GREEN + "IP Address  : " + ChatColor.WHITE + InetCalc.toInetAddress( rs.getLong( "ip" ) ), ( p == null ) );
                 Utility.Prt( p, ChatColor.GREEN + "Host Name   : " + ChatColor.WHITE + rs.getString( "host" ), ( p == null ) );
                 Utility.Prt( p, ChatColor.GREEN + "AccessCount : " + ChatColor.WHITE + String.valueOf( rs.getInt( "count" ) ), ( p == null ) );
                 Utility.Prt( p, ChatColor.GREEN + "First Date  : " + ChatColor.WHITE + sdf.format( rs.getTimestamp( "newdate" ) ), ( p == null ) );
@@ -845,7 +847,7 @@ public class StatusRecord {
                     Utility.Prt( p, 
                         Utility.StringBuild(
                             ChatColor.AQUA.toString(), String.format( "%5d", rs.getInt("count" ) ), ": ",
-                            ChatColor.YELLOW.toString(), String.format( "%-15s", Utility.toInetAddress( rs.getLong( "ip" ) ) ),
+                            ChatColor.YELLOW.toString(), String.format( "%-15s", InetCalc.toInetAddress( rs.getLong( "ip" ) ) ),
                             ChatColor.WHITE.toString(), String.format( "%-40s", rs.getString( "host" ) ),
                             ChatColor.WHITE.toString(), sdf.format( rs.getTimestamp( "lastdate" ) )
                         ), ( p == null )

@@ -9,6 +9,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+import com.mycompany.kumaisulibraries.Utility;
 
 /**
  * 設定ファイルを読み込む

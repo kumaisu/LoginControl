@@ -13,6 +13,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+import com.mycompany.kumaisulibraries.Utility;
 
 /**
  * MotDメッセージ関するライブラリ
