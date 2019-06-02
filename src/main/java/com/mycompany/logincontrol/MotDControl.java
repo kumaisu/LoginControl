@@ -13,7 +13,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
-import com.mycompany.kumaisulibraries.Utility;
+import com.mycompany.kumaisulibraries.Minecraft;
 
 /**
  * MotDメッセージ関するライブラリ
@@ -148,17 +148,17 @@ public class MotDControl {
      */
     public void getStatus( Player p ) {
         boolean consolePrintFlag = ( p == null );
-        Utility.Prt( p, ChatColor.GREEN + "=== LoginControl MotD Messages ===", consolePrintFlag );
-        Utility.Prt( p, ChatColor.WHITE + "Ping Count : " + ChatColor.YELLOW + String.valueOf( MotD_Count ), consolePrintFlag );
-        Utility.Prt( p, ChatColor.WHITE + "Max Count  : " + ChatColor.YELLOW + String.valueOf( MotD_MaxCount ), consolePrintFlag );
-        Utility.Prt( p, ChatColor.WHITE + "MotD Message:", consolePrintFlag );
-        Utility.Prt( p, ChatColor.WHITE + "1st Line : " + ChatColor.YELLOW + MotD1stLine.replace( "\n", "*" ), consolePrintFlag );
-        Utility.Prt( p, ChatColor.WHITE + "2nd Line:", consolePrintFlag );
-        Utility.Prt( p, ChatColor.WHITE + "Unknown       : " + ChatColor.YELLOW + MotD2ndLine.get( 0 ), consolePrintFlag );
-        Utility.Prt( p, ChatColor.WHITE + "Unknown Count : " + ChatColor.YELLOW + MotD2ndLine.get( 1 ), consolePrintFlag );
-        Utility.Prt( p, ChatColor.WHITE + "Player        : " + ChatColor.YELLOW + MotD2ndLine.get( 2 ), consolePrintFlag );
-        Utility.Prt( p, ChatColor.WHITE + "Player Count  : " + ChatColor.YELLOW + MotD2ndLine.get( 3 ), consolePrintFlag );
-        Utility.Prt( p, ChatColor.WHITE + "Alive         : " + ChatColor.YELLOW + MotD2ndLine.get( 4 ), consolePrintFlag );
-        Utility.Prt( p, ChatColor.GREEN + "==================================", consolePrintFlag );
+        Minecraft.Prt( p, ChatColor.GREEN + "=== LoginControl MotD Messages ===", consolePrintFlag );
+        Minecraft.Prt( p, ChatColor.WHITE + "Ping Count : " + ChatColor.YELLOW + String.valueOf( MotD_Count ), consolePrintFlag );
+        Minecraft.Prt( p, ChatColor.WHITE + "Max Count  : " + ChatColor.YELLOW + String.valueOf( MotD_MaxCount ), consolePrintFlag );
+        Minecraft.Prt( p, ChatColor.WHITE + "MotD Message:", consolePrintFlag );
+        Minecraft.Prt( p, ChatColor.WHITE + "1st Line : " + ChatColor.YELLOW + MotD1stLine.replace( "\n", "*" ), consolePrintFlag );
+        Minecraft.Prt( p, ChatColor.WHITE + "2nd Line:", consolePrintFlag );
+        Minecraft.Prt( p, ChatColor.WHITE + "Unknown       : " + ChatColor.YELLOW + MotD2ndLine.get( 0 ), consolePrintFlag );
+        Minecraft.Prt( p, ChatColor.WHITE + "Unknown Count : " + ChatColor.YELLOW + MotD2ndLine.get( 1 ), consolePrintFlag );
+        Minecraft.Prt( p, ChatColor.WHITE + "Player        : " + ChatColor.YELLOW + MotD2ndLine.get( 2 ), consolePrintFlag );
+        Minecraft.Prt( p, ChatColor.WHITE + "Player Count  : " + ChatColor.YELLOW + MotD2ndLine.get( 3 ), consolePrintFlag );
+        Minecraft.Prt( p, ChatColor.WHITE + "Alive         : " + ChatColor.YELLOW + MotD2ndLine.get( 4 ), consolePrintFlag );
+        Minecraft.Prt( p, ChatColor.GREEN + "==================================", consolePrintFlag );
     }
 }

@@ -10,6 +10,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import com.mycompany.kumaisulibraries.Utility;
+import com.mycompany.kumaisulibraries.Minecraft;
 
 /**
  * 設定ファイルを読み込む
@@ -86,40 +87,40 @@ public class Config {
         try {
             DebugFlag = Utility.consoleMode.valueOf( config.getString( "Debug" ) );
         } catch( IllegalArgumentException e ) {
-            Utility.Prt( null, ChatColor.RED + "Config Debugモードの指定値が不正なので、normal設定にしました", true );
+            Minecraft.Prt( null, ChatColor.RED + "Config Debugモードの指定値が不正なので、normal設定にしました", true );
             DebugFlag = Utility.consoleMode.normal;
         }
     }
 
     public void Status( Player p ) {
         boolean consolePrintFlag = ( p == null );
-        Utility.Prt( p, ChatColor.GREEN + "=== LoginContrl Status ===", consolePrintFlag );
-        Utility.Prt( p, ChatColor.WHITE + "Degub Mode : " + ChatColor.YELLOW + DebugFlag.toString(), consolePrintFlag );
-        Utility.Prt( p, ChatColor.WHITE + "Mysql : " + ChatColor.YELLOW + host + ":" + port, consolePrintFlag );
-        Utility.Prt( p, ChatColor.WHITE + "DB Name : " + ChatColor.YELLOW + database, consolePrintFlag );
-        Utility.Prt( p, ChatColor.WHITE + "FirstJump : " + ChatColor.YELLOW + ( ( JumpStats ) ? "True":"None" ), consolePrintFlag );
+        Minecraft.Prt( p, ChatColor.GREEN + "=== LoginContrl Status ===", consolePrintFlag );
+        Minecraft.Prt( p, ChatColor.WHITE + "Degub Mode : " + ChatColor.YELLOW + DebugFlag.toString(), consolePrintFlag );
+        Minecraft.Prt( p, ChatColor.WHITE + "Mysql : " + ChatColor.YELLOW + host + ":" + port, consolePrintFlag );
+        Minecraft.Prt( p, ChatColor.WHITE + "DB Name : " + ChatColor.YELLOW + database, consolePrintFlag );
+        Minecraft.Prt( p, ChatColor.WHITE + "FirstJump : " + ChatColor.YELLOW + ( ( JumpStats ) ? "True":"None" ), consolePrintFlag );
         if ( JumpStats ) {
-            Utility.Prt( p, ChatColor.WHITE + "  world:" + ChatColor.YELLOW + fworld, consolePrintFlag );
-            Utility.Prt( p, ChatColor.WHITE + "  x:" + ChatColor.YELLOW + String.valueOf( fx ), consolePrintFlag );
-            Utility.Prt( p, ChatColor.WHITE + "  y:" + ChatColor.YELLOW + String.valueOf( fy ), consolePrintFlag );
-            Utility.Prt( p, ChatColor.WHITE + "  z:" + ChatColor.YELLOW + String.valueOf( fz ), consolePrintFlag );
-            Utility.Prt( p, ChatColor.WHITE + "  p:" + ChatColor.YELLOW + String.valueOf( fpitch ), consolePrintFlag );
-            Utility.Prt( p, ChatColor.WHITE + "  y:" + ChatColor.YELLOW + String.valueOf( fyaw ), consolePrintFlag );
+            Minecraft.Prt( p, ChatColor.WHITE + "  world:" + ChatColor.YELLOW + fworld, consolePrintFlag );
+            Minecraft.Prt( p, ChatColor.WHITE + "  x:" + ChatColor.YELLOW + String.valueOf( fx ), consolePrintFlag );
+            Minecraft.Prt( p, ChatColor.WHITE + "  y:" + ChatColor.YELLOW + String.valueOf( fy ), consolePrintFlag );
+            Minecraft.Prt( p, ChatColor.WHITE + "  z:" + ChatColor.YELLOW + String.valueOf( fz ), consolePrintFlag );
+            Minecraft.Prt( p, ChatColor.WHITE + "  p:" + ChatColor.YELLOW + String.valueOf( fpitch ), consolePrintFlag );
+            Minecraft.Prt( p, ChatColor.WHITE + "  y:" + ChatColor.YELLOW + String.valueOf( fyaw ), consolePrintFlag );
         }
-        Utility.Prt( p, ChatColor.WHITE + "Present Items", consolePrintFlag );
+        Minecraft.Prt( p, ChatColor.WHITE + "Present Items", consolePrintFlag );
         present.stream().forEach( pr -> {
             String[] itemdata = pr.split( ",", 0 );
-            Utility.Prt( p, ChatColor.YELLOW + " - " + itemdata[0] + "(" + itemdata[1] + ")", consolePrintFlag );
+            Minecraft.Prt( p, ChatColor.YELLOW + " - " + itemdata[0] + "(" + itemdata[1] + ")", consolePrintFlag );
         } );
 
-        Utility.Prt( p, ChatColor.WHITE + "Ignore Names", consolePrintFlag );
-        IgnoreReportName.stream().forEach( IRN -> { Utility.Prt( p, ChatColor.YELLOW + " - " + IRN, consolePrintFlag ); } );
+        Minecraft.Prt( p, ChatColor.WHITE + "Ignore Names", consolePrintFlag );
+        IgnoreReportName.stream().forEach( IRN -> { Minecraft.Prt( p, ChatColor.YELLOW + " - " + IRN, consolePrintFlag ); } );
 
-        Utility.Prt( p, ChatColor.WHITE + "Ignore IPs", consolePrintFlag );
-        IgnoreReportIP.stream().forEach( IRI -> { Utility.Prt( p, ChatColor.YELLOW + " - " + IRI, consolePrintFlag ); } );
+        Minecraft.Prt( p, ChatColor.WHITE + "Ignore IPs", consolePrintFlag );
+        IgnoreReportIP.stream().forEach( IRI -> { Minecraft.Prt( p, ChatColor.YELLOW + " - " + IRI, consolePrintFlag ); } );
 
-        Utility.Prt( p, ChatColor.WHITE + "Unknown IP Check : " + ChatColor.YELLOW + ( CheckIPAddress ? "True":"False" ), consolePrintFlag );
-        Utility.Prt( p, ChatColor.GREEN + "==========================", consolePrintFlag );
+        Minecraft.Prt( p, ChatColor.WHITE + "Unknown IP Check : " + ChatColor.YELLOW + ( CheckIPAddress ? "True":"False" ), consolePrintFlag );
+        Minecraft.Prt( p, ChatColor.GREEN + "==========================", consolePrintFlag );
     }
 
     /**
