@@ -13,7 +13,8 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
-import com.mycompany.kumaisulibraries.Minecraft;
+import com.mycompany.kumaisulibraries.Utility;
+import com.mycompany.logincontrol.tool.Tools;
 
 /**
  * MotDメッセージ関するライブラリ
@@ -22,7 +23,6 @@ import com.mycompany.kumaisulibraries.Minecraft;
  */
 public class MotDControl {
     private final Plugin plugin;
-    private final Config config;
 
     private int MotD_Count;
     private int MotD_MaxCount;
@@ -33,9 +33,8 @@ public class MotDControl {
     private final File UKfile;
     private FileConfiguration UKData; // = new YamlConfiguration();
 
-    public MotDControl( Plugin plugin, Config config ) {
+    public MotDControl( Plugin plugin ) {
         this.plugin = plugin;
-        this.config = config;
         UKfile = new File( plugin.getDataFolder(), resourceFile );
         // UKData = YamlConfiguration.loadConfiguration( UKfile );
         load();
@@ -147,18 +146,18 @@ public class MotDControl {
      * @param p
      */
     public void getStatus( Player p ) {
-        boolean consolePrintFlag = ( p == null );
-        Minecraft.Prt( p, ChatColor.GREEN + "=== LoginControl MotD Messages ===", consolePrintFlag );
-        Minecraft.Prt( p, ChatColor.WHITE + "Ping Count : " + ChatColor.YELLOW + String.valueOf( MotD_Count ), consolePrintFlag );
-        Minecraft.Prt( p, ChatColor.WHITE + "Max Count  : " + ChatColor.YELLOW + String.valueOf( MotD_MaxCount ), consolePrintFlag );
-        Minecraft.Prt( p, ChatColor.WHITE + "MotD Message:", consolePrintFlag );
-        Minecraft.Prt( p, ChatColor.WHITE + "1st Line : " + ChatColor.YELLOW + MotD1stLine.replace( "\n", "*" ), consolePrintFlag );
-        Minecraft.Prt( p, ChatColor.WHITE + "2nd Line:", consolePrintFlag );
-        Minecraft.Prt( p, ChatColor.WHITE + "Unknown       : " + ChatColor.YELLOW + MotD2ndLine.get( 0 ), consolePrintFlag );
-        Minecraft.Prt( p, ChatColor.WHITE + "Unknown Count : " + ChatColor.YELLOW + MotD2ndLine.get( 1 ), consolePrintFlag );
-        Minecraft.Prt( p, ChatColor.WHITE + "Player        : " + ChatColor.YELLOW + MotD2ndLine.get( 2 ), consolePrintFlag );
-        Minecraft.Prt( p, ChatColor.WHITE + "Player Count  : " + ChatColor.YELLOW + MotD2ndLine.get( 3 ), consolePrintFlag );
-        Minecraft.Prt( p, ChatColor.WHITE + "Alive         : " + ChatColor.YELLOW + MotD2ndLine.get( 4 ), consolePrintFlag );
-        Minecraft.Prt( p, ChatColor.GREEN + "==================================", consolePrintFlag );
+        Utility.consoleMode consolePrintFlag = ( ( p == null ) ? Utility.consoleMode.none:Utility.consoleMode.max );
+        Tools.Prt( p, ChatColor.GREEN + "=== LoginControl MotD Messages ===", consolePrintFlag );
+        Tools.Prt( p, ChatColor.WHITE + "Ping Count : " + ChatColor.YELLOW + String.valueOf( MotD_Count ), consolePrintFlag );
+        Tools.Prt( p, ChatColor.WHITE + "Max Count  : " + ChatColor.YELLOW + String.valueOf( MotD_MaxCount ), consolePrintFlag );
+        Tools.Prt( p, ChatColor.WHITE + "MotD Message:", consolePrintFlag );
+        Tools.Prt( p, ChatColor.WHITE + "1st Line : " + ChatColor.YELLOW + MotD1stLine.replace( "\n", "*" ), consolePrintFlag );
+        Tools.Prt( p, ChatColor.WHITE + "2nd Line:", consolePrintFlag );
+        Tools.Prt( p, ChatColor.WHITE + "Unknown       : " + ChatColor.YELLOW + MotD2ndLine.get( 0 ), consolePrintFlag );
+        Tools.Prt( p, ChatColor.WHITE + "Unknown Count : " + ChatColor.YELLOW + MotD2ndLine.get( 1 ), consolePrintFlag );
+        Tools.Prt( p, ChatColor.WHITE + "Player        : " + ChatColor.YELLOW + MotD2ndLine.get( 2 ), consolePrintFlag );
+        Tools.Prt( p, ChatColor.WHITE + "Player Count  : " + ChatColor.YELLOW + MotD2ndLine.get( 3 ), consolePrintFlag );
+        Tools.Prt( p, ChatColor.WHITE + "Alive         : " + ChatColor.YELLOW + MotD2ndLine.get( 4 ), consolePrintFlag );
+        Tools.Prt( p, ChatColor.GREEN + "==================================", consolePrintFlag );
     }
 }

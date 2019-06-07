@@ -24,7 +24,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import com.mycompany.kumaisulibraries.Utility;
 import com.mycompany.kumaisulibraries.InetCalc;
-import com.mycompany.kumaisulibraries.Minecraft;
+import com.mycompany.logincontrol.tool.Tools;
 
 /**
  * 主にmySQLとの通信を司るライブラリ
@@ -111,10 +111,10 @@ public class StatusRecord {
      */
     @SuppressWarnings("CallToPrintStackTrace")
     public void LogPrint( Player player, int lines, boolean FullFlag, List Ignore ) {
-        boolean consolePrint = ( player == null );
+        Utility.consoleMode consolePrint = ( ( player == null ) ? Utility.consoleMode.none : Utility.consoleMode.stop );
         boolean hasPermission = ( ( player == null ) || player.isOp() || player.hasPermission( "LoginCtl.view" ) );
 
-        Minecraft.Prt( player, "== Login List ==", consolePrint );
+        Tools.Prt( player, "== Login List ==", consolePrint );
 
         try {
             openConnection();
@@ -131,13 +131,13 @@ public class StatusRecord {
                 if ( rs.getInt( "status" ) != 0 || hasPermission ) {
                     if ( ( !Ignore.contains( GetName ) || hasPermission ) && ( !chk_name.equals( GetName ) || FullFlag ) ) {
                         i++;
-                        Minecraft.Prt( player, LinePrt( player, rs, hasPermission ),  consolePrint );
+                        Tools.Prt( player, LinePrt( player, rs, hasPermission ),  consolePrint );
                         chk_name = GetName;
                     }
                 }
             }
 
-            Minecraft.Prt( player, "================", consolePrint );
+            Tools.Prt( player, "================", consolePrint );
 
         } catch ( ClassNotFoundException | SQLException e ) {
             e.printStackTrace();
@@ -159,14 +159,14 @@ public class StatusRecord {
     public boolean exLogPrint( Player player, String checkString, boolean FullFlag, List ignoreName, List ignoreIP, int PrtMode, int lines )  {
         String sqlCmd;
         String checkName = "";
-        boolean consolePrint = ( player == null );
-        boolean isOP = ( consolePrint ? true:player.isOp() );
+        Utility.consoleMode consolePrint = ( ( player == null ) ? Utility.consoleMode.none : Utility.consoleMode.stop );
+        boolean isOP = ( ( player == null ) ? true:player.isOp() );
 
         String titleMessage = ChatColor.WHITE + "== [" + checkString + "] Login List ==";
         if ( PrtMode == 3 && isOP ) {
             titleMessage += ChatColor.YELLOW + " [" + GetHost( checkString ) + "]";
         }
-        Minecraft.Prt( player, titleMessage, consolePrint );
+        Tools.Prt( player, titleMessage, consolePrint );
 
         switch( PrtMode ) {
             case 1:
@@ -210,7 +210,7 @@ public class StatusRecord {
 
                     if ( checkPrint || FullFlag ) {
                         loopCount++;
-                        Minecraft.Prt( player, LinePrt( player, rs ), consolePrint );
+                        Tools.Prt( player, LinePrt( player, rs ), consolePrint );
 
                         switch( PrtMode ) {
                             case 1:
@@ -228,10 +228,10 @@ public class StatusRecord {
                 }
             }
 
-            Minecraft.Prt( player, "================", consolePrint );
+            Tools.Prt( player, "================", consolePrint );
 
         } catch ( ClassNotFoundException | SQLException e ) {
-            Bukkit.getServer().getConsoleSender().sendMessage( "[LoginControl] Error exLogPrint" );
+            Tools.Prt( "Error exLogPrint" );
             return false;
         }
         return true;
@@ -264,11 +264,10 @@ public class StatusRecord {
      * 同一IPアドレスで別名のログインがあるかのチェックを行う
      *
      * @param player    結果を表示するプレイヤー
-     * @param Debug     コンソール表示するか？
      * @throws UnknownHostException
      */
     @SuppressWarnings( "CallToPrintStackTrace" )
-    public void listCheckIP( Player player, boolean Debug ) throws UnknownHostException {
+    public void listCheckIP( Player player ) throws UnknownHostException {
         List<String> PrtData;
         PrtData = new ArrayList<>();
         List<String> NameData;
@@ -305,8 +304,12 @@ public class StatusRecord {
 
         PrtData.stream().forEach( PD -> {
             String msg = PD;
-            Minecraft.Prt( ( ( NameData.size() > 1 ) ? player:null ), msg, Debug );
-            Bukkit.getOnlinePlayers().stream().filter( ( p ) -> ( ( player != p ) && ( p.hasPermission( "LoginCtl.view" ) || p.isOp() ) ) ).forEachOrdered( ( p ) -> { p.sendMessage( msg ); } );
+            Tools.Prt( ( ( NameData.size() > 1 ) ? player:null ), msg, Utility.consoleMode.normal );
+            Bukkit.getOnlinePlayers().stream().filter( ( p ) -> (
+                ( player != p ) && ( p.hasPermission( "LoginCtl.view" ) || p.isOp() ) ) ).forEachOrdered( ( p ) -> {
+                    Tools.Prt( p, msg, Utility.consoleMode.max );
+                }
+            );
         } );
     }
 
@@ -325,7 +328,7 @@ public class StatusRecord {
             preparedStatement.executeUpdate();
 
         } catch ( ClassNotFoundException | SQLException e ) {
-            Bukkit.getServer().getConsoleSender().sendMessage( "[LoginControl] Error ChangeStatus" );
+            Tools.Prt( "Error ChangeStatus" );
         }
     }
 
@@ -362,7 +365,7 @@ public class StatusRecord {
             preparedStatement.executeUpdate();
 
         } catch ( ClassNotFoundException | SQLException e ) {
-            Bukkit.getServer().getConsoleSender().sendMessage( "[LoginControl] Error PreSavePlayer" );
+            Tools.Prt( "Error PreSavePlayer" );
         }
     }
 
@@ -427,10 +430,9 @@ public class StatusRecord {
      * IPアドレスからホスト名を取得、接続国を特定する
      *
      * @param IP
-     * @param Debug
      * @return
      */
-    public String GetLocale( String IP, boolean Debug ) {
+    public String GetLocale( String IP ) {
         try {
             openConnection();
             Statement stmt = connection.createStatement();
@@ -438,15 +440,15 @@ public class StatusRecord {
             ResultSet rs = stmt.executeQuery( sql );
             if ( rs.next() ) {
                 String HostName = rs.getString( "host" );
-                if ( Debug ) Bukkit.getServer().getConsoleSender().sendMessage( Utility.StringBuild( "GetHostName = ", HostName ) );
+                Tools.Prt( Utility.StringBuild( "GetHostName = ", HostName ), Utility.consoleMode.normal );
                 String[] item = HostName.split( "\\.", 0 );
                 for( int i=0; i<item.length; i++ ){
-                    if ( Debug ) Bukkit.getServer().getConsoleSender().sendMessage( i + " : " + item[i] );
+                    Tools.Prt( i + " : " + item[i], Utility.consoleMode.normal );
                 }
                 return item[ item.length - 1 ].toUpperCase();
             }
         } catch ( ClassNotFoundException | SQLException e ) {
-            Bukkit.getServer().getConsoleSender().sendMessage( "[LoginControl] Error GetLocale" );
+            Tools.Prt( "Error GetLocale" );
         }
         return "JP";
     }
@@ -472,7 +474,7 @@ public class StatusRecord {
             preparedStatement.executeUpdate();
 
         } catch ( ClassNotFoundException | SQLException e ) {
-            Bukkit.getServer().getConsoleSender().sendMessage( "[LoginControl] Error AddHostToSQL" );
+            Tools.Prt( "Error AddHostToSQL" );
         }
     }
 
@@ -490,7 +492,7 @@ public class StatusRecord {
             preparedStatement.executeUpdate();
             return true;
         } catch ( ClassNotFoundException | SQLException e ) {
-            Bukkit.getServer().getConsoleSender().sendMessage( "[LoginControl] Error DelHostFromSQL" );
+            Tools.Prt( "Error DelHostFromSQL" );
             return false;
         }
     }
@@ -509,7 +511,7 @@ public class StatusRecord {
             ResultSet rs = stmt.executeQuery( sql );
             if ( rs.next() ) return rs.getString( "host" );
         } catch ( ClassNotFoundException | SQLException e ) {
-            Bukkit.getServer().getConsoleSender().sendMessage( "[LoginControl] Error GetUnknownHost" );
+            Tools.Prt( "Error GetUnknownHost" );
         }
         return "Unknown";
     }
@@ -521,32 +523,34 @@ public class StatusRecord {
      * @param word
      */
     public void SearchHost( Player p, String word ) {
+        Utility.consoleMode consolePrint = ( ( p == null ) ? Utility.consoleMode.none : Utility.consoleMode.stop );
+
         try {
             openConnection();
             Statement stmt = connection.createStatement();
             String sql = "SELECT * FROM hosts WHERE host LIKE '%" + word + "%' ORDER BY ip DESC;";
             ResultSet rs = stmt.executeQuery( sql );
 
-            Minecraft.Prt( p, Utility.StringBuild( ChatColor.YELLOW.toString(), "Search host [", word, "]..." ), ( p == null ) );
+            Tools.Prt( p, Utility.StringBuild( ChatColor.YELLOW.toString(), "Search host [", word, "]..." ), consolePrint );
 
             int DataNum = 0;
             while( rs.next() ) {
                 DataNum++;
-                Minecraft.Prt( p,
+                Tools.Prt( p,
                     Utility.StringBuild(
                         ChatColor.WHITE.toString(), String.valueOf( DataNum ), ":",
                         ChatColor.GRAY.toString(), rs.getString( "host" ),
                         ChatColor.GREEN.toString(), "(", String.valueOf( rs.getInt( "count" ) ), ")",
                         ChatColor.YELLOW.toString(), "[", InetCalc.toInetAddress( rs.getLong( "ip" ) ), "]",
                         ChatColor.WHITE.toString(), sdf.format( rs.getTimestamp( "lastdate" ) )
-                    ), ( p == null )
+                    ), consolePrint
                 );
             }
 
-            if ( DataNum == 0 ) Minecraft.Prt( p, Utility.StringBuild( ChatColor.RED.toString(), "No data for [", word, "]" ), ( p == null ) );
+            if ( DataNum == 0 ) Tools.Prt( p, Utility.StringBuild( ChatColor.RED.toString(), "No data for [", word, "]" ), consolePrint );
 
         } catch ( ClassNotFoundException | SQLException e ) {
-            Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "[LoginControl] Search Error" );
+            Tools.Prt( ChatColor.RED + "Search Error" );
         }
     }
 
@@ -554,17 +558,16 @@ public class StatusRecord {
      * クマイス鯖専用関数、特定のホスト名を決め打ちのホスト名に変換
      *
      * @param hostName  チェックするホスト名
-     * @param debug     コンソール表示
      * @return
      */
-    public String changeHostName( String hostName, boolean debug ) {
+    public String changeHostName( String hostName ) {
         if ( hostName.contains( "gae.google" ) ) { hostName = "gae.googleusercontent.com"; }
         if ( hostName.contains( "bbtec.net" ) ) { hostName = "softbank.bbtec.net"; }
         if ( hostName.contains( "ec2" ) ) {
             String[] NameItem = hostName.split( "\\.", 0 );
             StringBuilder buf = new StringBuilder();
             for( int i = 1; i < NameItem.length; i++ ){
-                if ( debug ) Bukkit.getServer().getConsoleSender().sendMessage( i + " : " + NameItem[i] );
+                Tools.Prt( i + " : " + NameItem[i], Utility.consoleMode.full );
                 if( i != 1 ) buf.append( "." );
                 buf.append( NameItem[i] );
             }
@@ -579,7 +582,8 @@ public class StatusRecord {
      * @param p
      */
     public void convertHostName( Player p ) {
-        Minecraft.Prt( p, ChatColor.YELLOW + "Kumaisu Data Converter Execute", ( p == null ) );
+        Utility.consoleMode consolePrint = ( ( p == null ) ? Utility.consoleMode.none : Utility.consoleMode.stop );
+        Tools.Prt( p, ChatColor.YELLOW + "Kumaisu Data Converter Execute", consolePrint );
         try {
             openConnection();
             Statement stmt = connection.createStatement();
@@ -588,17 +592,17 @@ public class StatusRecord {
 
             while( rs.next() ) {
                 String orgHostName = rs.getString( "host" );
-                String getHostName = changeHostName( orgHostName, false );
+                String getHostName = changeHostName( orgHostName );
                 if ( !orgHostName.equals( getHostName ) ) {
-                    Bukkit.getServer().getConsoleSender().sendMessage( "Change " + orgHostName + " to " + getHostName );
+                    Tools.Prt( "Change " + orgHostName + " to " + getHostName );
                     String chg_sql = "UPDATE hosts SET host = '" + getHostName + "' WHERE ip = " + rs.getLong( "ip" ) + ";";
                     PreparedStatement preparedStatement = connection.prepareStatement( chg_sql );
                     preparedStatement.executeUpdate();
                 }
             }
-            Minecraft.Prt( p, ChatColor.YELLOW + "Convert Finished", ( p == null ) );
+            Tools.Prt( p, ChatColor.YELLOW + "Convert Finished", consolePrint );
         } catch ( ClassNotFoundException | SQLException e ) {
-            Bukkit.getServer().getConsoleSender().sendMessage( "[LoginControl] HostName Convert Error" );
+            Tools.Prt( "HostName Convert Error" );
         }
     }
 
@@ -608,12 +612,11 @@ public class StatusRecord {
      *
      * @param IP
      * @param CheckFlag
-     * @param Debug
      * @return
      * @throws UnknownHostException
      */
-    public String getUnknownHost( String IP, boolean CheckFlag, boolean Debug ) throws UnknownHostException {
-        Bukkit.getServer().getConsoleSender().sendMessage( Utility.StringBuild( ChatColor.RED.toString(), "[LC] Unknown New Record : ", ChatColor.AQUA.toString(), IP ) );
+    public String getUnknownHost( String IP, boolean CheckFlag ) throws UnknownHostException {
+        Tools.Prt( Utility.StringBuild( ChatColor.RED.toString(), "Unknown New Record : ", ChatColor.AQUA.toString(), IP ) );
         String HostName = "Unknown(IP)";
         if ( CheckFlag ) {
             Inet4Address inet = ( Inet4Address ) Inet4Address.getByName( IP );
@@ -622,13 +625,13 @@ public class StatusRecord {
 
         //  クマイス鯖特有の特別処理
         if ( Kumaisu ) {
-            if ( Debug ) Bukkit.getServer().getConsoleSender().sendMessage( Utility.StringBuild( ChatColor.GREEN.toString(), "[LC] Original Hostname = ", ChatColor.AQUA.toString(), HostName ) );
-            HostName = changeHostName( HostName, Debug );
+            Tools.Prt( Utility.StringBuild( ChatColor.GREEN.toString(), "Original Hostname = ", ChatColor.AQUA.toString(), HostName ), Utility.consoleMode.full );
+            HostName = changeHostName( HostName );
         }
 
         if ( HostName.length()>60 ) { HostName = String.format( "%-60s", HostName ); }
 
-        Bukkit.getServer().getConsoleSender().sendMessage( Utility.StringBuild( ChatColor.GREEN.toString(), "[LC] Change Hostname = ", ChatColor.AQUA.toString(), HostName ) );
+        Tools.Prt( Utility.StringBuild( ChatColor.GREEN.toString(), "Change Hostname = ", ChatColor.AQUA.toString(), HostName ), Utility.consoleMode.normal );
         AddHostToSQL( IP, HostName );
         return HostName;
     }
@@ -663,7 +666,7 @@ public class StatusRecord {
             UKData.save( UKfile );
         }
         catch ( IOException e ) {
-            Bukkit.getServer().getConsoleSender().sendMessage( Utility.StringBuild( ChatColor.RED.toString(), "Could not save UnknownIP File." ) );
+            Tools.Prt( Utility.StringBuild( ChatColor.RED.toString(), "Could not save UnknownIP File." ) );
             return false;
         }
 
@@ -696,7 +699,7 @@ public class StatusRecord {
                 }
             }
         } catch ( SQLException e ) {
-            Bukkit.getServer().getConsoleSender().sendMessage( "SQLException:" + e.getMessage() );
+            Tools.Prt( "SQLException:" + e.getMessage() );
         }
         return "";
     }
@@ -782,12 +785,12 @@ public class StatusRecord {
                 preparedStatement.executeUpdate();
                 return true;
             } else {
-                Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "could not get " + IP );
+                Tools.Prt( ChatColor.RED + "could not get " + IP );
             }
         } catch ( ClassNotFoundException | SQLException e ) {
-            Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "[LoginControl] Change Database Error [" + IP + "][" + Hostname + "]" );
+            Tools.Prt( ChatColor.RED + "Change Database Error [" + IP + "][" + Hostname + "]" );
             //  エラー詳細ログの表示
-            Bukkit.getServer().getConsoleSender().sendMessage( e.getMessage() );
+            Tools.Prt( e.getMessage() );
         }
         return false;
     }
@@ -799,6 +802,7 @@ public class StatusRecord {
      * @param IP
      */
     public void infoUnknownHost( Player p, String IP ) {
+        Utility.consoleMode consolePrint = ( ( p == null ) ? Utility.consoleMode.none : Utility.consoleMode.stop );
         try {
             openConnection();
             Statement stmt = connection.createStatement();
@@ -806,19 +810,19 @@ public class StatusRecord {
             ResultSet rs = stmt.executeQuery( sql );
 
             if ( rs.next() ) {
-                Minecraft.Prt( p, ChatColor.YELLOW + "Check Unknown IP Information.......", ( p == null ) );
-                Minecraft.Prt( p, ChatColor.GREEN + "IP Address  : " + ChatColor.WHITE + InetCalc.toInetAddress( rs.getLong( "ip" ) ), ( p == null ) );
-                Minecraft.Prt( p, ChatColor.GREEN + "Host Name   : " + ChatColor.WHITE + rs.getString( "host" ), ( p == null ) );
-                Minecraft.Prt( p, ChatColor.GREEN + "AccessCount : " + ChatColor.WHITE + String.valueOf( rs.getInt( "count" ) ), ( p == null ) );
-                Minecraft.Prt( p, ChatColor.GREEN + "First Date  : " + ChatColor.WHITE + sdf.format( rs.getTimestamp( "newdate" ) ), ( p == null ) );
-                Minecraft.Prt( p, ChatColor.GREEN + "Last Date   : " + ChatColor.WHITE + sdf.format( rs.getTimestamp( "lastdate" ) ), ( p == null ) );
+                Tools.Prt( p, ChatColor.YELLOW + "Check Unknown IP Information.......", consolePrint );
+                Tools.Prt( p, ChatColor.GREEN + "IP Address  : " + ChatColor.WHITE + InetCalc.toInetAddress( rs.getLong( "ip" ) ), consolePrint );
+                Tools.Prt( p, ChatColor.GREEN + "Host Name   : " + ChatColor.WHITE + rs.getString( "host" ), consolePrint );
+                Tools.Prt( p, ChatColor.GREEN + "AccessCount : " + ChatColor.WHITE + String.valueOf( rs.getInt( "count" ) ), consolePrint );
+                Tools.Prt( p, ChatColor.GREEN + "First Date  : " + ChatColor.WHITE + sdf.format( rs.getTimestamp( "newdate" ) ), consolePrint );
+                Tools.Prt( p, ChatColor.GREEN + "Last Date   : " + ChatColor.WHITE + sdf.format( rs.getTimestamp( "lastdate" ) ), consolePrint );
             } else {
-                Minecraft.Prt( p, ChatColor.RED + "No data for [" + IP + "]", ( p == null ) );
+                Tools.Prt( p, ChatColor.RED + "No data for [" + IP + "]", consolePrint );
             }
         } catch ( ClassNotFoundException | SQLException e ) {
-            Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "[LoginControl] Error Information" );
+            Tools.Prt( ChatColor.RED + "Error Information" );
             //  エラー詳細ログの表示
-            Bukkit.getServer().getConsoleSender().sendMessage( e.getMessage() );
+            Tools.Prt( e.getMessage() );
         }
     }
 
@@ -829,7 +833,8 @@ public class StatusRecord {
      * @param Lines 表示する順位の人数
      */
     public void PingTop( Player p, int Lines ) {
-        Minecraft.Prt( p, ChatColor.GREEN + "== Ping Count Top " + Lines + " ==", ( p == null ) );
+        Utility.consoleMode consolePrint = ( ( p == null ) ? Utility.consoleMode.none : Utility.consoleMode.stop );
+        Tools.Prt( p, ChatColor.GREEN + "== Ping Count Top " + Lines + " ==", consolePrint );
 
         try {
             openConnection();
@@ -845,23 +850,23 @@ public class StatusRecord {
 
                 if ( !chk_name.equals( GetName ) ) {
                     i++;
-                    Minecraft.Prt( p, 
+                    Tools.Prt( p, 
                         Utility.StringBuild(
                             ChatColor.AQUA.toString(), String.format( "%5d", rs.getInt("count" ) ), ": ",
                             ChatColor.YELLOW.toString(), String.format( "%-15s", InetCalc.toInetAddress( rs.getLong( "ip" ) ) ),
                             ChatColor.WHITE.toString(), String.format( "%-40s", rs.getString( "host" ) ),
                             ChatColor.WHITE.toString(), sdf.format( rs.getTimestamp( "lastdate" ) )
-                        ), ( p == null )
+                        ), consolePrint
                     );
                     chk_name = GetName;
                 }
             }
 
-            Minecraft.Prt( p, ChatColor.GREEN + "================", ( p == null ) );
+            Tools.Prt( p, ChatColor.GREEN + "================", consolePrint );
         } catch ( ClassNotFoundException | SQLException e ) {
-            Bukkit.getServer().getConsoleSender().sendMessage( ChatColor.RED + "Error Pingtop Listing ..." );
+            Tools.Prt( ChatColor.RED + "Error Pingtop Listing ..." );
             //  エラー詳細ログの表示
-            Bukkit.getServer().getConsoleSender().sendMessage( e.getMessage() );
+            Tools.Prt( e.getMessage() );
         }
     }
 }

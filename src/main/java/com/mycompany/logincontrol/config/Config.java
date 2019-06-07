@@ -1,7 +1,7 @@
 /*
  *  Copyright (c) 2018 sugichan. All rights reserved.
  */
-package com.mycompany.logincontrol;
+package com.mycompany.logincontrol.config;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +10,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import com.mycompany.kumaisulibraries.Utility;
-import com.mycompany.kumaisulibraries.Minecraft;
+import com.mycompany.logincontrol.tool.Tools;
 
 /**
  * 設定ファイルを読み込む
@@ -42,11 +42,11 @@ public class Config {
     private List<String> IgnoreReportName;
     private List<String> IgnoreReportIP;
 
-    private Utility.consoleMode DebugFlag;
+    public static Utility.consoleMode DebugFlag = Utility.consoleMode.none;
 
     public Config(Plugin plugin) {
         this.plugin = plugin;
-        plugin.getLogger().info( "Config Loading now..." );
+        Tools.Prt( "Config Loading now..." );
         load();
     }
 
@@ -57,7 +57,7 @@ public class Config {
         // 設定ファイルを保存
         plugin.saveDefaultConfig();
         if (config != null) { // configが非null == リロードで呼び出された
-            plugin.getLogger().info( "Config Reloading now..." );
+            Tools.Prt( "Config Reloading now..." );
             plugin.reloadConfig();
         }
         config = plugin.getConfig();
@@ -87,49 +87,40 @@ public class Config {
         try {
             DebugFlag = Utility.consoleMode.valueOf( config.getString( "Debug" ) );
         } catch( IllegalArgumentException e ) {
-            Minecraft.Prt( null, ChatColor.RED + "Config Debugモードの指定値が不正なので、normal設定にしました", true );
+            Tools.Prt( ChatColor.RED + "Config Debugモードの指定値が不正なので、normal設定にしました" );
             DebugFlag = Utility.consoleMode.normal;
         }
     }
 
     public void Status( Player p ) {
-        boolean consolePrintFlag = ( p == null );
-        Minecraft.Prt( p, ChatColor.GREEN + "=== LoginContrl Status ===", consolePrintFlag );
-        Minecraft.Prt( p, ChatColor.WHITE + "Degub Mode : " + ChatColor.YELLOW + DebugFlag.toString(), consolePrintFlag );
-        Minecraft.Prt( p, ChatColor.WHITE + "Mysql : " + ChatColor.YELLOW + host + ":" + port, consolePrintFlag );
-        Minecraft.Prt( p, ChatColor.WHITE + "DB Name : " + ChatColor.YELLOW + database, consolePrintFlag );
-        Minecraft.Prt( p, ChatColor.WHITE + "FirstJump : " + ChatColor.YELLOW + ( ( JumpStats ) ? "True":"None" ), consolePrintFlag );
+        Utility.consoleMode consolePrintFlag = ( ( p == null ) ? Utility.consoleMode.none:Utility.consoleMode.stop );
+        Tools.Prt( p, ChatColor.GREEN + "=== LoginContrl Status ===", consolePrintFlag );
+        Tools.Prt( p, ChatColor.WHITE + "Degub Mode : " + ChatColor.YELLOW + DebugFlag.toString(), consolePrintFlag );
+        Tools.Prt( p, ChatColor.WHITE + "Mysql : " + ChatColor.YELLOW + host + ":" + port, consolePrintFlag );
+        Tools.Prt( p, ChatColor.WHITE + "DB Name : " + ChatColor.YELLOW + database, consolePrintFlag );
+        Tools.Prt( p, ChatColor.WHITE + "FirstJump : " + ChatColor.YELLOW + ( ( JumpStats ) ? "True":"None" ), consolePrintFlag );
         if ( JumpStats ) {
-            Minecraft.Prt( p, ChatColor.WHITE + "  world:" + ChatColor.YELLOW + fworld, consolePrintFlag );
-            Minecraft.Prt( p, ChatColor.WHITE + "  x:" + ChatColor.YELLOW + String.valueOf( fx ), consolePrintFlag );
-            Minecraft.Prt( p, ChatColor.WHITE + "  y:" + ChatColor.YELLOW + String.valueOf( fy ), consolePrintFlag );
-            Minecraft.Prt( p, ChatColor.WHITE + "  z:" + ChatColor.YELLOW + String.valueOf( fz ), consolePrintFlag );
-            Minecraft.Prt( p, ChatColor.WHITE + "  p:" + ChatColor.YELLOW + String.valueOf( fpitch ), consolePrintFlag );
-            Minecraft.Prt( p, ChatColor.WHITE + "  y:" + ChatColor.YELLOW + String.valueOf( fyaw ), consolePrintFlag );
+            Tools.Prt( p, ChatColor.WHITE + "  world:" + ChatColor.YELLOW + fworld, consolePrintFlag );
+            Tools.Prt( p, ChatColor.WHITE + "  x:" + ChatColor.YELLOW + String.valueOf( fx ), consolePrintFlag );
+            Tools.Prt( p, ChatColor.WHITE + "  y:" + ChatColor.YELLOW + String.valueOf( fy ), consolePrintFlag );
+            Tools.Prt( p, ChatColor.WHITE + "  z:" + ChatColor.YELLOW + String.valueOf( fz ), consolePrintFlag );
+            Tools.Prt( p, ChatColor.WHITE + "  p:" + ChatColor.YELLOW + String.valueOf( fpitch ), consolePrintFlag );
+            Tools.Prt( p, ChatColor.WHITE + "  y:" + ChatColor.YELLOW + String.valueOf( fyaw ), consolePrintFlag );
         }
-        Minecraft.Prt( p, ChatColor.WHITE + "Present Items", consolePrintFlag );
+        Tools.Prt( p, ChatColor.WHITE + "Present Items", consolePrintFlag );
         present.stream().forEach( pr -> {
             String[] itemdata = pr.split( ",", 0 );
-            Minecraft.Prt( p, ChatColor.YELLOW + " - " + itemdata[0] + "(" + itemdata[1] + ")", consolePrintFlag );
+            Tools.Prt( p, ChatColor.YELLOW + " - " + itemdata[0] + "(" + itemdata[1] + ")", consolePrintFlag );
         } );
 
-        Minecraft.Prt( p, ChatColor.WHITE + "Ignore Names", consolePrintFlag );
-        IgnoreReportName.stream().forEach( IRN -> { Minecraft.Prt( p, ChatColor.YELLOW + " - " + IRN, consolePrintFlag ); } );
+        Tools.Prt( p, ChatColor.WHITE + "Ignore Names", consolePrintFlag );
+        IgnoreReportName.stream().forEach( IRN -> { Tools.Prt( p, ChatColor.YELLOW + " - " + IRN, consolePrintFlag ); } );
 
-        Minecraft.Prt( p, ChatColor.WHITE + "Ignore IPs", consolePrintFlag );
-        IgnoreReportIP.stream().forEach( IRI -> { Minecraft.Prt( p, ChatColor.YELLOW + " - " + IRI, consolePrintFlag ); } );
+        Tools.Prt( p, ChatColor.WHITE + "Ignore IPs", consolePrintFlag );
+        IgnoreReportIP.stream().forEach( IRI -> { Tools.Prt( p, ChatColor.YELLOW + " - " + IRI, consolePrintFlag ); } );
 
-        Minecraft.Prt( p, ChatColor.WHITE + "Unknown IP Check : " + ChatColor.YELLOW + ( CheckIPAddress ? "True":"False" ), consolePrintFlag );
-        Minecraft.Prt( p, ChatColor.GREEN + "==========================", consolePrintFlag );
-    }
-
-    /**
-     * DebugMode を数値で受け取る
-     *
-     * @return 
-     */
-    public Utility.consoleMode getDebug() {
-        return DebugFlag;
+        Tools.Prt( p, ChatColor.WHITE + "Unknown IP Check : " + ChatColor.YELLOW + ( CheckIPAddress ? "True":"False" ), consolePrintFlag );
+        Tools.Prt( p, ChatColor.GREEN + "==========================", consolePrintFlag );
     }
 
     /**
@@ -144,16 +135,6 @@ public class Config {
         } catch( IllegalArgumentException e ) {
             DebugFlag = Utility.consoleMode.none;
         }
-    }
-
-    /**
-     * keyに対して、設定されているDebugMode下での可否判定を返す
-     *
-     * @param key
-     * @return 
-     */
-    public boolean isDebugFlag( Utility.consoleMode key ) {
-        return ( DebugFlag.ordinal() >= key.ordinal() );
     }
 
     public String getHost() {

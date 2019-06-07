@@ -34,7 +34,8 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import com.mycompany.kumaisulibraries.Utility;
-import com.mycompany.kumaisulibraries.Minecraft;
+import com.mycompany.logincontrol.config.Config;
+import com.mycompany.logincontrol.tool.Tools;
 
 /**
  *
@@ -51,7 +52,7 @@ public class LoginControl extends JavaPlugin implements Listener {
     public void onEnable() {
         this.getServer().getPluginManager().registerEvents( this, this );
         config = new Config( this );
-        MotData = new MotDControl( this, config );
+        MotData = new MotDControl( this );
         StatRec = new StatusRecord( config.getHost(), config.getDatabase(), config.getPort(), config.getUsername(), config.getPassword(), config.getKumaisu() );
     }
 
@@ -73,7 +74,7 @@ public class LoginControl extends JavaPlugin implements Listener {
      */
     @EventHandler
     public void prePlayerLogin( AsyncPlayerPreLoginEvent event ) {
-        Minecraft.Prt( "PrePlayerLogin process", config.isDebugFlag( Utility.consoleMode.full ) );
+        Tools.Prt( "PrePlayerLogin process", Utility.consoleMode.full );
         date = new Date();
         StatRec.listPreSave( date, event.getName(), event.getUniqueId().toString(), event.getAddress().getHostAddress(), 0 );
         StatRec.AddPlayerToSQL( event.getAddress().getHostAddress(), event.getName() );
@@ -89,27 +90,27 @@ public class LoginControl extends JavaPlugin implements Listener {
     @EventHandler
     public void onPlayerLogin( PlayerJoinEvent event ) throws UnknownHostException {
 
-        Minecraft.Prt( "onPlayerLogin process", config.isDebugFlag( Utility.consoleMode.full ) );
+        Tools.Prt( "onPlayerLogin process", Utility.consoleMode.full );
         event.setJoinMessage( null );
         Player player = event.getPlayer();
         StatRec.listChangeStatus( date, 1 );
         StatRec.LogPrint( player, 5, false, config.getIgnoreName() );
         StatRec.AddCountHost( player.getAddress().getHostString(), -1 );
-        StatRec.listCheckIP( player, config.isDebugFlag( Utility.consoleMode.normal ) );
+        StatRec.listCheckIP( player );
 
         if ( !player.hasPlayedBefore() || config.OpJump( player.isOp() ) ) {
             // Utility.Prt( null, ChatColor.LIGHT_PURPLE + "The First Login Player", true );
-            Minecraft.Prt( ChatColor.LIGHT_PURPLE + "The First Login Player", config.isDebugFlag( Utility.consoleMode.none ) );
+            Tools.Prt( ChatColor.LIGHT_PURPLE + "The First Login Player", Utility.consoleMode.none );
 
             List<String> present = config.getPresent();
             present.stream().forEach( PR -> {
                 String[] itemdata = PR.split( ",", 0 );
                 player.getInventory().addItem( new ItemStack( Material.getMaterial( itemdata[0] ), Integer.parseInt( itemdata[1] ) ) );
-                Minecraft.Prt( ChatColor.AQUA + "Present Item : " + ChatColor.WHITE + itemdata[0] + "(" + itemdata[1] + ")", config.isDebugFlag( Utility.consoleMode.full ) );
+                Tools.Prt( ChatColor.AQUA + "Present Item : " + ChatColor.WHITE + itemdata[0] + "(" + itemdata[1] + ")", Utility.consoleMode.full );
             } );
 
             if ( config.getJump() ) {
-                Minecraft.Prt( "This player is first play to teleport", config.isDebugFlag( Utility.consoleMode.normal ) );
+                Tools.Prt( "This player is first play to teleport", Utility.consoleMode.normal );
                 World world = getWorld( config.getWorld() );
                 Location loc = new Location( world, config.getX(), config.getY(), config.getZ() );
                 loc.setPitch( config.getPitch() );
@@ -118,21 +119,21 @@ public class LoginControl extends JavaPlugin implements Listener {
             }
 
             if( config.NewJoin() ) {
-                String msg = StatRec.GetLocale( player.getAddress().getHostString(), config.isDebugFlag( Utility.consoleMode.normal ) );
-                Minecraft.Prt( "Player host = " + player.getAddress().getHostString(), config.isDebugFlag( Utility.consoleMode.normal ) );
-                Minecraft.Prt( "Get Locale = " + msg, config.isDebugFlag( Utility.consoleMode.normal ) );
+                String msg = StatRec.GetLocale( player.getAddress().getHostString() );
+                Tools.Prt( "Player host = " + player.getAddress().getHostString(), Utility.consoleMode.normal );
+                Tools.Prt( "Get Locale = " + msg, Utility.consoleMode.normal );
                 Bukkit.broadcastMessage( Utility.ReplaceString( config.NewJoinMessage( msg ), player.getDisplayName() ) );
             }
 
         } else {
-            Minecraft.Prt( "The Repeat Login Player", config.isDebugFlag( Utility.consoleMode.none ) );
+            Tools.Prt( "The Repeat Login Player", Utility.consoleMode.none );
             if( config.ReturnJoin() && !player.hasPermission( "LoginCtl.silentjoin" ) ) {
-                Bukkit.broadcastMessage( Utility.ReplaceString( config.ReturnJoinMessage( StatRec.GetLocale( player.getAddress().getHostString(), config.isDebugFlag( Utility.consoleMode.full ) ) ), player.getDisplayName() ) );
+                Bukkit.broadcastMessage( Utility.ReplaceString( config.ReturnJoinMessage( StatRec.GetLocale( player.getAddress().getHostString() ) ), player.getDisplayName() ) );
             }
         }
 
         if ( config.Announce() ) {
-            player.sendMessage( Utility.ReplaceString( config.AnnounceMessage(), player.getDisplayName() ).split( "/n" ) );
+            Tools.Prt( player, Utility.ReplaceString( config.AnnounceMessage(), player.getDisplayName() ), Utility.consoleMode.max );
         }
     }
 
@@ -178,7 +179,7 @@ public class LoginControl extends JavaPlugin implements Listener {
                 //  DBに該当なしなので、DB登録
                 //  ホスト名が取得できなかった場合は、Unknown Player を File に記録し、新規登録
                 MsgColor = ChatColor.RED.toString();
-                Host = StatRec.getUnknownHost( event.getAddress().getHostAddress(), config.getCheckIP(), config.isDebugFlag( Utility.consoleMode.full ) );
+                Host = StatRec.getUnknownHost( event.getAddress().getHostAddress(), config.getCheckIP() );
                 //  新規ホストとして、Unknown.yml ファイルへ書き出し
                 StatRec.WriteFileUnknown( event.getAddress().getHostAddress(), this.getDataFolder().toString() );
             } else {
@@ -213,10 +214,10 @@ public class LoginControl extends JavaPlugin implements Listener {
                 //  False : 最後にカウントされた日を指定
                 Motd2ndLine = Motd2ndLine.replace( "%date", StatRec.getDateHost( event.getAddress().getHostAddress(), true ) );
                 MotdMsg = Utility.StringBuild( MotdMsg, Motd2ndLine );
-                Minecraft.Prt( Utility.StringBuild( "MotD = ", Utility.ReplaceString( Motd2ndLine, Names ) ), config.isDebugFlag( Utility.consoleMode.full ) );
+                Tools.Prt( Utility.StringBuild( "MotD = ", Utility.ReplaceString( Motd2ndLine, Names ) ), Utility.consoleMode.full );
             } else {
                 MotdMsg = Motd2ndLine;
-                Minecraft.Prt( Utility.StringBuild( "Change = ", Utility.ReplaceString( Motd2ndLine.replace( "\n", " " ), Names ) ), config.isDebugFlag( Utility.consoleMode.full ) );
+                Tools.Prt( Utility.StringBuild( "Change = ", Utility.ReplaceString( Motd2ndLine.replace( "\n", " " ), Names ) ), Utility.consoleMode.full );
             }
 
         } else {
@@ -228,7 +229,7 @@ public class LoginControl extends JavaPlugin implements Listener {
         // event.getNumPlayers().set( 30 );
 
         String msg = Utility.StringBuild( ChatColor.GREEN.toString(), "Ping from ", MsgColor, Host, ChatColor.YELLOW.toString(), " [", event.getAddress().getHostAddress(), "]" );
-        Minecraft.Prt( msg, config.isDebugFlag( PrtStatus ) );
+        Tools.Prt( msg, PrtStatus );
         Bukkit.getOnlinePlayers().stream().filter( ( p ) -> ( p.hasPermission( "LoginCtl.view" ) || p.isOp() ) ).forEachOrdered( ( p ) -> { p.sendMessage( msg ); } );
     }
 
@@ -246,8 +247,7 @@ public class LoginControl extends JavaPlugin implements Listener {
         boolean FullFlag = false;
         int lineSet = 30;
         Player p = ( sender instanceof Player ) ? ( Player )sender:( Player )null;
-        boolean checkConsoleFlag;
-        checkConsoleFlag = ( config.isDebugFlag( Utility.consoleMode.normal ) || ( p == null ) );
+        Utility.consoleMode checkConsoleFlag = ( ( p == null ) ? Utility.consoleMode.none : Utility.consoleMode.stop );
 
         if ( cmd.getName().toLowerCase().equalsIgnoreCase( "flight" ) ) {
             if ( p == null ) return false;
@@ -260,7 +260,7 @@ public class LoginControl extends JavaPlugin implements Listener {
                         FlightMode( p, false );
                         break;
                     default:
-                        Minecraft.Prt( p, ChatColor.GREEN + "Fly (on/off)", config.isDebugFlag( Utility.consoleMode.normal ) );
+                        Tools.Prt( p, ChatColor.GREEN + "Fly (on/off)", Utility.consoleMode.normal );
                 }
             }
             return true;
@@ -293,11 +293,11 @@ public class LoginControl extends JavaPlugin implements Listener {
                         }
                         break;
                     case "full":
-                        Minecraft.Prt( p, Utility.ReplaceString( config.LogFull() ),config.isDebugFlag( Utility.consoleMode.full ) );
+                        Tools.Prt( p, Utility.ReplaceString( config.LogFull() ), Utility.consoleMode.full );
                         FullFlag = true;
                         break;
                     default:
-                        Minecraft.Prt( p, Utility.ReplaceString( config.ArgsErr() ),config.isDebugFlag( Utility.consoleMode.full ) );
+                        Tools.Prt( p, Utility.ReplaceString( config.ArgsErr() ), Utility.consoleMode.full );
                         return false;
                 }
             }
@@ -312,7 +312,7 @@ public class LoginControl extends JavaPlugin implements Listener {
                     StatRec.exLogPrint( p, Param, FullFlag, config.getIgnoreName(), config.getIgnoreIP(), PrtF, lineSet );
                     break;
                 default:
-                    Minecraft.Prt( p, Utility.ReplaceString( config.OptError() ),config.isDebugFlag( Utility.consoleMode.full ) );
+                    Tools.Prt( p, Utility.ReplaceString( config.OptError() ), Utility.consoleMode.full );
                     return false;
             }
             return true;
@@ -322,10 +322,10 @@ public class LoginControl extends JavaPlugin implements Listener {
             if ( args.length > 0 ) {
                 try {
                     String msg = "Check Ping is " + StatRec.ping( args[0] );
-                    Minecraft.Prt( p, msg, checkConsoleFlag );
+                    Tools.Prt( p, msg, checkConsoleFlag );
                     return true;
                 } catch ( UnknownHostException ex ) {
-                    Minecraft.Prt( p, ChatColor.RED + "Ping Unknown Host.", checkConsoleFlag );
+                    Tools.Prt( p, ChatColor.RED + "Ping Unknown Host.", checkConsoleFlag );
                 }
             }
         }
@@ -343,7 +343,7 @@ public class LoginControl extends JavaPlugin implements Listener {
             switch ( CtlCmd ) {
                 case "reload":
                     config = new Config( this );
-                    Minecraft.Prt( p, Utility.ReplaceString( config.Reload() ), checkConsoleFlag );
+                    Tools.Prt( p, Utility.ReplaceString( config.Reload() ), checkConsoleFlag );
                     return true;
                 case "status":
                     config.Status( p );
@@ -357,15 +357,15 @@ public class LoginControl extends JavaPlugin implements Listener {
                             StatRec.infoUnknownHost( p, IP );
                         }
                     } else {
-                        Minecraft.Prt( p, ChatColor.RED + "Hostname is limited to 60 characters", checkConsoleFlag );
+                        Tools.Prt( p, ChatColor.RED + "Hostname is limited to 60 characters", checkConsoleFlag );
                     }
                     break;
                 case "info":
                     if ( !IP.equals( "" ) ) {
-                        Minecraft.Prt( p, "Check Unknown IP Information [" + IP + "]", checkConsoleFlag );
+                        Tools.Prt( p, "Check Unknown IP Information [" + IP + "]", checkConsoleFlag );
                         StatRec.infoUnknownHost( p, IP );
                     } else {
-                        Minecraft.Prt( p, ChatColor.RED + "usage: info IPAddress", checkConsoleFlag );
+                        Tools.Prt( p, ChatColor.RED + "usage: info IPAddress", checkConsoleFlag );
                     }
                     break;
                 case "add":
@@ -374,14 +374,14 @@ public class LoginControl extends JavaPlugin implements Listener {
                             if ( !HostName.equals( "" ) ) {
                                 StatRec.AddHostToSQL( IP, HostName );
                             } else {
-                                Minecraft.Prt( p, ChatColor.RED + " Host name is required", checkConsoleFlag );
+                                Tools.Prt( p, ChatColor.RED + " Host name is required", checkConsoleFlag );
                             }
                         } else {
-                            Minecraft.Prt( p, ChatColor.RED + IP + " is already exists", checkConsoleFlag );
+                            Tools.Prt( p, ChatColor.RED + IP + " is already exists", checkConsoleFlag );
                         }
                         StatRec.infoUnknownHost( p, IP );
                     } else {
-                        Minecraft.Prt( p, ChatColor.RED + "usage: add IPAddress [HostName]", checkConsoleFlag );
+                        Tools.Prt( p, ChatColor.RED + "usage: add IPAddress [HostName]", checkConsoleFlag );
                     }
                     break;
                 case "del":
@@ -391,9 +391,9 @@ public class LoginControl extends JavaPlugin implements Listener {
                         } else {
                             msg = ChatColor.RED + "Failed to Delete Data [";
                         }
-                        Minecraft.Prt( p, msg + IP + "]", checkConsoleFlag );
+                        Tools.Prt( p, msg + IP + "]", checkConsoleFlag );
                     } else {
-                        Minecraft.Prt( p, ChatColor.RED + "usage: del IPAddress", checkConsoleFlag );
+                        Tools.Prt( p, ChatColor.RED + "usage: del IPAddress", checkConsoleFlag );
                     }
                     break;
                 case "count":
@@ -403,7 +403,7 @@ public class LoginControl extends JavaPlugin implements Listener {
                         try {
                             StatRec.AddCountHost( IP, Integer.parseInt( HostName ) );
                         } catch ( UnknownHostException ex ) {
-                            Minecraft.Prt( p, ChatColor.RED + ex.getMessage(), checkConsoleFlag );
+                            Tools.Prt( p, ChatColor.RED + ex.getMessage(), checkConsoleFlag );
                         }
 
                         StatRec.infoUnknownHost( p, IP );
@@ -413,7 +413,7 @@ public class LoginControl extends JavaPlugin implements Listener {
                     if ( !IP.equals( "" ) ) {
                         StatRec.SearchHost( p, IP );
                     } else {
-                        Minecraft.Prt( p, ChatColor.RED + "usage: search word", checkConsoleFlag );
+                        Tools.Prt( p, ChatColor.RED + "usage: search word", checkConsoleFlag );
                     }
                     break;
                 case "pingtop":
@@ -421,7 +421,7 @@ public class LoginControl extends JavaPlugin implements Listener {
                     try {
                         PTLines = Integer.parseInt( IP );
                     } catch ( NumberFormatException e ) {
-                        Minecraft.Prt( p, ChatColor.RED + "Please specify an integer", checkConsoleFlag );
+                        Tools.Prt( p, ChatColor.RED + "Please specify an integer", checkConsoleFlag );
                         PTLines = 10;
                     }
                     if ( PTLines < 1 ) { PTLines = 10; }
@@ -429,16 +429,16 @@ public class LoginControl extends JavaPlugin implements Listener {
                     break;
                 case "CheckIP":
                     config.setCheckIP( !config.getCheckIP() );
-                    Minecraft.Prt( p,
+                    Tools.Prt( p,
                         ChatColor.GREEN + "Unknown IP Address Check Change to " +
                         ChatColor.YELLOW + ( config.getCheckIP() ? "True":"False" ), checkConsoleFlag
                     );
                     break;
                 case "Console":
                     config.setDebug( IP );
-                    Minecraft.Prt( p,
+                    Tools.Prt( p,
                         ChatColor.GREEN + "System Debug Mode is [ " +
-                        ChatColor.RED + config.getDebug().toString() +
+                        ChatColor.RED + Config.DebugFlag +
                         ChatColor.GREEN + " ]", checkConsoleFlag
                     );
                     break;
@@ -486,19 +486,19 @@ public class LoginControl extends JavaPlugin implements Listener {
     @EventHandler
     public void onPlayerDeath( PlayerDeathEvent event ) {
         if ( config.DeathMessageFlag() ) {
-            Minecraft.Prt( Utility.StringBuild( "DeathMessage: ", event.getDeathMessage() ), config.isDebugFlag( Utility.consoleMode.full ) );
-            Minecraft.Prt( Utility.StringBuild( "DisplayName : ", event.getEntity().getDisplayName() ), config.isDebugFlag( Utility.consoleMode.full ) );
+            Tools.Prt( Utility.StringBuild( "DeathMessage: ", event.getDeathMessage() ), Utility.consoleMode.full );
+            Tools.Prt( Utility.StringBuild( "DisplayName : ", event.getEntity().getDisplayName() ), Utility.consoleMode.full );
             if ( event.getEntity().getLastDamageCause() instanceof EntityDamageByEntityEvent ) {
                 EntityDamageByEntityEvent lastcause = ( EntityDamageByEntityEvent ) event.getEntity().getLastDamageCause();
                 Entity entity = lastcause.getDamager();
-                Minecraft.Prt( Utility.StringBuild( "Killer Name : ", entity.getName() ), config.isDebugFlag( Utility.consoleMode.full ) );
+                Tools.Prt( Utility.StringBuild( "Killer Name : ", entity.getName() ), Utility.consoleMode.full );
                 String msg = config.DeathMessage( entity.getName().toUpperCase() );
                 msg = Utility.ReplaceString( msg, event.getEntity().getDisplayName() );
                 msg = msg.replace( "%mob%", entity.getName() );
                 //event.setDeathMessage( null );
                 Bukkit.broadcastMessage( msg );
             } else {
-                Minecraft.Prt( "Other Death", config.isDebugFlag( Utility.consoleMode.normal ) );
+                Tools.Prt( "Other Death", Utility.consoleMode.normal );
                 Bukkit.broadcastMessage(
                     Utility.StringBuild(
                         ChatColor.YELLOW.toString(), "[天の声] ",
@@ -520,12 +520,12 @@ public class LoginControl extends JavaPlugin implements Listener {
      */
     public void FlightMode( Player p, boolean flag ) {
         if ( flag ) {
-            Minecraft.Prt( p, Utility.StringBuild( ChatColor.AQUA.toString(), "You can FLY !!" ), config.isDebugFlag( Utility.consoleMode.normal ) );
+            Tools.Prt( p, Utility.StringBuild( ChatColor.AQUA.toString(), "You can FLY !!" ), Utility.consoleMode.normal );
             // 飛行許可
             p.setAllowFlight( true );
             p.setFlySpeed( 0.1F );
         } else {
-            Minecraft.Prt( p, Utility.StringBuild( ChatColor.LIGHT_PURPLE.toString(), "Stop your FLY Mode." ), config.isDebugFlag( Utility.consoleMode.normal ) );
+            Tools.Prt( p, Utility.StringBuild( ChatColor.LIGHT_PURPLE.toString(), "Stop your FLY Mode." ), Utility.consoleMode.normal );
             // 無効化
             p.setFlying( false );
             p.setAllowFlight( false );

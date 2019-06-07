@@ -3,9 +3,8 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.mycompany.kumaisulibraries;
+package com.mycompany.logincontrol.tool;
 
-import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
@@ -16,43 +15,65 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.meta.FireworkMeta;
+import com.mycompany.kumaisulibraries.Utility;
+import com.mycompany.logincontrol.config.Config;
 
 /**
  *
  * @author sugichan
  */
-public final class Minecraft {
+public final class Tools {
+
+    /**
+     * keyに対して、設定されているDebugMode下での可否判定を返す
+     *
+     * @param key
+     * @return 
+     */
+    public static boolean isDebugFlag( Utility.consoleMode key ) {
+        return ( Config.DebugFlag.ordinal() >= key.ordinal() );
+    }
 
     /**
      * メッセージ表示
      * @param player    表示するプレイヤー
      * @param msg       表示内容
-     * @param console   システムコンソールに表示するか？
+     * @param key       システムコンソールに表示するか？
      */
-    public static void Prt( Player player, String msg, boolean console ) {
-        if ( console ) Bukkit.getServer().getConsoleSender().sendMessage( msg );
-        if ( player != null ) player.sendMessage( msg );
+    public static void Prt( Player player, String msg, Utility.consoleMode key ) {
+        if ( isDebugFlag( key ) ) {
+            String printString = Utility.StringBuild( ChatColor.YELLOW.toString(), "(LC:", key.toString(), ") " );
+            if ( player != null ) { printString = Utility.StringBuild( printString, player.getDisplayName(), " " ); }
+            printString = Utility.StringBuild( printString, ChatColor.WHITE.toString(), msg );
+            Bukkit.getServer().getConsoleSender().sendMessage( printString );
+        }
+        if ( player != null ) player.sendMessage( msg.split( "/n" ) );
     }
 
-    public static void Prt( String msg )                { Prt( ( Player ) null, msg, true ); }
-    public static void Prt( String msg, boolean Flag )  { Prt( ( Player ) null, msg, Flag ); }
-    public static void Prt( Player player, String msg ) { Prt( player, msg, ( player == null ) ); }
+    public static void Prt( String msg ) {
+        Prt( ( Player ) null, msg, Utility.consoleMode.none );
+    }
+
+    public static void Prt( String msg, Utility.consoleMode key ) {
+        Prt( ( Player ) null, msg, key );
+    }
+
+    public static void Prt( Player player, String msg ) {
+        Prt( player, msg, ( ( player == null ) ? Utility.consoleMode.none:Utility.consoleMode.stop ) );
+    }
 
     /**
      * Config.ymlで指定されたコンソールコマンドを実行する
      *
      * @param player
+     * @param ExecCommand
      * @param Message
-     * @param command
      */
-    public static void ExecOtherCommand( Player player, String Message, List< String > command ) {
-        for( int i = 0; i<command.size(); i++ ) {
-            String ExecCommand = command.get( i );
-            ExecCommand = ExecCommand.replace( "%message%", Message );
-            ExecCommand = ExecCommand.replace( "%player%", player.getDisplayName() );
-            Prt( ChatColor.WHITE + String.valueOf( i ) + ") : " + ChatColor.YELLOW + ExecCommand );
-            Bukkit.getServer().dispatchCommand( Bukkit.getConsoleSender(), ExecCommand );
-        }
+    public static void ExecOtherCommand( Player player, String ExecCommand, String Message ) {
+        ExecCommand = ExecCommand.replace( "%message%", Message );
+        ExecCommand = ExecCommand.replace( "%player%", player.getDisplayName() );
+        Prt( ChatColor.WHITE + "Command Exec : " + ChatColor.YELLOW + ExecCommand );
+        Bukkit.getServer().dispatchCommand( Bukkit.getConsoleSender(), ExecCommand );
     }
 
     /**
