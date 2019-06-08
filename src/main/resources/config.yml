@@ -1,12 +1,13 @@
 #LoginControl Config
 
-#Kumaisu Setting
+#   Kumaisu Setting
+#   クマイス鯖独自の動作設定
 Kumaisu: false
 
-#   Debug ( full / Default:normal / none )
+#   Debug ( max / full / Default:normal / none )
 Debug: normal
 
-#MySQL Settings
+#   MySQL Settings
 mysql:
   host: localhost
   port: 3306
@@ -14,16 +15,25 @@ mysql:
   username: root
   password: password
 
-#Ignore Report
+#   Ignore Report
+#   一般へのリスト表示禁止
 Ignore-Names:
     - Kumaisu
 Ignore-IP:
     - 127.0.0.0
 
 #   Unknown IP Address Check Flag
+#   ネットワークDNSからの名前解決を実施するか
 CheckIP: false
 
-#First Login TP
+#   Ping Alarm Count
+#   規定カウントを越えた場合にアラーム警告
+#   ゼロならば動作しない
+#   Debugの設定に関わらず表示する
+AlarmCount: 5000
+
+#   First Login TP
+#   初期ログインに関する対応設定
 OpJump: false
 FirstPoint: false
 world: world
@@ -33,7 +43,8 @@ z: 0
 pitch: 0
 yaw: 0
 
-#Present Items
+#   Present Items
+#   初期ログイン者へのプレゼント設定
 Present:
     - BED,1
     - BREAD,32

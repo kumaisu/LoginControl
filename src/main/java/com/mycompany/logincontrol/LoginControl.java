@@ -194,6 +194,7 @@ public class LoginControl extends JavaPlugin implements Listener {
                     MsgColor = ChatColor.LIGHT_PURPLE.toString();
                 }
             }
+
             StatRec.AddCountHost( event.getAddress().getHostAddress(), 0 );
 
             int count = StatRec.GetcountHosts( event.getAddress().getHostAddress() );
@@ -219,6 +220,8 @@ public class LoginControl extends JavaPlugin implements Listener {
                 MotdMsg = Motd2ndLine;
                 Tools.Prt( Utility.StringBuild( "Change = ", Utility.ReplaceString( Motd2ndLine.replace( "\n", " " ), Names ) ), Utility.consoleMode.full );
             }
+
+            if ( ( Config.AlarmCount != 0 ) && ( count >= Config.AlarmCount ) ) { PrtStatus = Utility.consoleMode.none; }
 
         } else {
             //  Configに既知のホスト登録があった場合

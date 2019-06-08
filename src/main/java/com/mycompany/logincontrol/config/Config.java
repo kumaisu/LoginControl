@@ -42,6 +42,7 @@ public class Config {
     private List<String> IgnoreReportName;
     private List<String> IgnoreReportIP;
 
+    public static int AlarmCount;
     public static Utility.consoleMode DebugFlag = Utility.consoleMode.none;
 
     public Config(Plugin plugin) {
@@ -83,6 +84,7 @@ public class Config {
         IgnoreReportName = config.getStringList( "Ignore-Names" );
         IgnoreReportIP = config.getStringList( "Ignore-IP" );
         CheckIPAddress = config.getBoolean( "CheckIP" );
+        AlarmCount = config.getInt( "AlarmCount" );
 
         try {
             DebugFlag = Utility.consoleMode.valueOf( config.getString( "Debug" ) );
