@@ -100,7 +100,7 @@ public class LoginControl extends JavaPlugin implements Listener {
 
         if ( !player.hasPlayedBefore() || config.OpJump( player.isOp() ) ) {
             // Utility.Prt( null, ChatColor.LIGHT_PURPLE + "The First Login Player", true );
-            Tools.Prt( ChatColor.LIGHT_PURPLE + "The First Login Player", Utility.consoleMode.none );
+            Tools.Prt( ChatColor.LIGHT_PURPLE + "The First Login Player", Utility.consoleMode.normal );
 
             List<String> present = config.getPresent();
             present.stream().forEach( PR -> {
@@ -126,7 +126,7 @@ public class LoginControl extends JavaPlugin implements Listener {
             }
 
         } else {
-            Tools.Prt( "The Repeat Login Player", Utility.consoleMode.none );
+            Tools.Prt( "The Repeat Login Player", Utility.consoleMode.normal );
             if( config.ReturnJoin() && !player.hasPermission( "LoginCtl.silentjoin" ) ) {
                 Bukkit.broadcastMessage( Utility.ReplaceString( config.ReturnJoinMessage( StatRec.GetLocale( player.getAddress().getHostString() ) ), player.getDisplayName() ) );
             }
