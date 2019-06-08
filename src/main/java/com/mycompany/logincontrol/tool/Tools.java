@@ -40,6 +40,7 @@ public final class Tools {
      * @param msg       表示内容
      * @param key       システムコンソールに表示するか？
      */
+    @SuppressWarnings( "deprecation" )
     public static void Prt( Player player, String msg, Utility.consoleMode key ) {
         if ( isDebugFlag( key ) ) {
             String printString = Utility.StringBuild( ChatColor.YELLOW.toString(), "(LC:", key.toString(), ") " );

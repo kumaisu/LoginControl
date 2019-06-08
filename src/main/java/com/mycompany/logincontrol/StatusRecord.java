@@ -443,7 +443,7 @@ public class StatusRecord {
                 Tools.Prt( Utility.StringBuild( "GetHostName = ", HostName ), Utility.consoleMode.normal );
                 String[] item = HostName.split( "\\.", 0 );
                 for( int i=0; i<item.length; i++ ){
-                    Tools.Prt( i + " : " + item[i], Utility.consoleMode.normal );
+                    Tools.Prt( i + " : " + item[i], Utility.consoleMode.full );
                 }
                 return item[ item.length - 1 ].toUpperCase();
             }
@@ -567,7 +567,7 @@ public class StatusRecord {
             String[] NameItem = hostName.split( "\\.", 0 );
             StringBuilder buf = new StringBuilder();
             for( int i = 1; i < NameItem.length; i++ ){
-                Tools.Prt( i + " : " + NameItem[i], Utility.consoleMode.full );
+                Tools.Prt( String.format( "%2d : %s", i, NameItem[i] ), Utility.consoleMode.full );
                 if( i != 1 ) buf.append( "." );
                 buf.append( NameItem[i] );
             }
@@ -850,7 +850,7 @@ public class StatusRecord {
 
                 if ( !chk_name.equals( GetName ) ) {
                     i++;
-                    Tools.Prt( p, 
+                    Tools.Prt( p,
                         Utility.StringBuild(
                             ChatColor.AQUA.toString(), String.format( "%5d", rs.getInt("count" ) ), ": ",
                             ChatColor.YELLOW.toString(), String.format( "%-15s", InetCalc.toInetAddress( rs.getLong( "ip" ) ) ), " ",
