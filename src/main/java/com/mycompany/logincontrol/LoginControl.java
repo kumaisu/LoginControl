@@ -34,8 +34,8 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import com.mycompany.logincontrol.config.Config;
-import com.mycompany.logincontrol.tool.Tools;
 import com.mycompany.kumaisulibraries.Utility;
+import com.mycompany.kumaisulibraries.Tools;
 
 /**
  *
@@ -50,6 +50,7 @@ public class LoginControl extends JavaPlugin implements Listener {
 
     @Override
     public void onEnable() {
+        Tools.programCode = "LC";
         this.getServer().getPluginManager().registerEvents( this, this );
         config = new Config( this );
         MotData = new MotDControl( this );
@@ -74,7 +75,7 @@ public class LoginControl extends JavaPlugin implements Listener {
      */
     @EventHandler
     public void prePlayerLogin( AsyncPlayerPreLoginEvent event ) {
-        Tools.Prt( "PrePlayerLogin process", Utility.consoleMode.full );
+        Tools.Prt( "PrePlayerLogin process", Tools.consoleMode.full );
         date = new Date();
         StatRec.listPreSave( date, event.getName(), event.getUniqueId().toString(), event.getAddress().getHostAddress(), 0 );
         StatRec.AddPlayerToSQL( event.getAddress().getHostAddress(), event.getName() );
@@ -90,7 +91,7 @@ public class LoginControl extends JavaPlugin implements Listener {
     @EventHandler
     public void onPlayerLogin( PlayerJoinEvent event ) throws UnknownHostException {
 
-        Tools.Prt( "onPlayerLogin process", Utility.consoleMode.full );
+        Tools.Prt( "onPlayerLogin process", Tools.consoleMode.full );
         event.setJoinMessage( null );
         Player player = event.getPlayer();
         StatRec.listChangeStatus( date, 1 );
@@ -100,17 +101,17 @@ public class LoginControl extends JavaPlugin implements Listener {
 
         if ( !player.hasPlayedBefore() || config.OpJump( player.isOp() ) ) {
             // Utility.Prt( null, ChatColor.LIGHT_PURPLE + "The First Login Player", true );
-            Tools.Prt( ChatColor.LIGHT_PURPLE + "The First Login Player", Utility.consoleMode.normal );
+            Tools.Prt( ChatColor.LIGHT_PURPLE + "The First Login Player", Tools.consoleMode.normal );
 
             List<String> present = config.getPresent();
             present.stream().forEach( PR -> {
                 String[] itemdata = PR.split( ",", 0 );
                 player.getInventory().addItem( new ItemStack( Material.getMaterial( itemdata[0] ), Integer.parseInt( itemdata[1] ) ) );
-                Tools.Prt( ChatColor.AQUA + "Present Item : " + ChatColor.WHITE + itemdata[0] + "(" + itemdata[1] + ")", Utility.consoleMode.full );
+                Tools.Prt( ChatColor.AQUA + "Present Item : " + ChatColor.WHITE + itemdata[0] + "(" + itemdata[1] + ")", Tools.consoleMode.full );
             } );
 
             if ( config.getJump() ) {
-                Tools.Prt( "This player is first play to teleport", Utility.consoleMode.normal );
+                Tools.Prt( "This player is first play to teleport", Tools.consoleMode.normal );
                 World world = getWorld( config.getWorld() );
                 Location loc = new Location( world, config.getX(), config.getY(), config.getZ() );
                 loc.setPitch( config.getPitch() );
@@ -120,20 +121,20 @@ public class LoginControl extends JavaPlugin implements Listener {
 
             if( config.NewJoin() ) {
                 String msg = StatRec.GetLocale( player.getAddress().getHostString() );
-                Tools.Prt( "Player host = " + player.getAddress().getHostString(), Utility.consoleMode.normal );
-                Tools.Prt( "Get Locale = " + msg, Utility.consoleMode.normal );
+                Tools.Prt( "Player host = " + player.getAddress().getHostString(), Tools.consoleMode.normal );
+                Tools.Prt( "Get Locale = " + msg, Tools.consoleMode.normal );
                 Bukkit.broadcastMessage( Utility.ReplaceString( config.NewJoinMessage( msg ), player.getDisplayName() ) );
             }
 
         } else {
-            Tools.Prt( "The Repeat Login Player", Utility.consoleMode.normal );
+            Tools.Prt( "The Repeat Login Player", Tools.consoleMode.normal );
             if( config.ReturnJoin() && !player.hasPermission( "LoginCtl.silentjoin" ) ) {
                 Bukkit.broadcastMessage( Utility.ReplaceString( config.ReturnJoinMessage( StatRec.GetLocale( player.getAddress().getHostString() ) ), player.getDisplayName() ) );
             }
         }
 
         if ( config.Announce() ) {
-            Tools.Prt( player, Utility.ReplaceString( config.AnnounceMessage(), player.getDisplayName() ), Utility.consoleMode.max );
+            Tools.Prt( player, Utility.ReplaceString( config.AnnounceMessage(), player.getDisplayName() ), Tools.consoleMode.max );
         }
     }
 
@@ -165,7 +166,7 @@ public class LoginControl extends JavaPlugin implements Listener {
     public void onServerListPing( ServerListPingEvent event ) throws UnknownHostException, ClassNotFoundException {
         String Names = "Unknown";
         // ConsoleLog Flag 2:Full 1:Normal(Playerのみ)
-	Utility.consoleMode PrtStatus = Utility.consoleMode.full;
+	Tools.consoleMode PrtStatus = Tools.consoleMode.full;
 
         String MotdMsg = MotData.get1stLine();
         String MsgColor = ChatColor.GRAY.toString();
@@ -189,7 +190,7 @@ public class LoginControl extends JavaPlugin implements Listener {
                     //  簡易DNSにプレイヤー登録されている場合は、ログイン履歴を参照して最新のプレイヤー名を取得する
                     Names = StatRec.listGetPlayerName( event.getAddress().getHostAddress() );
                     MsgNum = 2;
-                    PrtStatus = Utility.consoleMode.normal;
+                    PrtStatus = Tools.consoleMode.normal;
                 } else {
                     MsgColor = ChatColor.LIGHT_PURPLE.toString();
                 }
@@ -215,13 +216,13 @@ public class LoginControl extends JavaPlugin implements Listener {
                 //  False : 最後にカウントされた日を指定
                 Motd2ndLine = Motd2ndLine.replace( "%date", StatRec.getDateHost( event.getAddress().getHostAddress(), true ) );
                 MotdMsg = Utility.StringBuild( MotdMsg, Motd2ndLine );
-                Tools.Prt( Utility.StringBuild( "MotD = ", Utility.ReplaceString( Motd2ndLine, Names ) ), Utility.consoleMode.full );
+                Tools.Prt( Utility.StringBuild( "MotD = ", Utility.ReplaceString( Motd2ndLine, Names ) ), Tools.consoleMode.full );
             } else {
                 MotdMsg = Motd2ndLine;
-                Tools.Prt( Utility.StringBuild( "Change = ", Utility.ReplaceString( Motd2ndLine.replace( "\n", " " ), Names ) ), Utility.consoleMode.full );
+                Tools.Prt( Utility.StringBuild( "Change = ", Utility.ReplaceString( Motd2ndLine.replace( "\n", " " ), Names ) ), Tools.consoleMode.full );
             }
 
-            if ( ( Config.AlarmCount != 0 ) && ( count >= Config.AlarmCount ) ) { PrtStatus = Utility.consoleMode.none; }
+            if ( ( Config.AlarmCount != 0 ) && ( count >= Config.AlarmCount ) ) { PrtStatus = Tools.consoleMode.none; }
 
         } else {
             //  Configに既知のホスト登録があった場合
@@ -250,7 +251,7 @@ public class LoginControl extends JavaPlugin implements Listener {
         boolean FullFlag = false;
         int lineSet = 30;
         Player p = ( sender instanceof Player ) ? ( Player )sender:( Player )null;
-        Utility.consoleMode checkConsoleFlag = ( ( p == null ) ? Utility.consoleMode.none : Utility.consoleMode.stop );
+        Tools.consoleMode checkConsoleFlag = ( ( p == null ) ? Tools.consoleMode.none : Tools.consoleMode.stop );
 
         if ( cmd.getName().toLowerCase().equalsIgnoreCase( "flight" ) ) {
             if ( p == null ) return false;
@@ -263,7 +264,7 @@ public class LoginControl extends JavaPlugin implements Listener {
                         FlightMode( p, false );
                         break;
                     default:
-                        Tools.Prt( p, ChatColor.GREEN + "Fly (on/off)", Utility.consoleMode.normal );
+                        Tools.Prt( p, ChatColor.GREEN + "Fly (on/off)", Tools.consoleMode.normal );
                 }
             }
             return true;
@@ -296,11 +297,11 @@ public class LoginControl extends JavaPlugin implements Listener {
                         }
                         break;
                     case "full":
-                        Tools.Prt( p, Utility.ReplaceString( config.LogFull() ), Utility.consoleMode.full );
+                        Tools.Prt( p, Utility.ReplaceString( config.LogFull() ), Tools.consoleMode.full );
                         FullFlag = true;
                         break;
                     default:
-                        Tools.Prt( p, Utility.ReplaceString( config.ArgsErr() ), Utility.consoleMode.full );
+                        Tools.Prt( p, Utility.ReplaceString( config.ArgsErr() ), Tools.consoleMode.full );
                         return false;
                 }
             }
@@ -315,7 +316,7 @@ public class LoginControl extends JavaPlugin implements Listener {
                     StatRec.exLogPrint( p, Param, FullFlag, config.getIgnoreName(), config.getIgnoreIP(), PrtF, lineSet );
                     break;
                 default:
-                    Tools.Prt( p, Utility.ReplaceString( config.OptError() ), Utility.consoleMode.full );
+                    Tools.Prt( p, Utility.ReplaceString( config.OptError() ), Tools.consoleMode.full );
                     return false;
             }
             return true;
@@ -438,10 +439,10 @@ public class LoginControl extends JavaPlugin implements Listener {
                     );
                     break;
                 case "Console":
-                    config.setDebug( IP );
+                    Tools.setDebug( IP );
                     Tools.Prt( p,
                         ChatColor.GREEN + "System Debug Mode is [ " +
-                        ChatColor.RED + Config.DebugFlag +
+                        ChatColor.RED + Tools.DebugFlag +
                         ChatColor.GREEN + " ]", checkConsoleFlag
                     );
                     break;
@@ -489,19 +490,19 @@ public class LoginControl extends JavaPlugin implements Listener {
     @EventHandler
     public void onPlayerDeath( PlayerDeathEvent event ) {
         if ( config.DeathMessageFlag() ) {
-            Tools.Prt( Utility.StringBuild( "DeathMessage: ", event.getDeathMessage() ), Utility.consoleMode.full );
-            Tools.Prt( Utility.StringBuild( "DisplayName : ", event.getEntity().getDisplayName() ), Utility.consoleMode.full );
+            Tools.Prt( Utility.StringBuild( "DeathMessage: ", event.getDeathMessage() ), Tools.consoleMode.full );
+            Tools.Prt( Utility.StringBuild( "DisplayName : ", event.getEntity().getDisplayName() ), Tools.consoleMode.full );
             if ( event.getEntity().getLastDamageCause() instanceof EntityDamageByEntityEvent ) {
                 EntityDamageByEntityEvent lastcause = ( EntityDamageByEntityEvent ) event.getEntity().getLastDamageCause();
                 Entity entity = lastcause.getDamager();
-                Tools.Prt( Utility.StringBuild( "Killer Name : ", entity.getName() ), Utility.consoleMode.full );
+                Tools.Prt( Utility.StringBuild( "Killer Name : ", entity.getName() ), Tools.consoleMode.full );
                 String msg = config.DeathMessage( entity.getName().toUpperCase() );
                 msg = Utility.ReplaceString( msg, event.getEntity().getDisplayName() );
                 msg = msg.replace( "%mob%", entity.getName() );
                 //event.setDeathMessage( null );
                 Bukkit.broadcastMessage( msg );
             } else {
-                Tools.Prt( "Other Death", Utility.consoleMode.normal );
+                Tools.Prt( "Other Death", Tools.consoleMode.normal );
                 Bukkit.broadcastMessage(
                     Utility.StringBuild(
                         ChatColor.YELLOW.toString(), "[天の声] ",
@@ -523,12 +524,12 @@ public class LoginControl extends JavaPlugin implements Listener {
      */
     public void FlightMode( Player p, boolean flag ) {
         if ( flag ) {
-            Tools.Prt( p, Utility.StringBuild( ChatColor.AQUA.toString(), "You can FLY !!" ), Utility.consoleMode.normal );
+            Tools.Prt( p, Utility.StringBuild( ChatColor.AQUA.toString(), "You can FLY !!" ), Tools.consoleMode.normal );
             // 飛行許可
             p.setAllowFlight( true );
             p.setFlySpeed( 0.1F );
         } else {
-            Tools.Prt( p, Utility.StringBuild( ChatColor.LIGHT_PURPLE.toString(), "Stop your FLY Mode." ), Utility.consoleMode.normal );
+            Tools.Prt( p, Utility.StringBuild( ChatColor.LIGHT_PURPLE.toString(), "Stop your FLY Mode." ), Tools.consoleMode.normal );
             // 無効化
             p.setFlying( false );
             p.setAllowFlight( false );

@@ -9,8 +9,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
-import com.mycompany.logincontrol.tool.Tools;
-import com.mycompany.kumaisulibraries.Utility;
+import com.mycompany.kumaisulibraries.Tools;
 
 /**
  * 設定ファイルを読み込む
@@ -43,7 +42,6 @@ public class Config {
     private List<String> IgnoreReportIP;
 
     public static int AlarmCount;
-    public static Utility.consoleMode DebugFlag = Utility.consoleMode.none;
 
     public Config(Plugin plugin) {
         this.plugin = plugin;
@@ -87,17 +85,17 @@ public class Config {
         AlarmCount = config.getInt( "AlarmCount" );
 
         try {
-            DebugFlag = Utility.consoleMode.valueOf( config.getString( "Debug" ) );
+            Tools.DebugFlag = Tools.consoleMode.valueOf( config.getString( "Debug" ) );
         } catch( IllegalArgumentException e ) {
             Tools.Prt( ChatColor.RED + "Config Debugモードの指定値が不正なので、normal設定にしました" );
-            DebugFlag = Utility.consoleMode.normal;
+            Tools.DebugFlag = Tools.consoleMode.normal;
         }
     }
 
     public void Status( Player p ) {
-        Utility.consoleMode consolePrintFlag = ( ( p == null ) ? Utility.consoleMode.none:Utility.consoleMode.stop );
+        Tools.consoleMode consolePrintFlag = ( ( p == null ) ? Tools.consoleMode.none:Tools.consoleMode.stop );
         Tools.Prt( p, ChatColor.GREEN + "=== LoginContrl Status ===", consolePrintFlag );
-        Tools.Prt( p, ChatColor.WHITE + "Degub Mode : " + ChatColor.YELLOW + DebugFlag.toString(), consolePrintFlag );
+        Tools.Prt( p, ChatColor.WHITE + "Degub Mode : " + ChatColor.YELLOW + Tools.DebugFlag.toString(), consolePrintFlag );
         Tools.Prt( p, ChatColor.WHITE + "Mysql : " + ChatColor.YELLOW + host + ":" + port, consolePrintFlag );
         Tools.Prt( p, ChatColor.WHITE + "DB Name : " + ChatColor.YELLOW + database, consolePrintFlag );
         Tools.Prt( p, ChatColor.WHITE + "FirstJump : " + ChatColor.YELLOW + ( ( JumpStats ) ? "True":"None" ), consolePrintFlag );
@@ -123,20 +121,6 @@ public class Config {
 
         Tools.Prt( p, ChatColor.WHITE + "Unknown IP Check : " + ChatColor.YELLOW + ( CheckIPAddress ? "True":"False" ), consolePrintFlag );
         Tools.Prt( p, ChatColor.GREEN + "==========================", consolePrintFlag );
-    }
-
-    /**
-     * 一時的にDebugModeを設定しなおす
-     * ただし、Config.ymlには反映しない
-     *
-     * @param key 
-     */
-    public void setDebug( String key ) {
-        try {
-            DebugFlag = Utility.consoleMode.valueOf( key );
-        } catch( IllegalArgumentException e ) {
-            DebugFlag = Utility.consoleMode.none;
-        }
     }
 
     public String getHost() {

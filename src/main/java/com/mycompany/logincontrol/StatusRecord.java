@@ -22,9 +22,9 @@ import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
-import com.mycompany.logincontrol.tool.Tools;
 import com.mycompany.kumaisulibraries.Utility;
 import com.mycompany.kumaisulibraries.InetCalc;
+import com.mycompany.kumaisulibraries.Tools;
 
 /**
  * 主にmySQLとの通信を司るライブラリ
@@ -111,7 +111,7 @@ public class StatusRecord {
      */
     @SuppressWarnings("CallToPrintStackTrace")
     public void LogPrint( Player player, int lines, boolean FullFlag, List Ignore ) {
-        Utility.consoleMode consolePrint = ( ( player == null ) ? Utility.consoleMode.none : Utility.consoleMode.stop );
+        Tools.consoleMode consolePrint = ( ( player == null ) ? Tools.consoleMode.none : Tools.consoleMode.stop );
         boolean hasPermission = ( ( player == null ) || player.isOp() || player.hasPermission( "LoginCtl.view" ) );
 
         Tools.Prt( player, "== Login List ==", consolePrint );
@@ -159,7 +159,7 @@ public class StatusRecord {
     public boolean exLogPrint( Player player, String checkString, boolean FullFlag, List ignoreName, List ignoreIP, int PrtMode, int lines )  {
         String sqlCmd;
         String checkName = "";
-        Utility.consoleMode consolePrint = ( ( player == null ) ? Utility.consoleMode.none : Utility.consoleMode.stop );
+        Tools.consoleMode consolePrint = ( ( player == null ) ? Tools.consoleMode.none : Tools.consoleMode.stop );
         boolean isOP = ( ( player == null ) ? true:player.isOp() );
 
         String titleMessage = ChatColor.WHITE + "== [" + checkString + "] Login List ==";
@@ -304,10 +304,10 @@ public class StatusRecord {
 
         PrtData.stream().forEach( PD -> {
             String msg = PD;
-            Tools.Prt( ( ( NameData.size() > 1 ) ? player:null ), msg, Utility.consoleMode.normal );
+            Tools.Prt( ( ( NameData.size() > 1 ) ? player:null ), msg, Tools.consoleMode.normal );
             Bukkit.getOnlinePlayers().stream().filter( ( p ) -> (
                 ( player != p ) && ( p.hasPermission( "LoginCtl.view" ) || p.isOp() ) ) ).forEachOrdered( ( p ) -> {
-                    Tools.Prt( p, msg, Utility.consoleMode.max );
+                    Tools.Prt( p, msg, Tools.consoleMode.max );
                 }
             );
         } );
@@ -440,10 +440,10 @@ public class StatusRecord {
             ResultSet rs = stmt.executeQuery( sql );
             if ( rs.next() ) {
                 String HostName = rs.getString( "host" );
-                Tools.Prt( Utility.StringBuild( "GetHostName = ", HostName ), Utility.consoleMode.normal );
+                Tools.Prt( Utility.StringBuild( "GetHostName = ", HostName ), Tools.consoleMode.normal );
                 String[] item = HostName.split( "\\.", 0 );
                 for( int i=0; i<item.length; i++ ){
-                    Tools.Prt( i + " : " + item[i], Utility.consoleMode.full );
+                    Tools.Prt( i + " : " + item[i], Tools.consoleMode.full );
                 }
                 return item[ item.length - 1 ].toUpperCase();
             }
@@ -523,7 +523,7 @@ public class StatusRecord {
      * @param word
      */
     public void SearchHost( Player p, String word ) {
-        Utility.consoleMode consolePrint = ( ( p == null ) ? Utility.consoleMode.none : Utility.consoleMode.stop );
+        Tools.consoleMode consolePrint = ( ( p == null ) ? Tools.consoleMode.none : Tools.consoleMode.stop );
 
         try {
             openConnection();
@@ -567,7 +567,7 @@ public class StatusRecord {
             String[] NameItem = hostName.split( "\\.", 0 );
             StringBuilder buf = new StringBuilder();
             for( int i = 1; i < NameItem.length; i++ ){
-                Tools.Prt( String.format( "%2d : %s", i, NameItem[i] ), Utility.consoleMode.full );
+                Tools.Prt( String.format( "%2d : %s", i, NameItem[i] ), Tools.consoleMode.full );
                 if( i != 1 ) buf.append( "." );
                 buf.append( NameItem[i] );
             }
@@ -582,7 +582,7 @@ public class StatusRecord {
      * @param p
      */
     public void convertHostName( Player p ) {
-        Utility.consoleMode consolePrint = ( ( p == null ) ? Utility.consoleMode.none : Utility.consoleMode.stop );
+        Tools.consoleMode consolePrint = ( ( p == null ) ? Tools.consoleMode.none : Tools.consoleMode.stop );
         Tools.Prt( p, ChatColor.YELLOW + "Kumaisu Data Converter Execute", consolePrint );
         try {
             openConnection();
@@ -625,13 +625,13 @@ public class StatusRecord {
 
         //  クマイス鯖特有の特別処理
         if ( Kumaisu ) {
-            Tools.Prt( Utility.StringBuild( ChatColor.GREEN.toString(), "Original Hostname = ", ChatColor.AQUA.toString(), HostName ), Utility.consoleMode.full );
+            Tools.Prt( Utility.StringBuild( ChatColor.GREEN.toString(), "Original Hostname = ", ChatColor.AQUA.toString(), HostName ), Tools.consoleMode.full );
             HostName = changeHostName( HostName );
         }
 
         if ( HostName.length()>60 ) { HostName = String.format( "%-60s", HostName ); }
 
-        Tools.Prt( Utility.StringBuild( ChatColor.GREEN.toString(), "Change Hostname = ", ChatColor.AQUA.toString(), HostName ), Utility.consoleMode.normal );
+        Tools.Prt( Utility.StringBuild( ChatColor.GREEN.toString(), "Change Hostname = ", ChatColor.AQUA.toString(), HostName ), Tools.consoleMode.normal );
         AddHostToSQL( IP, HostName );
         return HostName;
     }
@@ -802,7 +802,7 @@ public class StatusRecord {
      * @param IP
      */
     public void infoUnknownHost( Player p, String IP ) {
-        Utility.consoleMode consolePrint = ( ( p == null ) ? Utility.consoleMode.none : Utility.consoleMode.stop );
+        Tools.consoleMode consolePrint = ( ( p == null ) ? Tools.consoleMode.none : Tools.consoleMode.stop );
         try {
             openConnection();
             Statement stmt = connection.createStatement();
@@ -833,7 +833,7 @@ public class StatusRecord {
      * @param Lines 表示する順位の人数
      */
     public void PingTop( Player p, int Lines ) {
-        Utility.consoleMode consolePrint = ( ( p == null ) ? Utility.consoleMode.none : Utility.consoleMode.stop );
+        Tools.consoleMode consolePrint = ( ( p == null ) ? Tools.consoleMode.none : Tools.consoleMode.stop );
         Tools.Prt( p, ChatColor.GREEN + "== Ping Count Top " + Lines + " ==", consolePrint );
 
         try {
