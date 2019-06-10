@@ -22,9 +22,9 @@ import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import com.mycompany.logincontrol.tool.Tools;
 import com.mycompany.kumaisulibraries.Utility;
 import com.mycompany.kumaisulibraries.InetCalc;
-import com.mycompany.logincontrol.tool.Tools;
 
 /**
  * 主にmySQLとの通信を司るライブラリ

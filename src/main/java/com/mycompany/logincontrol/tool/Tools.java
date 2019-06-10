@@ -15,8 +15,8 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.meta.FireworkMeta;
-import com.mycompany.kumaisulibraries.Utility;
 import com.mycompany.logincontrol.config.Config;
+import com.mycompany.kumaisulibraries.Utility;
 
 /**
  *
@@ -40,7 +40,6 @@ public final class Tools {
      * @param msg       表示内容
      * @param key       システムコンソールに表示するか？
      */
-    @SuppressWarnings( "deprecation" )
     public static void Prt( Player player, String msg, Utility.consoleMode key ) {
         if ( isDebugFlag( key ) ) {
             String printString = Utility.StringBuild( ChatColor.YELLOW.toString(), "(LC:", key.toString(), ") " );
