@@ -13,8 +13,9 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
-import com.mycompany.kumaisulibraries.Utility;
 import com.mycompany.kumaisulibraries.Tools;
+import com.mycompany.kumaisulibraries.Tools.consoleMode;
+import static com.mycompany.logincontrol.config.Config.programCode;
 
 /**
  * MotDメッセージ関するライブラリ
@@ -146,18 +147,18 @@ public class MotDControl {
      * @param p
      */
     public void getStatus( Player p ) {
-        Tools.consoleMode consolePrintFlag = ( ( p == null ) ? Tools.consoleMode.none:Tools.consoleMode.max );
-        Tools.Prt( p, ChatColor.GREEN + "=== LoginControl MotD Messages ===", consolePrintFlag );
-        Tools.Prt( p, ChatColor.WHITE + "Ping Count : " + ChatColor.YELLOW + String.valueOf( MotD_Count ), consolePrintFlag );
-        Tools.Prt( p, ChatColor.WHITE + "Max Count  : " + ChatColor.YELLOW + String.valueOf( MotD_MaxCount ), consolePrintFlag );
-        Tools.Prt( p, ChatColor.WHITE + "MotD Message:", consolePrintFlag );
-        Tools.Prt( p, ChatColor.WHITE + "1st Line : " + ChatColor.YELLOW + MotD1stLine.replace( "\n", "*" ), consolePrintFlag );
-        Tools.Prt( p, ChatColor.WHITE + "2nd Line:", consolePrintFlag );
-        Tools.Prt( p, ChatColor.WHITE + "Unknown       : " + ChatColor.YELLOW + MotD2ndLine.get( 0 ), consolePrintFlag );
-        Tools.Prt( p, ChatColor.WHITE + "Unknown Count : " + ChatColor.YELLOW + MotD2ndLine.get( 1 ), consolePrintFlag );
-        Tools.Prt( p, ChatColor.WHITE + "Player        : " + ChatColor.YELLOW + MotD2ndLine.get( 2 ), consolePrintFlag );
-        Tools.Prt( p, ChatColor.WHITE + "Player Count  : " + ChatColor.YELLOW + MotD2ndLine.get( 3 ), consolePrintFlag );
-        Tools.Prt( p, ChatColor.WHITE + "Alive         : " + ChatColor.YELLOW + MotD2ndLine.get( 4 ), consolePrintFlag );
-        Tools.Prt( p, ChatColor.GREEN + "==================================", consolePrintFlag );
+        consoleMode consolePrintFlag = ( ( p == null ) ? consoleMode.none:consoleMode.max );
+        Tools.Prt( p, ChatColor.GREEN + "=== LoginControl MotD Messages ===", consolePrintFlag, programCode );
+        Tools.Prt( p, ChatColor.WHITE + "Ping Count : " + ChatColor.YELLOW + String.valueOf( MotD_Count ), consolePrintFlag, programCode );
+        Tools.Prt( p, ChatColor.WHITE + "Max Count  : " + ChatColor.YELLOW + String.valueOf( MotD_MaxCount ), consolePrintFlag, programCode );
+        Tools.Prt( p, ChatColor.WHITE + "MotD Message:", consolePrintFlag, programCode );
+        Tools.Prt( p, ChatColor.WHITE + "1st Line : " + ChatColor.YELLOW + MotD1stLine.replace( "\n", "*" ), consolePrintFlag, programCode );
+        Tools.Prt( p, ChatColor.WHITE + "2nd Line:", consolePrintFlag, programCode );
+        Tools.Prt( p, ChatColor.WHITE + "Unknown       : " + ChatColor.YELLOW + MotD2ndLine.get( 0 ), consolePrintFlag, programCode );
+        Tools.Prt( p, ChatColor.WHITE + "Unknown Count : " + ChatColor.YELLOW + MotD2ndLine.get( 1 ), consolePrintFlag, programCode );
+        Tools.Prt( p, ChatColor.WHITE + "Player        : " + ChatColor.YELLOW + MotD2ndLine.get( 2 ), consolePrintFlag, programCode );
+        Tools.Prt( p, ChatColor.WHITE + "Player Count  : " + ChatColor.YELLOW + MotD2ndLine.get( 3 ), consolePrintFlag, programCode );
+        Tools.Prt( p, ChatColor.WHITE + "Alive         : " + ChatColor.YELLOW + MotD2ndLine.get( 4 ), consolePrintFlag, programCode );
+        Tools.Prt( p, ChatColor.GREEN + "==================================", consolePrintFlag, programCode );
     }
 }

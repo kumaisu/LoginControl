@@ -10,6 +10,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import com.mycompany.kumaisulibraries.Tools;
+import com.mycompany.kumaisulibraries.Tools.consoleMode;
 
 /**
  * 設定ファイルを読み込む
@@ -17,6 +18,8 @@ import com.mycompany.kumaisulibraries.Tools;
  * @author sugichan
  */
 public class Config {
+
+    public static String programCode = "LC";
 
     private final Plugin plugin;
     private FileConfiguration config = null;
@@ -45,7 +48,8 @@ public class Config {
 
     public Config(Plugin plugin) {
         this.plugin = plugin;
-        Tools.Prt( "Config Loading now..." );
+        Tools.entryDebugFlag( programCode, consoleMode.none );
+        Tools.Prt( "Config Loading now...", programCode );
         load();
     }
 
@@ -56,7 +60,7 @@ public class Config {
         // 設定ファイルを保存
         plugin.saveDefaultConfig();
         if (config != null) { // configが非null == リロードで呼び出された
-            Tools.Prt( "Config Reloading now..." );
+            Tools.Prt( "Config Reloading now...", programCode );
             plugin.reloadConfig();
         }
         config = plugin.getConfig();
@@ -84,43 +88,45 @@ public class Config {
         CheckIPAddress = config.getBoolean( "CheckIP" );
         AlarmCount = config.getInt( "AlarmCount" );
 
+        consoleMode DebugFlag;
         try {
-            Tools.DebugFlag = Tools.consoleMode.valueOf( config.getString( "Debug" ) );
+            DebugFlag = consoleMode.valueOf( config.getString( "Debug" ) );
         } catch( IllegalArgumentException e ) {
-            Tools.Prt( ChatColor.RED + "Config Debugモードの指定値が不正なので、normal設定にしました" );
-            Tools.DebugFlag = Tools.consoleMode.normal;
+            Tools.Prt( ChatColor.RED + "Config Debugモードの指定値が不正なので、normal設定にしました", programCode );
+            DebugFlag = consoleMode.normal;
         }
+        Tools.entryDebugFlag( programCode, DebugFlag );
     }
 
     public void Status( Player p ) {
-        Tools.consoleMode consolePrintFlag = ( ( p == null ) ? Tools.consoleMode.none:Tools.consoleMode.stop );
-        Tools.Prt( p, ChatColor.GREEN + "=== LoginContrl Status ===", consolePrintFlag );
-        Tools.Prt( p, ChatColor.WHITE + "Degub Mode : " + ChatColor.YELLOW + Tools.DebugFlag.toString(), consolePrintFlag );
-        Tools.Prt( p, ChatColor.WHITE + "Mysql : " + ChatColor.YELLOW + host + ":" + port, consolePrintFlag );
-        Tools.Prt( p, ChatColor.WHITE + "DB Name : " + ChatColor.YELLOW + database, consolePrintFlag );
-        Tools.Prt( p, ChatColor.WHITE + "FirstJump : " + ChatColor.YELLOW + ( ( JumpStats ) ? "True":"None" ), consolePrintFlag );
+        consoleMode consolePrintFlag = ( ( p == null ) ? consoleMode.none:consoleMode.stop );
+        Tools.Prt( p, ChatColor.GREEN + "=== LoginContrl Status ===", consolePrintFlag, programCode );
+        Tools.Prt( p, ChatColor.WHITE + "Degub Mode : " + ChatColor.YELLOW + Tools.consoleFlag.get( programCode ).toString(), consolePrintFlag, programCode );
+        Tools.Prt( p, ChatColor.WHITE + "Mysql : " + ChatColor.YELLOW + host + ":" + port, consolePrintFlag, programCode );
+        Tools.Prt( p, ChatColor.WHITE + "DB Name : " + ChatColor.YELLOW + database, consolePrintFlag, programCode );
+        Tools.Prt( p, ChatColor.WHITE + "FirstJump : " + ChatColor.YELLOW + ( ( JumpStats ) ? "True":"None" ), consolePrintFlag, programCode );
         if ( JumpStats ) {
-            Tools.Prt( p, ChatColor.WHITE + "  world:" + ChatColor.YELLOW + fworld, consolePrintFlag );
-            Tools.Prt( p, ChatColor.WHITE + "  x:" + ChatColor.YELLOW + String.valueOf( fx ), consolePrintFlag );
-            Tools.Prt( p, ChatColor.WHITE + "  y:" + ChatColor.YELLOW + String.valueOf( fy ), consolePrintFlag );
-            Tools.Prt( p, ChatColor.WHITE + "  z:" + ChatColor.YELLOW + String.valueOf( fz ), consolePrintFlag );
-            Tools.Prt( p, ChatColor.WHITE + "  p:" + ChatColor.YELLOW + String.valueOf( fpitch ), consolePrintFlag );
-            Tools.Prt( p, ChatColor.WHITE + "  y:" + ChatColor.YELLOW + String.valueOf( fyaw ), consolePrintFlag );
+            Tools.Prt( p, ChatColor.WHITE + "  world:" + ChatColor.YELLOW + fworld, consolePrintFlag, programCode );
+            Tools.Prt( p, ChatColor.WHITE + "  x:" + ChatColor.YELLOW + String.valueOf( fx ), consolePrintFlag, programCode );
+            Tools.Prt( p, ChatColor.WHITE + "  y:" + ChatColor.YELLOW + String.valueOf( fy ), consolePrintFlag, programCode );
+            Tools.Prt( p, ChatColor.WHITE + "  z:" + ChatColor.YELLOW + String.valueOf( fz ), consolePrintFlag, programCode );
+            Tools.Prt( p, ChatColor.WHITE + "  p:" + ChatColor.YELLOW + String.valueOf( fpitch ), consolePrintFlag, programCode );
+            Tools.Prt( p, ChatColor.WHITE + "  y:" + ChatColor.YELLOW + String.valueOf( fyaw ), consolePrintFlag, programCode );
         }
-        Tools.Prt( p, ChatColor.WHITE + "Present Items", consolePrintFlag );
+        Tools.Prt( p, ChatColor.WHITE + "Present Items", consolePrintFlag, programCode );
         present.stream().forEach( pr -> {
             String[] itemdata = pr.split( ",", 0 );
-            Tools.Prt( p, ChatColor.YELLOW + " - " + itemdata[0] + "(" + itemdata[1] + ")", consolePrintFlag );
+            Tools.Prt( p, ChatColor.YELLOW + " - " + itemdata[0] + "(" + itemdata[1] + ")", consolePrintFlag, programCode );
         } );
 
-        Tools.Prt( p, ChatColor.WHITE + "Ignore Names", consolePrintFlag );
-        IgnoreReportName.stream().forEach( IRN -> { Tools.Prt( p, ChatColor.YELLOW + " - " + IRN, consolePrintFlag ); } );
+        Tools.Prt( p, ChatColor.WHITE + "Ignore Names", consolePrintFlag, programCode );
+        IgnoreReportName.stream().forEach( IRN -> { Tools.Prt( p, ChatColor.YELLOW + " - " + IRN, consolePrintFlag, programCode ); } );
 
-        Tools.Prt( p, ChatColor.WHITE + "Ignore IPs", consolePrintFlag );
-        IgnoreReportIP.stream().forEach( IRI -> { Tools.Prt( p, ChatColor.YELLOW + " - " + IRI, consolePrintFlag ); } );
+        Tools.Prt( p, ChatColor.WHITE + "Ignore IPs", consolePrintFlag, programCode );
+        IgnoreReportIP.stream().forEach( IRI -> { Tools.Prt( p, ChatColor.YELLOW + " - " + IRI, consolePrintFlag, programCode ); } );
 
-        Tools.Prt( p, ChatColor.WHITE + "Unknown IP Check : " + ChatColor.YELLOW + ( CheckIPAddress ? "True":"False" ), consolePrintFlag );
-        Tools.Prt( p, ChatColor.GREEN + "==========================", consolePrintFlag );
+        Tools.Prt( p, ChatColor.WHITE + "Unknown IP Check : " + ChatColor.YELLOW + ( CheckIPAddress ? "True":"False" ), consolePrintFlag, programCode );
+        Tools.Prt( p, ChatColor.GREEN + "==========================", consolePrintFlag, programCode );
     }
 
     public String getHost() {
