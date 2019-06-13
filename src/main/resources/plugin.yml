@@ -5,6 +5,12 @@ description: login history plugins
 author: Kumaisu
 database: true
 commands:
+    spawn:
+        description: Player Spawn command
+        permission: LoginCtl.spawn
+        permission-message: You do not have permission.
+        default: false
+        usage: /<command>
     flight:
         description: Fly Switch
         permission: LoginCtl.fly

@@ -35,9 +35,10 @@ If you still don't see it, [click here](https://github.com/kumaisu/LoginControl/
 6.同一IPからのアクセスを監視し、プレイヤー名を列挙する機能  
 
 ## Extra function
-1. Flight mode / flight [on / off]
-2. Trash Can Signboard [Trash Can]
-3. Death announcement (incomplete)
+1. World Spawn Teleport  
+2. Flight mode / flight [on / off]  
+3. Trash Can Signboard [Trash Can]  
+4. Death announcement (incomplete)  
   
 1.フライトモード /flight [on/off]  
 2.ゴミ箱看板    [Trash Can]  

@@ -26,6 +26,7 @@ import com.mycompany.kumaisulibraries.Utility;
 import com.mycompany.kumaisulibraries.InetCalc;
 import com.mycompany.kumaisulibraries.Tools;
 import com.mycompany.kumaisulibraries.Tools.consoleMode;
+import com.mycompany.logincontrol.config.Config;
 import static com.mycompany.logincontrol.config.Config.programCode;
 
 /**
@@ -64,11 +65,10 @@ public class StatusRecord {
      * Permission保持者には追加情報も付随する
      *
      * @param player    表示したいプレイヤー
-     * @param hasPermission
      * @param gs        DBから取得したデータ
      * @return          成形されたメッセージ
      */
-    public String LinePrt( Player player, ResultSet gs, boolean hasPermission ) {
+    public String LinePrt( Player player, ResultSet gs ) {
         String message = "";
         try {
             message = Utility.StringBuild( message,
@@ -76,7 +76,7 @@ public class StatusRecord {
                     ChatColor.GREEN.toString(), sdf.format( gs.getTimestamp( "date" ) ), " "
             );
 
-            if ( hasPermission ) {
+            if ( ( player == null ) || player.isOp() || player.hasPermission( "LoginCtl.view" ) ) {
                 message = Utility.StringBuild( message,
                         ChatColor.YELLOW.toString(), "[", String.format( "%-15s", InetCalc.toInetAddress( gs.getLong( "ip" ) ) ), "] "
                 );
@@ -86,9 +86,8 @@ public class StatusRecord {
 
             if ( player == null ) {
                 message = Utility.StringBuild( message,
-                    String.format( "%-20s", gs.getString( "name" ) ),
-                    ( gs.getInt( "status" )==0 ? ChatColor.RED.toString():ChatColor.WHITE.toString() ), " [",
-                    GetHost( InetCalc.toInetAddress( gs.getLong( "ip" ) ) ), "]"
+                    ( gs.getInt( "status" )==0 ? ChatColor.RED.toString():ChatColor.AQUA.toString() ),
+                    GetHost( InetCalc.toInetAddress( gs.getLong( "ip" ) ) )
                 );
             } else {
                 message = Utility.StringBuild( message, gs.getString( "name" ) );
@@ -99,20 +98,15 @@ public class StatusRecord {
         return message;
     }
 
-    public String LinePrt( Player player, ResultSet gs ) {
-        return LinePrt( player, gs, ( ( player == null ) || player.isOp() || player.hasPermission( "LoginCtl.view" ) ) );
-    }
-
     /**
      * 直近のログインプレイヤーリストを表示する関数
      *
      * @param player    表示するプレイヤー
      * @param lines     リストに表示する人数（過去lines人分)
      * @param FullFlag  重複ログインを省略しないか？
-     * @param Ignore    Ignoreに記録されていプレイヤーを表示するか？
      */
     @SuppressWarnings("CallToPrintStackTrace")
-    public void LogPrint( Player player, int lines, boolean FullFlag, List Ignore ) {
+    public void LogPrint( Player player, int lines, boolean FullFlag ) {
         consoleMode consolePrint = ( ( player == null ) ? consoleMode.none : consoleMode.stop );
         boolean hasPermission = ( ( player == null ) || player.isOp() || player.hasPermission( "LoginCtl.view" ) );
 
@@ -131,9 +125,9 @@ public class StatusRecord {
                 String GetName = rs.getString( "name" );
 
                 if ( rs.getInt( "status" ) != 0 || hasPermission ) {
-                    if ( ( !Ignore.contains( GetName ) || hasPermission ) && ( !chk_name.equals( GetName ) || FullFlag ) ) {
+                    if ( ( !Config.IgnoreReportName.contains( GetName ) || hasPermission ) && ( !chk_name.equals( GetName ) || FullFlag ) ) {
                         i++;
-                        Tools.Prt( player, LinePrt( player, rs, hasPermission ),  consolePrint, programCode );
+                        Tools.Prt( player, LinePrt( player, rs ),  consolePrint, programCode );
                         chk_name = GetName;
                     }
                 }
@@ -152,13 +146,11 @@ public class StatusRecord {
      * @param player        結果を表示するプレイヤー、nullならばコンソール表示
      * @param checkString   検索する目的の文字列（プレイヤー名や日付など)
      * @param FullFlag      重複プレイヤーの表示可否（true:全部,false:省略)
-     * @param ignoreName    非表示にするプレイヤー名リスト
-     * @param ignoreIP      非表示にするIPアドレスリスト
      * @param PrtMode       一覧の形式指定（1:指定日の一覧,2:プレイヤーの履歴,3:IPアドレスの履歴）
      * @param lines         表示する行数指定
      * @return
      */
-    public boolean exLogPrint( Player player, String checkString, boolean FullFlag, List ignoreName, List ignoreIP, int PrtMode, int lines )  {
+    public boolean exLogPrint( Player player, String checkString, boolean FullFlag, int PrtMode, int lines )  {
         String sqlCmd;
         String checkName = "";
         consoleMode consolePrint = ( ( player == null ) ? consoleMode.none : consoleMode.stop );
@@ -195,7 +187,7 @@ public class StatusRecord {
             while( rs.next() && ( loopCount<lines ) ) {
                 String getName = rs.getString( "name" );
                 String getDate = cdf.format( rs.getTimestamp( "date" ) );
-                if ( isOP || ( !ignoreName.contains( getName ) && !ignoreIP.contains( InetCalc.toInetAddress( rs.getLong( "ip" ) ) ) ) ) {
+                if ( isOP || ( !Config.IgnoreReportName.contains( getName ) && !Config.IgnoreReportIP.contains( InetCalc.toInetAddress( rs.getLong( "ip" ) ) ) ) ) {
                     boolean checkPrint;
 
                     switch( PrtMode ) {

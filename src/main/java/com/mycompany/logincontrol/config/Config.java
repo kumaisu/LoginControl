@@ -24,25 +24,26 @@ public class Config {
     private final Plugin plugin;
     private FileConfiguration config = null;
 
-    private String host;
-    private String port;
-    private String database;
-    private String username;
-    private String password;
+    public static String host;
+    public static String port;
+    public static String database;
+    public static String username;
+    public static String password;
 
-    private boolean JumpStats;
-    private boolean OpJumpStats;
-    private boolean CheckIPAddress;
-    private List<String> present;
-    private int fx;
-    private int fy;
-    private int fz;
-    private int fpitch;
-    private int fyaw;
-    private String fworld;
+    public static boolean JumpStats;
+    public static boolean OpJumpStats;
+    public static boolean CheckIPAddress;
+    public static boolean playerPingB;
+    public static int fx;
+    public static int fy;
+    public static int fz;
+    public static int fpitch;
+    public static int fyaw;
+    public static String fworld;
 
-    private List<String> IgnoreReportName;
-    private List<String> IgnoreReportIP;
+    public static List<String> present;
+    public static List<String> IgnoreReportName;
+    public static List<String> IgnoreReportIP;
 
     public static int AlarmCount;
 
@@ -87,6 +88,7 @@ public class Config {
         IgnoreReportIP = config.getStringList( "Ignore-IP" );
         CheckIPAddress = config.getBoolean( "CheckIP" );
         AlarmCount = config.getInt( "AlarmCount" );
+        playerPingB = config.getBoolean( "PlayerPingBroadcast" );
 
         consoleMode DebugFlag;
         try {
@@ -126,75 +128,12 @@ public class Config {
         IgnoreReportIP.stream().forEach( IRI -> { Tools.Prt( p, ChatColor.YELLOW + " - " + IRI, consolePrintFlag, programCode ); } );
 
         Tools.Prt( p, ChatColor.WHITE + "Unknown IP Check : " + ChatColor.YELLOW + ( CheckIPAddress ? "True":"False" ), consolePrintFlag, programCode );
+        Tools.Prt( p, ChatColor.WHITE + "Ping Broadcast   : " + ChatColor.YELLOW + ( playerPingB ? "True":"False" ), consolePrintFlag, programCode);
         Tools.Prt( p, ChatColor.GREEN + "==========================", consolePrintFlag, programCode );
-    }
-
-    public String getHost() {
-        return host;
-    }
-
-    public String getPort() {
-        return port;
-    }
-
-    public String getDatabase() {
-        return database;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public Boolean getJump() {
-        return JumpStats;
-    }
-
-    public String getWorld() {
-        return fworld;
-    }
-
-    public int getX() {
-        return fx;
-    }
-
-    public int getY() {
-        return fy;
-    }
-
-    public int getZ() {
-        return fz;
-    }
-
-    public int getPitch() {
-        return fpitch;
-    }
-
-    public int getYaw() {
-        return fyaw;
     }
 
     public String KnownServers( String IP ) {
         return config.getString( IP, null );
-    }
-
-    public boolean OpJump( boolean isOP ) {
-        return OpJumpStats && isOP;
-    }
-
-    public List<String> getPresent() {
-        return present;
-    }
-
-    public List<String> getIgnoreName() {
-        return IgnoreReportName;
-    }
-
-    public List<String> getIgnoreIP() {
-        return IgnoreReportIP;
     }
 
     public String LogFull() {
@@ -263,16 +202,7 @@ public class Config {
         return msg;
     }
 
-    public boolean getCheckIP() {
-        return CheckIPAddress;
-    }
-
-    public void setCheckIP( boolean flag ) {
-        CheckIPAddress = flag;
-    }
-
     public boolean getKumaisu() {
         return config.getBoolean( "Kumaisu" );
     }
-
 }

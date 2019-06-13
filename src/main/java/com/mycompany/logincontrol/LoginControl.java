@@ -55,7 +55,7 @@ public class LoginControl extends JavaPlugin implements Listener {
         this.getServer().getPluginManager().registerEvents( this, this );
         config = new Config( this );
         MotData = new MotDControl( this );
-        StatRec = new StatusRecord( config.getHost(), config.getDatabase(), config.getPort(), config.getUsername(), config.getPassword(), config.getKumaisu() );
+        StatRec = new StatusRecord( Config.host, Config.database, Config.port, Config.username, Config.password, config.getKumaisu() );
     }
 
     @Override
@@ -96,27 +96,27 @@ public class LoginControl extends JavaPlugin implements Listener {
         event.setJoinMessage( null );
         Player player = event.getPlayer();
         StatRec.listChangeStatus( date, 1 );
-        StatRec.LogPrint( player, 5, false, config.getIgnoreName() );
+        StatRec.LogPrint( player, 5, false );
         StatRec.AddCountHost( player.getAddress().getHostString(), -1 );
         StatRec.listCheckIP( player );
 
-        if ( !player.hasPlayedBefore() || config.OpJump( player.isOp() ) ) {
+        if ( !player.hasPlayedBefore() || ( Config.OpJumpStats && player.isOp() ) ) {
             // Utility.Prt( null, ChatColor.LIGHT_PURPLE + "The First Login Player", true );
             Tools.Prt( ChatColor.LIGHT_PURPLE + "The First Login Player", consoleMode.normal, programCode );
 
-            List<String> present = config.getPresent();
+            List<String> present = Config.present;
             present.stream().forEach( PR -> {
                 String[] itemdata = PR.split( ",", 0 );
                 player.getInventory().addItem( new ItemStack( Material.getMaterial( itemdata[0] ), Integer.parseInt( itemdata[1] ) ) );
                 Tools.Prt( ChatColor.AQUA + "Present Item : " + ChatColor.WHITE + itemdata[0] + "(" + itemdata[1] + ")", consoleMode.full, programCode );
             } );
 
-            if ( config.getJump() ) {
+            if ( Config.JumpStats ) {
                 Tools.Prt( "This player is first play to teleport", consoleMode.normal, programCode );
-                World world = getWorld( config.getWorld() );
-                Location loc = new Location( world, config.getX(), config.getY(), config.getZ() );
-                loc.setPitch( config.getPitch() );
-                loc.setYaw( config.getYaw() );
+                World world = getWorld( Config.fworld );
+                Location loc = new Location( world, Config.fx, Config.fy, Config.fz );
+                loc.setPitch( Config.fpitch );
+                loc.setYaw( Config.fyaw );
                 player.teleport( loc );
             }
 
@@ -181,7 +181,7 @@ public class LoginControl extends JavaPlugin implements Listener {
                 //  DBに該当なしなので、DB登録
                 //  ホスト名が取得できなかった場合は、Unknown Player を File に記録し、新規登録
                 MsgColor = ChatColor.RED.toString();
-                Host = StatRec.getUnknownHost( event.getAddress().getHostAddress(), config.getCheckIP() );
+                Host = StatRec.getUnknownHost( event.getAddress().getHostAddress(), Config.CheckIPAddress );
                 //  新規ホストとして、Unknown.yml ファイルへ書き出し
                 StatRec.WriteFileUnknown( event.getAddress().getHostAddress(), this.getDataFolder().toString() );
             } else {
@@ -190,6 +190,7 @@ public class LoginControl extends JavaPlugin implements Listener {
                     MsgColor = ChatColor.WHITE.toString();
                     //  簡易DNSにプレイヤー登録されている場合は、ログイン履歴を参照して最新のプレイヤー名を取得する
                     Names = StatRec.listGetPlayerName( event.getAddress().getHostAddress() );
+                    if ( Config.playerPingB && !Config.IgnoreReportName.contains( Names ) ) { Bukkit.broadcastMessage( ChatColor.GREEN + "Ping From " + ChatColor.WHITE + Names ); }
                     MsgNum = 2;
                     PrtStatus = consoleMode.normal;
                 } else {
@@ -249,11 +250,12 @@ public class LoginControl extends JavaPlugin implements Listener {
      */
     @Override
     public boolean onCommand( CommandSender sender,Command cmd, String commandLabel, String[] args ) {
-        boolean FullFlag = false;
         int lineSet = 30;
         Player p = ( sender instanceof Player ) ? ( Player )sender:( Player )null;
         consoleMode checkConsoleFlag = ( ( p == null ) ? consoleMode.none : consoleMode.stop );
 
+        if ( ( p != null ) && cmd.getName().toLowerCase().equalsIgnoreCase( "spawn" ) ) { spawnTeleport( p ); }
+        
         if ( cmd.getName().toLowerCase().equalsIgnoreCase( "flight" ) ) {
             if ( p == null ) return false;
             for ( String arg:args ) {
@@ -274,6 +276,7 @@ public class LoginControl extends JavaPlugin implements Listener {
         if ( cmd.getName().toLowerCase().equalsIgnoreCase( "loginlist" ) ) {
             int PrtF = 0;
             String Param = "";
+            boolean FullFlag = false;
 
             for ( String arg : args ) {
                 String[] param = arg.split( ":" );
@@ -309,12 +312,12 @@ public class LoginControl extends JavaPlugin implements Listener {
 
             switch ( PrtF ) {
                 case 0:
-                    StatRec.LogPrint( p, ( sender instanceof Player ) ? 15:30, FullFlag, config.getIgnoreName() );
+                    StatRec.LogPrint( p, ( sender instanceof Player ) ? 15:30, FullFlag );
                     break;
                 case 1:
                 case 2:
                 case 3:
-                    StatRec.exLogPrint( p, Param, FullFlag, config.getIgnoreName(), config.getIgnoreIP(), PrtF, lineSet );
+                    StatRec.exLogPrint( p, Param, FullFlag, PrtF, lineSet );
                     break;
                 default:
                     Tools.Prt( p, Utility.ReplaceString( config.OptError() ), consoleMode.full, programCode );
@@ -433,10 +436,10 @@ public class LoginControl extends JavaPlugin implements Listener {
                     StatRec.PingTop( p, PTLines );
                     break;
                 case "CheckIP":
-                    config.setCheckIP( !config.getCheckIP() );
+                    Config.CheckIPAddress = !Config.CheckIPAddress;
                     Tools.Prt( p,
                         ChatColor.GREEN + "Unknown IP Address Check Change to " +
-                        ChatColor.YELLOW + ( config.getCheckIP() ? "True":"False" ),
+                        ChatColor.YELLOW + ( Config.CheckIPAddress ? "True":"False" ),
                         checkConsoleFlag,
                         programCode
                     );
@@ -518,6 +521,38 @@ public class LoginControl extends JavaPlugin implements Listener {
                     )
                 );
             }
+        }
+    }
+
+
+    public void spawnTeleport( Player player ) {
+        if ( player.hasPermission( "LoginCtl.spawn" ) ) {
+            Tools.Prt( "player spawn teleport", consoleMode.full, programCode );
+
+            //  player.setBedSpawnLocation(location);
+            World world = player.getWorld();
+            Location worldLocation = world.getSpawnLocation();
+            Tools.Prt(
+                "spawn World=" + worldLocation.getWorld().getName() +
+                " X=" + worldLocation.getX() +
+                " Y=" + worldLocation.getY() +
+                " Z=" + worldLocation.getZ() +
+                " Pitch=" + worldLocation.getPitch() +
+                " Yaw=" + worldLocation.getYaw(),
+                consoleMode.full, programCode
+            );
+
+            Location loc = player.getLocation();
+            Tools.Prt(
+                "player World=" + loc.getWorld().getName() +
+                " X=" + loc.getX() +
+                " Y=" + loc.getY() +
+                " Z=" + loc.getZ() +
+                " Pitch=" + loc.getPitch() +
+                " Yaw=" + loc.getYaw(),
+                consoleMode.full, programCode
+            );
+            player.teleport( worldLocation );
         }
     }
 
