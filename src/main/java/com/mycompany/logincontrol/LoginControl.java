@@ -49,6 +49,7 @@ public class LoginControl extends JavaPlugin implements Listener {
     private Date date;
     private StatusRecord StatRec;
     private MotDControl MotData;
+    private String lastName;
 
     @Override
     public void onEnable() {
@@ -190,7 +191,12 @@ public class LoginControl extends JavaPlugin implements Listener {
                     MsgColor = ChatColor.WHITE.toString();
                     //  簡易DNSにプレイヤー登録されている場合は、ログイン履歴を参照して最新のプレイヤー名を取得する
                     Names = StatRec.listGetPlayerName( event.getAddress().getHostAddress() );
-                    if ( Config.playerPingB && !Config.IgnoreReportName.contains( Names ) ) { Bukkit.broadcastMessage( ChatColor.GREEN + "Ping From " + ChatColor.WHITE + Names ); }
+                    if ( Config.playerPingB && !Config.IgnoreReportName.contains( Names ) ) {
+                        if ( !lastName.equals( Names ) ) {
+                            Bukkit.broadcastMessage( ChatColor.GREEN + "Ping From " + ChatColor.WHITE + Names );
+                            lastName = Names;
+                        }
+                    }
                     MsgNum = 2;
                     PrtStatus = consoleMode.normal;
                 } else {
