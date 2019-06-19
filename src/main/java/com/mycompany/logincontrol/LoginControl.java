@@ -49,7 +49,7 @@ public class LoginControl extends JavaPlugin implements Listener {
     private Date date;
     private StatusRecord StatRec;
     private MotDControl MotData;
-    private String lastName;
+    private String lastName = "";
 
     @Override
     public void onEnable() {
