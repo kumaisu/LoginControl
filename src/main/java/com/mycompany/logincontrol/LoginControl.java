@@ -260,7 +260,10 @@ public class LoginControl extends JavaPlugin implements Listener {
         Player p = ( sender instanceof Player ) ? ( Player )sender:( Player )null;
         consoleMode checkConsoleFlag = ( ( p == null ) ? consoleMode.none : consoleMode.stop );
 
-        if ( ( p != null ) && cmd.getName().toLowerCase().equalsIgnoreCase( "spawn" ) ) { spawnTeleport( p ); }
+        if ( ( p != null ) && cmd.getName().toLowerCase().equalsIgnoreCase( "spawn" ) ) {
+            spawnTeleport( p );
+            return true;
+        }
         
         if ( cmd.getName().toLowerCase().equalsIgnoreCase( "flight" ) ) {
             if ( p == null ) return false;
@@ -533,7 +536,7 @@ public class LoginControl extends JavaPlugin implements Listener {
 
     public void spawnTeleport( Player player ) {
         if ( player.hasPermission( "LoginCtl.spawn" ) ) {
-            Tools.Prt( "player spawn teleport", consoleMode.full, programCode );
+            Tools.Prt( player, ChatColor.YELLOW + "Teleport to World Spawn", consoleMode.full, programCode );
 
             //  player.setBedSpawnLocation(location);
             World world = player.getWorld();
