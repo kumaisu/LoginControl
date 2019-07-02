@@ -92,7 +92,7 @@ Quit_Message:
   Message: "%$b%player% %$dさんがログアウトしました"
 Kick_Message:
   Enabled: true
-  Message: "%$e%player% さんを$%4[%Reason%]$%eにより、サーバーからキックしました"
+  Message: "%$e%player% %$eさんを%$4[%Reason%]%$eにより、サーバーからキックしました"
     
 #   死亡時のメッセージ類
 Death_Message:

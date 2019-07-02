@@ -102,7 +102,6 @@ public class LoginControl extends JavaPlugin implements Listener {
         StatRec.listCheckIP( player );
 
         if ( !player.hasPlayedBefore() || ( Config.OpJumpStats && player.isOp() ) ) {
-            // Utility.Prt( null, ChatColor.LIGHT_PURPLE + "The First Login Player", true );
             Tools.Prt( ChatColor.LIGHT_PURPLE + "The First Login Player", consoleMode.normal, programCode );
 
             List<String> present = Config.present;
@@ -487,9 +486,9 @@ public class LoginControl extends JavaPlugin implements Listener {
     @EventHandler
     public void onKickMessage( PlayerKickEvent event ) {
         if ( config.PlayerKick() ) {
-            String msg = Utility.ReplaceString( config.KickMessage(),event.getPlayer().getDisplayName() );
+            String msg = Utility.ReplaceString( config.KickMessage(), event.getPlayer().getDisplayName() );
             if ( !event.getReason().equals( "" ) ) {
-                msg = msg.replace( "%Reason%", event.getReason() );
+                msg = Utility.ReplaceString( msg.replace( "%Reason%", event.getReason() ) );
             } else {
                 msg = msg.replace( "%Reason%", "Unknown Reason" );
             }
@@ -610,7 +609,7 @@ public class LoginControl extends JavaPlugin implements Listener {
         Player player = event.getPlayer();
         Block clickedBlock = event.getClickedBlock();
         Material material = clickedBlock.getType();
-        if ( material == Material.SIGN_POST || material == Material.WALL_SIGN ) {
+        if ( material == Material.SIGN || material == Material.WALL_SIGN ) {
             Sign sign = (Sign) clickedBlock.getState();
             if ( sign.getLine( 0 ).equals( "[TrashCan]" ) ) {
                 Inventory inv;
