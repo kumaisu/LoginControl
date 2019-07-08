@@ -37,14 +37,15 @@ AlarmCount: 5000
 
 #   First Login TP
 #   初期ログインに関する対応設定
-OpJump: false
 FirstPoint: false
 world: world
-x: 0
-y: 0
-z: 0
-pitch: 0
-yaw: 0
+x: 0.0
+y: 0.0
+z: 0.0
+yaw: 0.0
+pitch: 0.0
+#   Operator Force Jump FirstPoint
+OpJump: false
 
 #   Present Items
 #   初期ログイン者へのプレゼント設定

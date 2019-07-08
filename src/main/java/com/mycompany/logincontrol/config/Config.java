@@ -34,11 +34,11 @@ public class Config {
     public static boolean OpJumpStats;
     public static boolean CheckIPAddress;
     public static boolean playerPingB;
-    public static int fx;
-    public static int fy;
-    public static int fz;
-    public static int fpitch;
-    public static int fyaw;
+    public static float fx;
+    public static float fy;
+    public static float fz;
+    public static float fpitch;
+    public static float fyaw;
     public static String fworld;
 
     public static List<String> present;
@@ -77,12 +77,12 @@ public class Config {
         password = config.getString( "mysql.password" );
         JumpStats = config.getBoolean( "FirstPoint" );
         OpJumpStats = config.getBoolean( "OpJump" );
-        fworld = config.getString( "world" );
-        fx = config.getInt( "x" );
-        fy = config.getInt( "y" );
-        fz = config.getInt( "z" );
-        fpitch = config.getInt( "pitch" );
-        fyaw = config.getInt( "yaw" );
+        fworld  = config.getString( "world" );
+        fx      = Float.valueOf( config.getString( "x" ) );
+        fy      = Float.valueOf( config.getString( "y" ) );
+        fz      = Float.valueOf( config.getString( "z" ) );
+        fyaw    = Float.valueOf( config.getString( "yaw" ) );
+        fpitch  = Float.valueOf( config.getString( "pitch" ) );
         present = config.getStringList( "Present" );
         IgnoreReportName = config.getStringList( "Ignore-Names" );
         IgnoreReportIP = config.getStringList( "Ignore-IP" );

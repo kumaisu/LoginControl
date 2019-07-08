@@ -5,6 +5,9 @@ description: login history plugins
 author: Kumaisu
 database: true
 commands:
+    beginner:
+        description: Beginner Area Teleport
+        usage: /<command>
     spawn:
         description: Player Spawn command
         permission: LoginCtl.spawn

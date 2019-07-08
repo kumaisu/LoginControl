@@ -111,14 +111,7 @@ public class LoginControl extends JavaPlugin implements Listener {
                 Tools.Prt( ChatColor.AQUA + "Present Item : " + ChatColor.WHITE + itemdata[0] + "(" + itemdata[1] + ")", consoleMode.full, programCode );
             } );
 
-            if ( Config.JumpStats ) {
-                Tools.Prt( "This player is first play to teleport", consoleMode.normal, programCode );
-                World world = getWorld( Config.fworld );
-                Location loc = new Location( world, Config.fx, Config.fy, Config.fz );
-                loc.setPitch( Config.fpitch );
-                loc.setYaw( Config.fyaw );
-                player.teleport( loc );
-            }
+            BeginnerTeleport( player );
 
             if( config.NewJoin() ) {
                 String msg = StatRec.GetLocale( player.getAddress().getHostString() );
@@ -259,26 +252,32 @@ public class LoginControl extends JavaPlugin implements Listener {
         Player p = ( sender instanceof Player ) ? ( Player )sender:( Player )null;
         consoleMode checkConsoleFlag = ( ( p == null ) ? consoleMode.none : consoleMode.stop );
 
-        if ( ( p != null ) && cmd.getName().toLowerCase().equalsIgnoreCase( "spawn" ) ) {
-            spawnTeleport( p );
-            return true;
-        }
-        
-        if ( cmd.getName().toLowerCase().equalsIgnoreCase( "flight" ) ) {
-            if ( p == null ) return false;
-            for ( String arg:args ) {
-                switch ( arg ) {
-                    case "on":
-                        FlightMode( p, true );
-                        break;
-                    case "off":
-                        FlightMode( p, false );
-                        break;
-                    default:
-                        Tools.Prt( p, ChatColor.GREEN + "Fly (on/off)", consoleMode.normal, programCode );
-                }
+        if ( p != null ) {
+            if ( cmd.getName().toLowerCase().equalsIgnoreCase( "spawn" ) ) {
+                spawnTeleport( p );
+                return true;
             }
-            return true;
+
+            if ( cmd.getName().toLowerCase().equalsIgnoreCase( "beginner" ) ) {
+                BeginnerTeleport( p );
+                return true;
+            }
+        
+            if ( cmd.getName().toLowerCase().equalsIgnoreCase( "flight" ) ) {
+                for ( String arg:args ) {
+                    switch ( arg ) {
+                        case "on":
+                            FlightMode( p, true );
+                            break;
+                        case "off":
+                            FlightMode( p, false );
+                            break;
+                        default:
+                            Tools.Prt( p, ChatColor.GREEN + "Fly (on/off)", consoleMode.normal, programCode );
+                    }
+                }
+                return true;
+            }
         }
 
         if ( cmd.getName().toLowerCase().equalsIgnoreCase( "loginlist" ) ) {
@@ -532,7 +531,11 @@ public class LoginControl extends JavaPlugin implements Listener {
         }
     }
 
-
+    /**
+     * ワールドの初期スポーン地点へ強制転送コマンド
+     *
+     * @param player 
+     */
     public void spawnTeleport( Player player ) {
         if ( player.hasPermission( "LoginCtl.spawn" ) ) {
             Tools.Prt( player, ChatColor.YELLOW + "Teleport to World Spawn", consoleMode.full, programCode );
@@ -561,6 +564,22 @@ public class LoginControl extends JavaPlugin implements Listener {
                 consoleMode.full, programCode
             );
             player.teleport( worldLocation );
+        }
+    }
+
+    /**
+     * 初心者チュートリアルへの強制転送コマンド
+     *
+     * @param player 
+     */
+    public void BeginnerTeleport( Player player ) {
+        if ( Config.JumpStats ) {
+            Tools.Prt( "This player is first play to teleport", consoleMode.normal, programCode );
+            World world = getWorld( Config.fworld );
+            Location loc = new Location( world, Config.fx, Config.fy, Config.fz );
+            loc.setPitch( Config.fpitch );
+            loc.setYaw( Config.fyaw );
+            player.teleport( loc );
         }
     }
 
