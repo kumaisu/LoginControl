@@ -1,10 +1,10 @@
-#   MotD Message YAML
+# MotD Message YAML
 
-#Reference count
+# Reference count
 MotD2nd-Ping-Count: 100
 MotD2nd-Ping-Max-Count: 1000
 
-#ModD Default Message
+# ModD Default Message
 #   %$n         : ChatColor Code
 #   %player%    : Player Name
 #   %count      : Reference count
@@ -24,7 +24,7 @@ BanMotD2nd: "%$4あなたは、このサーバーで接続拒否されていま�
 # MotD2nd-Ping-Player: "%$e%player%%$a,さん、たまには如何でしょうか"
 # MotD2nd-Alive: "サーバーは元気に稼働中"
 
-#   個別メッセージ
-#   Individual message
+# 個別メッセージ
+# Individual message
 110.132.242.177: "貴方は接続を拒否されています\nサーバールール違反です"
 Kumaisu: "%$eYou are Banned from this Server\n%$4あなたは、このサーバーから追放されています"

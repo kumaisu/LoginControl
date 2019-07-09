@@ -1,13 +1,13 @@
-#LoginControl Config
+# LoginControl Config
 
-#   Kumaisu Setting
-#   クマイス鯖独自の動作設定
+# Kumaisu Setting
+# クマイス鯖独自の動作設定
 Kumaisu: false
 
-#   Debug ( max / full / Default:normal / none )
+# Debug ( max / full / Default:normal / none )
 Debug: normal
 
-#   MySQL Settings
+# MySQL Settings
 mysql:
   host: localhost
   port: 3306
@@ -15,28 +15,28 @@ mysql:
   username: root
   password: password
 
-#   Ignore Report
-#   一般へのリスト表示禁止
+# Ignore Report
+# 一般へのリスト表示禁止
 Ignore-Names:
     - Kumaisu
 Ignore-IP:
     - 127.0.0.0
 
-#   Player Ping のBroadcastアナウンスを行う
+# Player Ping のBroadcastアナウンスを行う
 PlayerPingBroadcast: false
 
-#   Unknown IP Address Check Flag
-#   ネットワークDNSからの名前解決を実施するか
+# Unknown IP Address Check Flag
+# ネットワークDNSからの名前解決を実施するか
 CheckIP: false
 
-#   Ping Alarm Count
+# Ping Alarm Count
 #   規定カウントを越えた場合にアラーム警告
 #   ゼロならば動作しない
 #   Debugの設定に関わらず表示する
 AlarmCount: 5000
 
-#   First Login TP
-#   初期ログインに関する対応設定
+# First Login TP
+# 初期ログインに関する対応設定
 FirstPoint: false
 world: world
 x: 0.0
@@ -44,19 +44,19 @@ y: 0.0
 z: 0.0
 yaw: 0.0
 pitch: 0.0
-#   Operator Force Jump FirstPoint
+# Operator Force Jump FirstPoint
 OpJump: false
 
-#   Present Items
-#   初期ログイン者へのプレゼント設定
+# Present Items
+# 初期ログイン者へのプレゼント設定
 Present:
     - BED,1
     - BREAD,32
     - STONE_AXE,1
     - STONE_PICKAXE,1
 
-#   Login時の案内表示用
-#   /n で改行が可能、複数行の表示に対応
+# Login時の案内表示用
+# /n で改行が可能、複数行の表示に対応
 ANNOUNCE:
   Enabled: true
   Message: "%$e－－－  おしらせ  －－－/n
@@ -64,8 +64,8 @@ ANNOUNCE:
     Home Page [ %$4http://wikiwiki.jp/kumaisu/%$7 ]/n
     JMS Vote  [ %$4https://minecraft.jp/servers/kumaisu.mydns.jp%$f ]"
 
-#   Login/Logout時のコメント表示用
-#   /n で改行が可能、複数行の表示に対応
+# Login/Logout時のコメント表示用
+# /n で改行が可能、複数行の表示に対応
 New_Join_Message:
   Enabled: true
   Message: "%$d%player% さん、スナック・クマイスサーバーへ、ようこそ"
