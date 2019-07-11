@@ -7,6 +7,9 @@ database: true
 commands:
     beginner:
         description: Beginner Area Teleport
+        permission: LoginCtl.biginner
+        permission-message: You do not have permission.
+        default: false
         usage: /<command>
     spawn:
         description: Player Spawn command
@@ -18,6 +21,7 @@ commands:
         description: Fly Switch
         permission: LoginCtl.fly
         permission-message: You do not have permission.
+        default: false
         usage: /<command> [on/off]
     ping:
         description: Inet Ping Command
@@ -28,11 +32,13 @@ commands:
         aliases: ll
         permission: LoginCtl.loginlist
         permission-message: You do not have permission.
+        default: false
         usage: /<command> [full] [d:yymmdd] [u:player name] [i:IP Address] [l:Lines]
     loginctl:
         description: LoginControl Admin Commands
         permission: LoginCtl.admin
         permission-message: You do not have permission.
+        default: op
         usage: |
             /<command> reload
             /<command> status
