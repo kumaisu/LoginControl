@@ -258,11 +258,6 @@ public class LoginControl extends JavaPlugin implements Listener {
                 return true;
             }
 
-            if ( cmd.getName().toLowerCase().equalsIgnoreCase( "beginner" ) ) {
-                BeginnerTeleport( p );
-                return true;
-            }
-        
             if ( cmd.getName().toLowerCase().equalsIgnoreCase( "flight" ) ) {
                 for ( String arg:args ) {
                     switch ( arg ) {
@@ -280,6 +275,16 @@ public class LoginControl extends JavaPlugin implements Listener {
             }
         }
 
+        if ( cmd.getName().toLowerCase().equalsIgnoreCase( "beginner" ) ) {
+            if ( args.length > 0 ) {
+                Player targetPlayer = Bukkit.getPlayer( args[0] );
+                if ( !( targetPlayer == null ) ) {
+                    BeginnerTeleport( targetPlayer );
+                } else { Tools.Prt( "No Match Target Player", Tools.consoleMode.full, programCode); }
+            } else { Tools.Prt( "Select Target Player", Tools.consoleMode.full, programCode ); }
+            return true;
+        }
+        
         if ( cmd.getName().toLowerCase().equalsIgnoreCase( "loginlist" ) ) {
             int PrtF = 0;
             String Param = "";

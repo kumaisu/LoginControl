@@ -9,7 +9,7 @@ commands:
         description: Beginner Area Teleport
         permission: LoginCtl.biginner
         permission-message: You do not have permission.
-        default: false
+        default: op
         usage: /<command>
     spawn:
         description: Player Spawn command
