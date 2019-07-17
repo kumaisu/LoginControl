@@ -50,10 +50,10 @@ OpJump: false
 # Present Items
 # 初期ログイン者へのプレゼント設定
 Present:
-    - BED,1
-    - BREAD,32
-    - STONE_AXE,1
-    - STONE_PICKAXE,1
+    - give %player% bed 1
+    - give %player% bread 32
+    - give %player% stone_axe 1
+    - give %player% stone_pickaxe 1
 
 # Login時の案内表示用
 # /n で改行が可能、複数行の表示に対応

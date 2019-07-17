@@ -104,13 +104,20 @@ public class LoginControl extends JavaPlugin implements Listener {
         if ( !player.hasPlayedBefore() || ( Config.OpJumpStats && player.isOp() ) ) {
             Tools.Prt( ChatColor.LIGHT_PURPLE + "The First Login Player", consoleMode.normal, programCode );
 
+            /*
             List<String> present = Config.present;
             present.stream().forEach( PR -> {
                 String[] itemdata = PR.split( ",", 0 );
                 player.getInventory().addItem( new ItemStack( Material.getMaterial( itemdata[0] ), Integer.parseInt( itemdata[1] ) ) );
                 Tools.Prt( ChatColor.AQUA + "Present Item : " + ChatColor.WHITE + itemdata[0] + "(" + itemdata[1] + ")", consoleMode.full, programCode );
             } );
+            */
 
+            Config.present.stream().forEach( CP -> {
+                Tools.ExecOtherCommand( player, CP, "" );
+                Tools.Prt( ChatColor.AQUA + "Present Item : " + ChatColor.WHITE + CP, consoleMode.full, programCode );
+            } );
+            
             BeginnerTeleport( player );
 
             if( config.NewJoin() ) {
@@ -555,7 +562,7 @@ public class LoginControl extends JavaPlugin implements Listener {
                 " Z=" + worldLocation.getZ() +
                 " Pitch=" + worldLocation.getPitch() +
                 " Yaw=" + worldLocation.getYaw(),
-                consoleMode.full, programCode
+                consoleMode.max, programCode
             );
 
             Location loc = player.getLocation();
@@ -566,7 +573,7 @@ public class LoginControl extends JavaPlugin implements Listener {
                 " Z=" + loc.getZ() +
                 " Pitch=" + loc.getPitch() +
                 " Yaw=" + loc.getYaw(),
-                consoleMode.full, programCode
+                consoleMode.max, programCode
             );
             player.teleport( worldLocation );
         }

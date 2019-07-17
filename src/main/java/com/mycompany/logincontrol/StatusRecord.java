@@ -78,19 +78,23 @@ public class StatusRecord {
 
             if ( ( player == null ) || player.isOp() || player.hasPermission( "LoginCtl.view" ) ) {
                 message = Utility.StringBuild( message,
-                        ChatColor.YELLOW.toString(), "[", String.format( "%-15s", InetCalc.toInetAddress( gs.getLong( "ip" ) ) ), "] "
+                        ChatColor.YELLOW.toString(),
+                        "[",
+                        String.format( "%-15s", InetCalc.toInetAddress( gs.getLong( "ip" ) ) ),
+                        "] "
                 );
             }
 
-            message = Utility.StringBuild( message, gs.getInt( "status" )==0 ? ChatColor.RED.toString():ChatColor.AQUA.toString() );
+            message = Utility.StringBuild( message,
+                    gs.getInt( "status" )==0 ? ChatColor.RED.toString():ChatColor.AQUA.toString(),
+                    gs.getString( "name" )
+            );
 
             if ( player == null ) {
-                message = Utility.StringBuild( message,
+                message = Utility.StringBuild( message, " : ",
                     ( gs.getInt( "status" )==0 ? ChatColor.RED.toString():ChatColor.AQUA.toString() ),
                     GetHost( InetCalc.toInetAddress( gs.getLong( "ip" ) ) )
                 );
-            } else {
-                message = Utility.StringBuild( message, gs.getString( "name" ) );
             }
 
         } catch ( SQLException e ) {}

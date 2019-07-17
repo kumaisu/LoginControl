@@ -14,7 +14,7 @@ none
   
 ## Releases  
 Github projects have a "releases" link on their home page.  
-If you still don't see it, [click here](https://github.com/kumaisu/LoginControl/releases) for PremisesEvent releases.  
+If you still don't see it, [click here](https://github.com/kumaisu/LoginControl/releases) for Login Control releases.  
   
 ## Wikis  
 [Login Control Wiki](https://github.com/kumaisu/LoginControl/wiki)  
