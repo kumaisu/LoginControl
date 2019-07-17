@@ -6,7 +6,6 @@ package com.mycompany.logincontrol;
 import static org.bukkit.Bukkit.getWorld;
 import java.net.UnknownHostException;
 import java.util.Date;
-import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -31,7 +30,6 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.event.server.ServerListPingEvent;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import com.mycompany.logincontrol.config.Config;
 import com.mycompany.kumaisulibraries.Utility;
@@ -104,6 +102,13 @@ public class LoginControl extends JavaPlugin implements Listener {
         if ( !player.hasPlayedBefore() || ( Config.OpJumpStats && player.isOp() ) ) {
             Tools.Prt( ChatColor.LIGHT_PURPLE + "The First Login Player", consoleMode.normal, programCode );
 
+            if( config.NewJoin() ) {
+                String msg = StatRec.GetLocale( player.getAddress().getHostString() );
+                Tools.Prt( "Player host = " + player.getAddress().getHostString(), consoleMode.normal, programCode );
+                Tools.Prt( "Get Locale = " + msg, consoleMode.normal, programCode );
+                Bukkit.broadcastMessage( Utility.ReplaceString( config.NewJoinMessage( msg ), player.getDisplayName() ) );
+            }
+
             /*
             List<String> present = Config.present;
             present.stream().forEach( PR -> {
@@ -119,13 +124,6 @@ public class LoginControl extends JavaPlugin implements Listener {
             } );
             
             BeginnerTeleport( player );
-
-            if( config.NewJoin() ) {
-                String msg = StatRec.GetLocale( player.getAddress().getHostString() );
-                Tools.Prt( "Player host = " + player.getAddress().getHostString(), consoleMode.normal, programCode );
-                Tools.Prt( "Get Locale = " + msg, consoleMode.normal, programCode );
-                Bukkit.broadcastMessage( Utility.ReplaceString( config.NewJoinMessage( msg ), player.getDisplayName() ) );
-            }
 
         } else {
             Tools.Prt( "The Repeat Login Player", consoleMode.normal, programCode );
@@ -368,11 +366,11 @@ public class LoginControl extends JavaPlugin implements Listener {
             if ( args.length > 2 ) HostName = args[2];
 
             switch ( CtlCmd ) {
-                case "reload":
+                case "Reload":
                     config = new Config( this );
                     Tools.Prt( p, Utility.ReplaceString( config.Reload() ), checkConsoleFlag, programCode );
                     return true;
-                case "status":
+                case "Status":
                     config.Status( p );
                     return true;
                 case "motd":
@@ -560,8 +558,8 @@ public class LoginControl extends JavaPlugin implements Listener {
                 " X=" + worldLocation.getX() +
                 " Y=" + worldLocation.getY() +
                 " Z=" + worldLocation.getZ() +
-                " Pitch=" + worldLocation.getPitch() +
-                " Yaw=" + worldLocation.getYaw(),
+                " Yaw=" + worldLocation.getYaw() +
+                " Pitch=" + worldLocation.getPitch(),
                 consoleMode.max, programCode
             );
 
@@ -571,8 +569,8 @@ public class LoginControl extends JavaPlugin implements Listener {
                 " X=" + loc.getX() +
                 " Y=" + loc.getY() +
                 " Z=" + loc.getZ() +
-                " Pitch=" + loc.getPitch() +
-                " Yaw=" + loc.getYaw(),
+                " Yaw=" + loc.getYaw() +
+                " Pitch=" + loc.getPitch(),
                 consoleMode.max, programCode
             );
             player.teleport( worldLocation );
@@ -589,8 +587,17 @@ public class LoginControl extends JavaPlugin implements Listener {
             Tools.Prt( "This player is first play to teleport", consoleMode.normal, programCode );
             World world = getWorld( Config.fworld );
             Location loc = new Location( world, Config.fx, Config.fy, Config.fz );
-            loc.setPitch( Config.fpitch );
             loc.setYaw( Config.fyaw );
+            loc.setPitch( Config.fpitch );
+            Tools.Prt(
+                "player Teleport=" + world.getName() +
+                " X=" + Config.fx +
+                " Y=" + Config.fy +
+                " Z=" + Config.fz +
+                " Yaw=" + Config.fyaw +
+                " Pitch=" + Config.fpitch,
+                consoleMode.max, programCode
+            );
             player.teleport( loc );
         }
     }
@@ -647,6 +654,8 @@ public class LoginControl extends JavaPlugin implements Listener {
                 inv = Bukkit.createInventory( null, 36, "Trash Can" );
                 player.openInventory( inv );
             }
+        } else {
+            Tools.Prt( player, "Material = " + material.name(), Tools.consoleMode.max, programCode);
         }
     }
 }

@@ -101,35 +101,31 @@ public class Config {
     }
 
     public void Status( Player p ) {
-        consoleMode consolePrintFlag = ( ( p == null ) ? consoleMode.none:consoleMode.stop );
-        Tools.Prt( p, ChatColor.GREEN + "=== LoginContrl Status ===", consolePrintFlag, programCode );
-        Tools.Prt( p, ChatColor.WHITE + "Degub Mode : " + ChatColor.YELLOW + Tools.consoleFlag.get( programCode ).toString(), consolePrintFlag, programCode );
-        Tools.Prt( p, ChatColor.WHITE + "Mysql : " + ChatColor.YELLOW + host + ":" + port, consolePrintFlag, programCode );
-        Tools.Prt( p, ChatColor.WHITE + "DB Name : " + ChatColor.YELLOW + database, consolePrintFlag, programCode );
-        Tools.Prt( p, ChatColor.WHITE + "FirstJump : " + ChatColor.YELLOW + ( ( JumpStats ) ? "True":"None" ), consolePrintFlag, programCode );
+        Tools.Prt( p, ChatColor.GREEN + "=== LoginContrl Status ===", programCode );
+        Tools.Prt( p, ChatColor.WHITE + "Degub Mode : " + ChatColor.YELLOW + Tools.consoleFlag.get( programCode ).toString(), programCode );
+        Tools.Prt( p, ChatColor.WHITE + "Mysql : " + ChatColor.YELLOW + host + ":" + port, programCode );
+        Tools.Prt( p, ChatColor.WHITE + "DB Name : " + ChatColor.YELLOW + database, programCode );
+        Tools.Prt( p, ChatColor.WHITE + "FirstJump : " + ChatColor.YELLOW + ( ( JumpStats ) ? "True":"None" ), programCode );
         if ( JumpStats ) {
-            Tools.Prt( p, ChatColor.WHITE + "  world:" + ChatColor.YELLOW + fworld, consolePrintFlag, programCode );
-            Tools.Prt( p, ChatColor.WHITE + "  x:" + ChatColor.YELLOW + String.valueOf( fx ), consolePrintFlag, programCode );
-            Tools.Prt( p, ChatColor.WHITE + "  y:" + ChatColor.YELLOW + String.valueOf( fy ), consolePrintFlag, programCode );
-            Tools.Prt( p, ChatColor.WHITE + "  z:" + ChatColor.YELLOW + String.valueOf( fz ), consolePrintFlag, programCode );
-            Tools.Prt( p, ChatColor.WHITE + "  p:" + ChatColor.YELLOW + String.valueOf( fpitch ), consolePrintFlag, programCode );
-            Tools.Prt( p, ChatColor.WHITE + "  y:" + ChatColor.YELLOW + String.valueOf( fyaw ), consolePrintFlag, programCode );
+            Tools.Prt( p, ChatColor.WHITE + "  world:" + ChatColor.YELLOW + fworld, programCode );
+            Tools.Prt( p, ChatColor.WHITE + "  x:" + ChatColor.YELLOW + String.valueOf( fx ), programCode );
+            Tools.Prt( p, ChatColor.WHITE + "  y:" + ChatColor.YELLOW + String.valueOf( fy ), programCode );
+            Tools.Prt( p, ChatColor.WHITE + "  z:" + ChatColor.YELLOW + String.valueOf( fz ), programCode );
+            Tools.Prt( p, ChatColor.WHITE + "  p:" + ChatColor.YELLOW + String.valueOf( fpitch ), programCode );
+            Tools.Prt( p, ChatColor.WHITE + "  y:" + ChatColor.YELLOW + String.valueOf( fyaw ), programCode );
         }
-        Tools.Prt( p, ChatColor.WHITE + "Present Items", consolePrintFlag, programCode );
-        present.stream().forEach( pr -> {
-            String[] itemdata = pr.split( ",", 0 );
-            Tools.Prt( p, ChatColor.YELLOW + " - " + itemdata[0] + "(" + itemdata[1] + ")", consolePrintFlag, programCode );
-        } );
+        Tools.Prt( p, ChatColor.WHITE + "Present Items", programCode );
+        Config.present.stream().forEach( CP -> { Tools.Prt( p, ChatColor.WHITE + CP, programCode ); } );
 
-        Tools.Prt( p, ChatColor.WHITE + "Ignore Names", consolePrintFlag, programCode );
-        IgnoreReportName.stream().forEach( IRN -> { Tools.Prt( p, ChatColor.YELLOW + " - " + IRN, consolePrintFlag, programCode ); } );
+        Tools.Prt( p, ChatColor.WHITE + "Ignore Names", programCode );
+        IgnoreReportName.stream().forEach( IRN -> { Tools.Prt( p, ChatColor.YELLOW + " - " + IRN, programCode ); } );
 
-        Tools.Prt( p, ChatColor.WHITE + "Ignore IPs", consolePrintFlag, programCode );
-        IgnoreReportIP.stream().forEach( IRI -> { Tools.Prt( p, ChatColor.YELLOW + " - " + IRI, consolePrintFlag, programCode ); } );
+        Tools.Prt( p, ChatColor.WHITE + "Ignore IPs", programCode );
+        IgnoreReportIP.stream().forEach( IRI -> { Tools.Prt( p, ChatColor.YELLOW + " - " + IRI, programCode ); } );
 
-        Tools.Prt( p, ChatColor.WHITE + "Unknown IP Check : " + ChatColor.YELLOW + ( CheckIPAddress ? "True":"False" ), consolePrintFlag, programCode );
-        Tools.Prt( p, ChatColor.WHITE + "Ping Broadcast   : " + ChatColor.YELLOW + ( playerPingB ? "True":"False" ), consolePrintFlag, programCode);
-        Tools.Prt( p, ChatColor.GREEN + "==========================", consolePrintFlag, programCode );
+        Tools.Prt( p, ChatColor.WHITE + "Unknown IP Check : " + ChatColor.YELLOW + ( CheckIPAddress ? "True":"False" ), programCode );
+        Tools.Prt( p, ChatColor.WHITE + "Ping Broadcast   : " + ChatColor.YELLOW + ( playerPingB ? "True":"False" ), programCode);
+        Tools.Prt( p, ChatColor.GREEN + "==========================", programCode );
     }
 
     public String KnownServers( String IP ) {
