@@ -18,6 +18,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -88,7 +89,7 @@ public class LoginControl extends JavaPlugin implements Listener {
      * @param event
      * @throws UnknownHostException
      */
-    @EventHandler
+    @EventHandler( priority = EventPriority.HIGH )
     public void onPlayerLogin( PlayerJoinEvent event ) throws UnknownHostException {
 
         Tools.Prt( "onPlayerLogin process", consoleMode.full, programCode );
@@ -98,6 +99,10 @@ public class LoginControl extends JavaPlugin implements Listener {
         StatRec.LogPrint( player, 5, false );
         StatRec.AddCountHost( player.getAddress().getHostString(), -1 );
         StatRec.listCheckIP( player );
+
+        if ( config.Announce() ) {
+            Tools.Prt( player, Utility.ReplaceString( config.AnnounceMessage(), player.getDisplayName() ), consoleMode.max, programCode );
+        }
 
         if ( !player.hasPlayedBefore() || ( Config.OpJumpStats && player.isOp() ) ) {
             Tools.Prt( ChatColor.LIGHT_PURPLE + "The First Login Player", consoleMode.normal, programCode );
@@ -109,31 +114,22 @@ public class LoginControl extends JavaPlugin implements Listener {
                 Bukkit.broadcastMessage( Utility.ReplaceString( config.NewJoinMessage( msg ), player.getDisplayName() ) );
             }
 
-            /*
-            List<String> present = Config.present;
-            present.stream().forEach( PR -> {
-                String[] itemdata = PR.split( ",", 0 );
-                player.getInventory().addItem( new ItemStack( Material.getMaterial( itemdata[0] ), Integer.parseInt( itemdata[1] ) ) );
-                Tools.Prt( ChatColor.AQUA + "Present Item : " + ChatColor.WHITE + itemdata[0] + "(" + itemdata[1] + ")", consoleMode.full, programCode );
-            } );
-            */
-
             Config.present.stream().forEach( CP -> {
                 Tools.ExecOtherCommand( player, CP, "" );
-                Tools.Prt( ChatColor.AQUA + "Present Item : " + ChatColor.WHITE + CP, consoleMode.full, programCode );
+                Tools.Prt( ChatColor.AQUA + "Present Item : " + ChatColor.WHITE + CP, consoleMode.max, programCode );
             } );
             
-            BeginnerTeleport( player );
-
+            if ( Config.JumpStats ) {
+                if ( !BeginnerTeleport( player ) ) {
+                    Tools.Prt( player, "You failed the beginner teleport", Tools.consoleMode.full, programCode);
+                }
+            } else Tools.Prt( "not Beginner Teleport", Tools.consoleMode.max, programCode );
+    
         } else {
             Tools.Prt( "The Repeat Login Player", consoleMode.normal, programCode );
             if( config.ReturnJoin() && !player.hasPermission( "LoginCtl.silentjoin" ) ) {
                 Bukkit.broadcastMessage( Utility.ReplaceString( config.ReturnJoinMessage( StatRec.GetLocale( player.getAddress().getHostString() ) ), player.getDisplayName() ) );
             }
-        }
-
-        if ( config.Announce() ) {
-            Tools.Prt( player, Utility.ReplaceString( config.AnnounceMessage(), player.getDisplayName() ), consoleMode.max, programCode );
         }
     }
 
@@ -280,7 +276,7 @@ public class LoginControl extends JavaPlugin implements Listener {
             }
         }
 
-        if ( cmd.getName().toLowerCase().equalsIgnoreCase( "beginner" ) ) {
+        if ( cmd.getName().toLowerCase().equalsIgnoreCase( "beginner" ) && ( Config.JumpStats ) ) {
             if ( args.length > 0 ) {
                 Player targetPlayer = Bukkit.getPlayer( args[0] );
                 if ( !( targetPlayer == null ) ) {
@@ -365,64 +361,96 @@ public class LoginControl extends JavaPlugin implements Listener {
             if ( args.length > 1 ) IP = args[1];
             if ( args.length > 2 ) HostName = args[2];
 
-            switch ( CtlCmd ) {
-                case "Reload":
-                    config = new Config( this );
-                    Tools.Prt( p, Utility.ReplaceString( config.Reload() ), checkConsoleFlag, programCode );
-                    return true;
-                case "Status":
-                    config.Status( p );
-                    return true;
-                case "motd":
-                    MotData.getStatus( p );
-                    return true;
-                case "chg":
-                    if ( HostName.length() < 61 ) {
-                        if ( StatRec.chgUnknownHost( IP, HostName ) ) {
-                            StatRec.infoUnknownHost( p, IP );
-                        }
-                    } else {
-                        Tools.Prt( p, ChatColor.RED + "Hostname is limited to 60 characters", checkConsoleFlag, programCode );
-                    }
-                    break;
-                case "info":
-                    if ( !IP.equals( "" ) ) {
-                        Tools.Prt( p, "Check Unknown IP Information [" + IP + "]", checkConsoleFlag, programCode );
-                        StatRec.infoUnknownHost( p, IP );
-                    } else {
-                        Tools.Prt( p, ChatColor.RED + "usage: info IPAddress", checkConsoleFlag, programCode );
-                    }
-                    break;
-                case "add":
-                    if ( !IP.equals( "" ) ) {
-                        if ( StatRec.GetHost( IP ).equals( "Unknown" ) ) {
-                            if ( !HostName.equals( "" ) ) {
-                                StatRec.AddHostToSQL( IP, HostName );
-                            } else {
-                                Tools.Prt( p, ChatColor.RED + " Host name is required", checkConsoleFlag, programCode );
+            if ( ( p == null ) || p.hasPermission( "LoginCtl.console" ) ) {
+                switch ( CtlCmd ) {
+                    case "Reload":
+                        config = new Config( this );
+                        Tools.Prt( p, Utility.ReplaceString( config.Reload() ), checkConsoleFlag, programCode );
+                        return true;
+                    case "CheckIP":
+                        Config.CheckIPAddress = !Config.CheckIPAddress;
+                        Tools.Prt( p,
+                            ChatColor.GREEN + "Unknown IP Address Check Change to " +
+                            ChatColor.YELLOW + ( Config.CheckIPAddress ? "True":"False" ),
+                            checkConsoleFlag,
+                            programCode
+                        );
+                        return true;
+                    case "Console":
+                        Tools.setDebug( IP, programCode );
+                        Tools.Prt( p,
+                            ChatColor.GREEN + "System Debug Mode is [ " +
+                            ChatColor.RED + Tools.consoleFlag.get( programCode ) +
+                            ChatColor.GREEN + " ]",
+                            checkConsoleFlag,
+                            programCode
+                        );
+                        return true;
+                    case "Convert":
+                        StatRec.convertHostName( p );
+                        return true;
+                    default:
+                        //  LoginCtl.console
+                        Tools.Prt( "loginctl Reload", programCode );
+                        Tools.Prt( "loginctl Console [full/normal/none]", programCode );
+                        Tools.Prt( "loginctl CheckIP", programCode );
+                }
+            }
+
+            if ( ( p == null ) || p.hasPermission( "LoginCtl.admin" ) ) {
+                switch ( CtlCmd ) {
+                    case "Status":
+                        config.Status( p );
+                        return true;
+                    case "Motd":
+                        MotData.getStatus( p );
+                        return true;
+                    case "chg":
+                        if ( HostName.length() < 61 ) {
+                            if ( StatRec.chgUnknownHost( IP, HostName ) ) {
+                                StatRec.infoUnknownHost( p, IP );
                             }
                         } else {
-                            Tools.Prt( p, ChatColor.RED + IP + " is already exists", checkConsoleFlag, programCode );
+                            Tools.Prt( p, ChatColor.RED + "Hostname is limited to 60 characters", checkConsoleFlag, programCode );
                         }
-                        StatRec.infoUnknownHost( p, IP );
-                    } else {
-                        Tools.Prt( p, ChatColor.RED + "usage: add IPAddress [HostName]", checkConsoleFlag, programCode );
-                    }
-                    break;
-                case "del":
-                    if ( !IP.equals( "" ) ) {
-                        if ( StatRec.DelHostFromSQL( IP ) ) {
-                            msg = ChatColor.GREEN + "Data Deleted [";
+                        return true;
+                    case "info":
+                        if ( !IP.equals( "" ) ) {
+                            Tools.Prt( p, "Check Unknown IP Information [" + IP + "]", checkConsoleFlag, programCode );
+                            StatRec.infoUnknownHost( p, IP );
                         } else {
-                            msg = ChatColor.RED + "Failed to Delete Data [";
+                            Tools.Prt( p, ChatColor.RED + "usage: info IPAddress", checkConsoleFlag, programCode );
                         }
-                        Tools.Prt( p, msg + IP + "]", checkConsoleFlag, programCode );
-                    } else {
-                        Tools.Prt( p, ChatColor.RED + "usage: del IPAddress", checkConsoleFlag, programCode );
-                    }
-                    break;
-                case "count":
-                    {
+                        return true;
+                    case "add":
+                        if ( !IP.equals( "" ) ) {
+                            if ( StatRec.GetHost( IP ).equals( "Unknown" ) ) {
+                                if ( !HostName.equals( "" ) ) {
+                                    StatRec.AddHostToSQL( IP, HostName );
+                                } else {
+                                    Tools.Prt( p, ChatColor.RED + " Host name is required", checkConsoleFlag, programCode );
+                                }
+                            } else {
+                                Tools.Prt( p, ChatColor.RED + IP + " is already exists", checkConsoleFlag, programCode );
+                            }
+                            StatRec.infoUnknownHost( p, IP );
+                        } else {
+                            Tools.Prt( p, ChatColor.RED + "usage: add IPAddress [HostName]", checkConsoleFlag, programCode );
+                        }
+                        return true;
+                    case "del":
+                        if ( !IP.equals( "" ) ) {
+                            if ( StatRec.DelHostFromSQL( IP ) ) {
+                                msg = ChatColor.GREEN + "Data Deleted [";
+                            } else {
+                                msg = ChatColor.RED + "Failed to Delete Data [";
+                            }
+                            Tools.Prt( p, msg + IP + "]", checkConsoleFlag, programCode );
+                        } else {
+                            Tools.Prt( p, ChatColor.RED + "usage: del IPAddress", checkConsoleFlag, programCode );
+                        }
+                        return true;
+                    case "count":
                         if ( HostName.equals( "Reset" ) ) HostName = "-1";
 
                         try {
@@ -432,52 +460,38 @@ public class LoginControl extends JavaPlugin implements Listener {
                         }
 
                         StatRec.infoUnknownHost( p, IP );
-                    }
-                    break;
-                case "search":
-                    if ( !IP.equals( "" ) ) {
-                        StatRec.SearchHost( p, IP );
-                    } else {
-                        Tools.Prt( p, ChatColor.RED + "usage: search word", checkConsoleFlag, programCode );
-                    }
-                    break;
-                case "pingtop":
-                    int PTLines;
-                    try {
-                        PTLines = Integer.parseInt( IP );
-                    } catch ( NumberFormatException e ) {
-                        Tools.Prt( p, ChatColor.RED + "Please specify an integer", checkConsoleFlag, programCode );
-                        PTLines = 10;
-                    }
-                    if ( PTLines < 1 ) { PTLines = 10; }
-                    StatRec.PingTop( p, PTLines );
-                    break;
-                case "CheckIP":
-                    Config.CheckIPAddress = !Config.CheckIPAddress;
-                    Tools.Prt( p,
-                        ChatColor.GREEN + "Unknown IP Address Check Change to " +
-                        ChatColor.YELLOW + ( Config.CheckIPAddress ? "True":"False" ),
-                        checkConsoleFlag,
-                        programCode
-                    );
-                    break;
-                case "Console":
-                    Tools.setDebug( IP, programCode );
-                    Tools.Prt( p,
-                        ChatColor.GREEN + "System Debug Mode is [ " +
-                        ChatColor.RED + Tools.consoleFlag.get( programCode ) +
-                        ChatColor.GREEN + " ]",
-                        checkConsoleFlag,
-                        programCode
-                    );
-                    break;
-                case "Convert":
-                    StatRec.convertHostName( p );
-                    break;
-                default:
-                    return false;
+                        return true;
+                    case "search":
+                        if ( !IP.equals( "" ) ) {
+                            StatRec.SearchHost( p, IP );
+                        } else {
+                            Tools.Prt( p, ChatColor.RED + "usage: search word", checkConsoleFlag, programCode );
+                        }
+                        return true;
+                    case "pingtop":
+                        int PTLines;
+                        try {
+                            PTLines = Integer.parseInt( IP );
+                        } catch ( NumberFormatException e ) {
+                            Tools.Prt( p, ChatColor.RED + "Please specify an integer", checkConsoleFlag, programCode );
+                            PTLines = 10;
+                        }
+                        if ( PTLines < 1 ) { PTLines = 10; }
+                        StatRec.PingTop( p, PTLines );
+                        return true;
+                    default:
+                        //  LoginCtl.admin
+                        Tools.Prt( "loginctl Status", programCode );
+                        Tools.Prt( "loginctl MotD", programCode );
+                        Tools.Prt( "loginctl info IPAddress", programCode );
+                        Tools.Prt( "loginctl chg IPAddress HostName", programCode );
+                        Tools.Prt( "loginctl add IPAddress [HostName]", programCode );
+                        Tools.Prt( "loginctl del IPAddress", programCode );
+                        Tools.Prt( "loginctl count IPAddress ( num or Reset )", programCode );
+                        Tools.Prt( "loginctl search word", programCode );
+                        Tools.Prt( "loginctl pingtop [LineCount]", programCode );
+                }
             }
-            return true;
         }
         return false;
     }
@@ -581,25 +595,25 @@ public class LoginControl extends JavaPlugin implements Listener {
      * 初心者チュートリアルへの強制転送コマンド
      *
      * @param player 
+     * @return  
      */
-    public void BeginnerTeleport( Player player ) {
-        if ( Config.JumpStats ) {
-            Tools.Prt( "This player is first play to teleport", consoleMode.normal, programCode );
-            World world = getWorld( Config.fworld );
-            Location loc = new Location( world, Config.fx, Config.fy, Config.fz );
-            loc.setYaw( Config.fyaw );
-            loc.setPitch( Config.fpitch );
-            Tools.Prt(
-                "player Teleport=" + world.getName() +
-                " X=" + Config.fx +
-                " Y=" + Config.fy +
-                " Z=" + Config.fz +
-                " Yaw=" + Config.fyaw +
-                " Pitch=" + Config.fpitch,
-                consoleMode.max, programCode
-            );
-            player.teleport( loc );
-        }
+    public boolean BeginnerTeleport( Player player ) {
+        Tools.Prt( "This player is first play to teleport", consoleMode.normal, programCode );
+        World world = getWorld( Config.fworld );
+        Tools.Prt( "World = " + Config.fworld + " : " + world.toString(), Tools.consoleMode.max, programCode);
+        Location loc = new Location( world, Config.fx, Config.fy, Config.fz );
+        loc.setYaw( Config.fyaw );
+        loc.setPitch( Config.fpitch );
+        Tools.Prt(
+            "player Teleport=" + world.getName() +
+            " X=" + Config.fx +
+            " Y=" + Config.fy +
+            " Z=" + Config.fz +
+            " Yaw=" + Config.fyaw +
+            " Pitch=" + Config.fpitch,
+            consoleMode.max, programCode
+        );
+        return player.teleport( loc );
     }
 
     /**
@@ -647,15 +661,15 @@ public class LoginControl extends JavaPlugin implements Listener {
         Player player = event.getPlayer();
         Block clickedBlock = event.getClickedBlock();
         Material material = clickedBlock.getType();
-        if ( material == Material.SIGN || material == Material.WALL_SIGN ) {
+        Tools.Prt( "Material = " + material.name(), Tools.consoleMode.max, programCode);
+
+        try {
             Sign sign = (Sign) clickedBlock.getState();
             if ( sign.getLine( 0 ).equals( "[TrashCan]" ) ) {
                 Inventory inv;
                 inv = Bukkit.createInventory( null, 36, "Trash Can" );
                 player.openInventory( inv );
             }
-        } else {
-            Tools.Prt( player, "Material = " + material.name(), Tools.consoleMode.max, programCode);
-        }
+        } catch ( ClassCastException e ) {}
     }
 }

@@ -36,22 +36,7 @@ commands:
         usage: /<command> [full] [d:yymmdd] [u:player name] [i:IP Address] [l:Lines]
     loginctl:
         description: LoginControl Admin Commands
-        permission: LoginCtl.admin
-        permission-message: You do not have permission.
-        default: op
-        usage: |
-            /<command> reload
-            /<command> status
-            /<command> motd
-            /<command> info IPAddress
-            /<command> chg IPAddress HostName
-            /<command> add IPAddress [HostName]
-            /<command> del IPAddress
-            /<command> count IPAddress ( num or Reset )
-            /<command> search word
-            /<command> pingtop [LineCount]
-            /<command> checkIP
-            /<command> Console [full/normal/none]
+        default: false
 permissions:
     LoginCtl.silentjoin:
         description: Silent Login non Message
@@ -64,4 +49,10 @@ permissions:
         default: op
     LoginCtl.flight:
         description: Player Flight Mode Switch
+        default: op
+    LoginCtl.admin:
+        permission-message: You do not have permission.
+        default: op
+    LoginCtl.console:
+        permission-message: You do not have permission.
         default: op

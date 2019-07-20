@@ -107,15 +107,15 @@ public class Config {
         Tools.Prt( p, ChatColor.WHITE + "DB Name : " + ChatColor.YELLOW + database, programCode );
         Tools.Prt( p, ChatColor.WHITE + "FirstJump : " + ChatColor.YELLOW + ( ( JumpStats ) ? "True":"None" ), programCode );
         if ( JumpStats ) {
-            Tools.Prt( p, ChatColor.WHITE + "  world:" + ChatColor.YELLOW + fworld, programCode );
-            Tools.Prt( p, ChatColor.WHITE + "  x:" + ChatColor.YELLOW + String.valueOf( fx ), programCode );
-            Tools.Prt( p, ChatColor.WHITE + "  y:" + ChatColor.YELLOW + String.valueOf( fy ), programCode );
-            Tools.Prt( p, ChatColor.WHITE + "  z:" + ChatColor.YELLOW + String.valueOf( fz ), programCode );
-            Tools.Prt( p, ChatColor.WHITE + "  p:" + ChatColor.YELLOW + String.valueOf( fpitch ), programCode );
-            Tools.Prt( p, ChatColor.WHITE + "  y:" + ChatColor.YELLOW + String.valueOf( fyaw ), programCode );
+            Tools.Prt( p, ChatColor.WHITE + "  world : " + ChatColor.YELLOW + fworld, programCode );
+            Tools.Prt( p, ChatColor.WHITE + "  x     : " + ChatColor.YELLOW + String.valueOf( fx ), programCode );
+            Tools.Prt( p, ChatColor.WHITE + "  y     : " + ChatColor.YELLOW + String.valueOf( fy ), programCode );
+            Tools.Prt( p, ChatColor.WHITE + "  z     : " + ChatColor.YELLOW + String.valueOf( fz ), programCode );
+            Tools.Prt( p, ChatColor.WHITE + "  p     : " + ChatColor.YELLOW + String.valueOf( fpitch ), programCode );
+            Tools.Prt( p, ChatColor.WHITE + "  y     : " + ChatColor.YELLOW + String.valueOf( fyaw ), programCode );
         }
         Tools.Prt( p, ChatColor.WHITE + "Present Items", programCode );
-        Config.present.stream().forEach( CP -> { Tools.Prt( p, ChatColor.WHITE + CP, programCode ); } );
+        Config.present.stream().forEach( CP -> { Tools.Prt( p, ChatColor.WHITE + " - " + ChatColor.YELLOW + CP, programCode ); } );
 
         Tools.Prt( p, ChatColor.WHITE + "Ignore Names", programCode );
         IgnoreReportName.stream().forEach( IRN -> { Tools.Prt( p, ChatColor.YELLOW + " - " + IRN, programCode ); } );
