@@ -855,7 +855,8 @@ public class StatusRecord {
                             ChatColor.AQUA.toString(), String.format( "%5d", rs.getInt("count" ) ), ": ",
                             ChatColor.YELLOW.toString(), String.format( "%-15s", InetCalc.toInetAddress( rs.getLong( "ip" ) ) ), " ",
                             ChatColor.LIGHT_PURPLE.toString(), String.format( "%-40s", Utility.CutMiddleString( rs.getString( "host" ), 40 ) ), " ",
-                            ChatColor.WHITE.toString(), sdf.format( rs.getTimestamp( "lastdate" ) )
+                            ChatColor.WHITE.toString(), sdf.format( rs.getTimestamp( "lastdate" ) ),
+                            ChatColor.GOLD.toString(), sdf.format( rs.getTimestamp( "newdate" ) )
                         ), consolePrint, programCode
                     );
                     chk_name = GetName;
