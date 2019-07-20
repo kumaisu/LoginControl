@@ -390,10 +390,6 @@ public class LoginControl extends JavaPlugin implements Listener {
                         StatRec.convertHostName( p );
                         return true;
                     default:
-                        //  LoginCtl.console
-                        Tools.Prt( "loginctl Reload", programCode );
-                        Tools.Prt( "loginctl Console [full/normal/none]", programCode );
-                        Tools.Prt( "loginctl CheckIP", programCode );
                 }
             }
 
@@ -480,17 +476,25 @@ public class LoginControl extends JavaPlugin implements Listener {
                         StatRec.PingTop( p, PTLines );
                         return true;
                     default:
-                        //  LoginCtl.admin
-                        Tools.Prt( "loginctl Status", programCode );
-                        Tools.Prt( "loginctl MotD", programCode );
-                        Tools.Prt( "loginctl info IPAddress", programCode );
-                        Tools.Prt( "loginctl chg IPAddress HostName", programCode );
-                        Tools.Prt( "loginctl add IPAddress [HostName]", programCode );
-                        Tools.Prt( "loginctl del IPAddress", programCode );
-                        Tools.Prt( "loginctl count IPAddress ( num or Reset )", programCode );
-                        Tools.Prt( "loginctl search word", programCode );
-                        Tools.Prt( "loginctl pingtop [LineCount]", programCode );
                 }
+            }
+            if ( ( p == null ) || p.hasPermission( "LoginCtl.console" ) ) {
+                //  LoginCtl.console
+                Tools.Prt( "loginctl Reload", programCode );
+                Tools.Prt( "loginctl Console [full/normal/none]", programCode );
+                Tools.Prt( "loginctl CheckIP", programCode );
+            }
+            if ( ( p == null ) || p.hasPermission( "LoginCtl.admin" ) ) {
+                //  LoginCtl.admin
+                Tools.Prt( "loginctl Status", programCode );
+                Tools.Prt( "loginctl MotD", programCode );
+                Tools.Prt( "loginctl info IPAddress", programCode );
+                Tools.Prt( "loginctl chg IPAddress HostName", programCode );
+                Tools.Prt( "loginctl add IPAddress [HostName]", programCode );
+                Tools.Prt( "loginctl del IPAddress", programCode );
+                Tools.Prt( "loginctl count IPAddress ( num or Reset )", programCode );
+                Tools.Prt( "loginctl search word", programCode );
+                Tools.Prt( "loginctl pingtop [LineCount]", programCode );
             }
         }
         return false;
