@@ -357,11 +357,14 @@ public class LoginControl extends JavaPlugin implements Listener {
             String HostName = "";
             String CtlCmd = "None";
 
+            boolean hasConsolePerm = ( p == null ? true : p.hasPermission( "LoginCtl.console" ) );
+            boolean hasAdminPerm = ( p == null ? true : p.hasPermission( "LoginCtl.admin" ) );
+
             if ( args.length > 0 ) CtlCmd = args[0];
             if ( args.length > 1 ) IP = args[1];
             if ( args.length > 2 ) HostName = args[2];
 
-            if ( ( p == null ) || p.hasPermission( "LoginCtl.console" ) ) {
+            if ( hasConsolePerm ) {
                 switch ( CtlCmd ) {
                     case "Reload":
                         config = new Config( this );
@@ -391,9 +394,11 @@ public class LoginControl extends JavaPlugin implements Listener {
                         return true;
                     default:
                 }
+            } else {
+                Tools.Prt( p, "You do not have permission.", programCode );
             }
 
-            if ( ( p == null ) || p.hasPermission( "LoginCtl.admin" ) ) {
+            if ( hasAdminPerm ) {
                 switch ( CtlCmd ) {
                     case "Status":
                         config.Status( p );
@@ -477,6 +482,8 @@ public class LoginControl extends JavaPlugin implements Listener {
                         return true;
                     default:
                 }
+            } else {
+                Tools.Prt( p, "You do not have permission.", programCode );
             }
 
             if ( ( p == null ) || p.hasPermission( "LoginCtl.console" ) ) {
