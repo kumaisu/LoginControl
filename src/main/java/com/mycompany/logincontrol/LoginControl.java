@@ -107,6 +107,12 @@ public class LoginControl extends JavaPlugin implements Listener {
         if ( !player.hasPlayedBefore() || ( Config.OpJumpStats && player.isOp() ) ) {
             Tools.Prt( ChatColor.LIGHT_PURPLE + "The First Login Player", consoleMode.normal, programCode );
 
+            if ( Config.JumpStats ) {
+                if ( !BeginnerTeleport( player ) ) {
+                    Tools.Prt( player, "You failed the beginner teleport", Tools.consoleMode.full, programCode);
+                }
+            } else Tools.Prt( "not Beginner Teleport", Tools.consoleMode.max, programCode );
+    
             if( config.NewJoin() ) {
                 String msg = StatRec.GetLocale( player.getAddress().getHostString() );
                 Tools.Prt( "Player host = " + player.getAddress().getHostString(), consoleMode.normal, programCode );
@@ -116,15 +122,9 @@ public class LoginControl extends JavaPlugin implements Listener {
 
             Config.present.stream().forEach( CP -> {
                 Tools.ExecOtherCommand( player, CP, "" );
-                Tools.Prt( ChatColor.AQUA + "Present Item : " + ChatColor.WHITE + CP, consoleMode.max, programCode );
+                Tools.Prt( ChatColor.AQUA + "Command Execute : " + ChatColor.WHITE + CP, consoleMode.max, programCode );
             } );
             
-            if ( Config.JumpStats ) {
-                if ( !BeginnerTeleport( player ) ) {
-                    Tools.Prt( player, "You failed the beginner teleport", Tools.consoleMode.full, programCode);
-                }
-            } else Tools.Prt( "not Beginner Teleport", Tools.consoleMode.max, programCode );
-    
         } else {
             Tools.Prt( "The Repeat Login Player", consoleMode.normal, programCode );
             if( config.ReturnJoin() && !player.hasPermission( "LoginCtl.silentjoin" ) ) {
@@ -146,6 +146,7 @@ public class LoginControl extends JavaPlugin implements Listener {
         }
         if ( config.PlayerQuit() ) {
             event.setQuitMessage( Utility.ReplaceString( config.PlayerQuitMessage(), event.getPlayer().getDisplayName() ) );
+            Bukkit.broadcastMessage( Utility.ReplaceString( config.PlayerQuitMessage(), event.getPlayer().getDisplayName() ) );
         }
     }
 
@@ -400,7 +401,7 @@ public class LoginControl extends JavaPlugin implements Listener {
 
             if ( hasAdminPerm ) {
                 switch ( CtlCmd ) {
-                    case "Status":
+                    case "status":
                         config.Status( p );
                         return true;
                     case "Motd":
@@ -494,7 +495,7 @@ public class LoginControl extends JavaPlugin implements Listener {
             }
             if ( ( p == null ) || p.hasPermission( "LoginCtl.admin" ) ) {
                 //  LoginCtl.admin
-                Tools.Prt( p, "loginctl Status", programCode );
+                Tools.Prt( p, "loginctl status", programCode );
                 Tools.Prt( p, "loginctl MotD", programCode );
                 Tools.Prt( p, "loginctl info IPAddress", programCode );
                 Tools.Prt( p, "loginctl chg IPAddress HostName", programCode );
@@ -610,7 +611,7 @@ public class LoginControl extends JavaPlugin implements Listener {
      * @return  
      */
     public boolean BeginnerTeleport( Player player ) {
-        Tools.Prt( "This player is first play to teleport", consoleMode.normal, programCode );
+        Tools.Prt( player, "This player " + player.getDisplayName() + " is first play to teleport", consoleMode.normal, programCode );
         World world = getWorld( Config.fworld );
         Tools.Prt( "World = " + Config.fworld + " : " + world.toString(), Tools.consoleMode.max, programCode);
         Location loc = new Location( world, Config.fx, Config.fy, Config.fz );
