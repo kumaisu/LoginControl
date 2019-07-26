@@ -185,11 +185,12 @@ public class LoginControl extends JavaPlugin implements Listener {
                     MsgColor = ChatColor.WHITE.toString();
                     //  簡易DNSにプレイヤー登録されている場合は、ログイン履歴を参照して最新のプレイヤー名を取得する
                     Names = StatRec.listGetPlayerName( event.getAddress().getHostAddress() );
-                    if ( Config.playerPingB && !Config.IgnoreReportName.contains( Names ) ) {
-                        if ( !lastName.equals( Names ) ) {
-                            Bukkit.broadcastMessage( ChatColor.GREEN + "Ping From " + ChatColor.WHITE + Names );
-                            lastName = Names;
-                        }
+                    Tools.Prt( "Names    [" + Names + "]", Tools.consoleMode.max, programCode );
+                    Tools.Prt( "Ignore   [" + ( Config.IgnoreReportName.contains( Names) ? "True" : "False" ) + "]", Tools.consoleMode.max, programCode);
+                    if ( ( Config.playerPingB && !Config.IgnoreReportName.contains( Names ) ) && ( Names != null && !Names.equals( lastName ) ) ) {
+                        Tools.Prt( "lastName [" + lastName + "]", Tools.consoleMode.max, programCode );
+                        Bukkit.broadcastMessage( ChatColor.GREEN + "Ping From Player " + ChatColor.WHITE + Names );
+                        lastName = Names;
                     }
                     MsgNum = 2;
                     PrtStatus = consoleMode.normal;
@@ -371,6 +372,9 @@ public class LoginControl extends JavaPlugin implements Listener {
                         config = new Config( this );
                         Tools.Prt( p, Utility.ReplaceString( config.Reload() ), checkConsoleFlag, programCode );
                         return true;
+                    case "Dupcheck":
+                        StatRec.DuplicateCheck( p );
+                        return true;
                     case "CheckIP":
                         Config.CheckIPAddress = !Config.CheckIPAddress;
                         Tools.Prt( p,
@@ -492,6 +496,7 @@ public class LoginControl extends JavaPlugin implements Listener {
                 Tools.Prt( p, "loginctl Reload", programCode );
                 Tools.Prt( p, "loginctl Console [max,full,normal,none]", programCode );
                 Tools.Prt( p, "loginctl CheckIP", programCode );
+                Tools.Prt( p, "loginctl Dupcheck", programCode );
             }
             if ( ( p == null ) || p.hasPermission( "LoginCtl.admin" ) ) {
                 //  LoginCtl.admin
