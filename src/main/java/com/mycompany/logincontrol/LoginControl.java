@@ -189,7 +189,7 @@ public class LoginControl extends JavaPlugin implements Listener {
                     Tools.Prt( "Ignore   [" + ( Config.IgnoreReportName.contains( Names) ? "True" : "False" ) + "]", Tools.consoleMode.max, programCode);
                     if ( ( Config.playerPingB && !Config.IgnoreReportName.contains( Names ) ) && ( Names != null && !Names.equals( lastName ) ) ) {
                         Tools.Prt( "lastName [" + lastName + "]", Tools.consoleMode.max, programCode );
-                        Bukkit.broadcastMessage( ChatColor.GREEN + "Ping From Player " + ChatColor.WHITE + Names );
+                        if ( Bukkit.getOnlinePlayers().size() > 0 ) Bukkit.broadcastMessage( ChatColor.GREEN + "Ping From Player " + ChatColor.WHITE + Names );
                         lastName = Names;
                     }
                     MsgNum = 2;
@@ -219,10 +219,10 @@ public class LoginControl extends JavaPlugin implements Listener {
                 //  False : 最後にカウントされた日を指定
                 Motd2ndLine = Motd2ndLine.replace( "%date", StatRec.getDateHost( event.getAddress().getHostAddress(), true ) );
                 MotdMsg = Utility.StringBuild( MotdMsg, Motd2ndLine );
-                Tools.Prt( Utility.StringBuild( "MotD = ", Utility.ReplaceString( Motd2ndLine, Names ) ), consoleMode.full, programCode );
+                Tools.Prt( Utility.StringBuild( "MotD = ", Utility.ReplaceString( Motd2ndLine, Names ) ), consoleMode.max, programCode );
             } else {
                 MotdMsg = Motd2ndLine;
-                Tools.Prt( Utility.StringBuild( "Change = ", Utility.ReplaceString( Motd2ndLine.replace( "\n", " " ), Names ) ), consoleMode.full, programCode );
+                Tools.Prt( Utility.StringBuild( "Change = ", Utility.ReplaceString( Motd2ndLine.replace( "\n", " " ), Names ) ), consoleMode.max, programCode );
             }
 
             if ( ( Config.AlarmCount != 0 ) && ( count >= Config.AlarmCount ) ) { PrtStatus = consoleMode.none; }
@@ -235,9 +235,11 @@ public class LoginControl extends JavaPlugin implements Listener {
         event.setMotd( Utility.ReplaceString( MotdMsg, Names ) );
         // event.getNumPlayers().set( 30 );
 
-        String msg = Utility.StringBuild( ChatColor.GREEN.toString(), "Ping from ", MsgColor, Host, ChatColor.YELLOW.toString(), " [", event.getAddress().getHostAddress(), "]" );
-        Tools.Prt( msg, PrtStatus, programCode );
-        Bukkit.getOnlinePlayers().stream().filter( ( p ) -> ( p.hasPermission( "LoginCtl.view" ) || p.isOp() ) ).forEachOrdered( ( p ) -> { p.sendMessage( msg ); } );
+        if ( !Config.IgnoreReportIP.contains( event.getAddress().getHostAddress() ) ) {
+            String msg = Utility.StringBuild( ChatColor.GREEN.toString(), "Ping from ", MsgColor, Host, ChatColor.YELLOW.toString(), " [", event.getAddress().getHostAddress(), "]" );
+            Tools.Prt( msg, PrtStatus, programCode );
+            Bukkit.getOnlinePlayers().stream().filter( ( p ) -> ( p.hasPermission( "LoginCtl.view" ) || p.isOp() ) ).forEachOrdered( ( p ) -> { p.sendMessage( msg ); } );
+        }
     }
 
     /**

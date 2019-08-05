@@ -576,7 +576,7 @@ public class StatusRecord {
             String[] NameItem = hostName.split( "\\.", 0 );
             StringBuilder buf = new StringBuilder();
             for( int i = 1; i < NameItem.length; i++ ){
-                Tools.Prt( String.format( "%2d : %s", i, NameItem[i] ), consoleMode.full, programCode );
+                Tools.Prt( String.format( "%2d : %s", i, NameItem[i] ), consoleMode.max, programCode );
                 if( i != 1 ) buf.append( "." );
                 buf.append( NameItem[i] );
             }
