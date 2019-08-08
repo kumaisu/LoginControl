@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.mycompany</groupId>
   <artifactId>LoginControl</artifactId>
-  <version>0.4</version>
+  <version>0.5</version>
   <scm>
     <connection>scm:svn:http://127.0.0.1/dummy</connection>
     <developerConnection>scm:svn:https://127.0.0.1/dummy</developerConnection>
@@ -33,6 +33,13 @@
                   <shadedPattern>com.mycompany.KumaisuLibraries</shadedPattern>
                 </relocation>
               </relocations>
+              <minimizeJar>true</minimizeJar>
+              <artifactSet>
+                <includes>
+                  <include>org.slf4j:*</include>
+                  <include>com.zaxxer:*</include>
+                </includes>
+              </artifactSet>
             </configuration>
           </execution>
         </executions>
@@ -125,6 +132,12 @@
       <artifactId>VaultAPI</artifactId>
       <version>1.7</version>
       <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.mycompany</groupId>
+      <artifactId>KumaisuLibraries</artifactId>
+      <version>0.1</version>
+      <scope>compile</scope>
     </dependency>
   </dependencies>
   <properties>

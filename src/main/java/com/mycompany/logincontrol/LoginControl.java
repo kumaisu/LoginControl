@@ -33,6 +33,7 @@ import org.bukkit.event.server.ServerListPingEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.java.JavaPlugin;
 import com.mycompany.logincontrol.config.Config;
+import com.mycompany.logincontrol.database.RecordControl;
 import com.mycompany.kumaisulibraries.Utility;
 import com.mycompany.kumaisulibraries.Tools;
 import com.mycompany.kumaisulibraries.Tools.consoleMode;
@@ -46,7 +47,7 @@ public class LoginControl extends JavaPlugin implements Listener {
 
     private Config config;
     private Date date;
-    private StatusRecord StatRec;
+    private RecordControl StatRec;
     private MotDControl MotData;
     private String lastName = "";
 
@@ -55,11 +56,12 @@ public class LoginControl extends JavaPlugin implements Listener {
         this.getServer().getPluginManager().registerEvents( this, this );
         config = new Config( this );
         MotData = new MotDControl( this );
-        StatRec = new StatusRecord( Config.host, Config.database, Config.port, Config.username, Config.password, config.getKumaisu() );
+        StatRec = new RecordControl();
     }
 
     @Override
     public void onDisable() {
+        StatRec.close();
         super.onDisable(); //To change body of generated methods, choose Tools | Templates.
     }
 

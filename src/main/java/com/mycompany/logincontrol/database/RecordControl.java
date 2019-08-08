@@ -1,14 +1,13 @@
 /*
  *  Copyright (c) 2018 sugichan. All rights reserved.
  */
-package com.mycompany.logincontrol;
+package com.mycompany.logincontrol.database;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.UnknownHostException;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -22,6 +21,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import com.mycompany.kumaisulibraries.Utility;
 import com.mycompany.kumaisulibraries.InetCalc;
 import com.mycompany.kumaisulibraries.Tools;
@@ -34,30 +35,88 @@ import static com.mycompany.logincontrol.config.Config.programCode;
  *
  * @author sugichan
  */
-public class StatusRecord {
+public class RecordControl {
 
     SimpleDateFormat sdf = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" );
     private Connection connection;
-    private final String host, database, port, username, password;
-    private final boolean Kumaisu;
+    private final HikariDataSource dataSource;
 
     /**
      * ライブラリー読込時の初期設定
      *
-     * @param CFhost
-     * @param CFdb
-     * @param CFport
-     * @param CFuser
-     * @param CFpass
-     * @param KumaFlag
      */
-    public StatusRecord( String CFhost, String CFdb, String CFport, String CFuser, String CFpass, boolean KumaFlag ) {
-        Kumaisu = KumaFlag;
-        host = CFhost;
-        database = CFdb;
-        port = CFport;
-        username = CFuser;
-        password = CFpass;
+    public RecordControl() {
+        // HikariCPの初期化
+        HikariConfig config = new HikariConfig();
+
+        // MySQL用ドライバを設定
+        config.setDriverClassName( "com.mysql.jdbc.Driver" );
+
+        // 「jdbc:mysql://ホスト:ポート/DB名」の様なURLで指定
+        config.setJdbcUrl( "jdbc:mysql://" + Config.host + ":" + Config.port + "/" + Config.database );
+
+        // ユーザ名、パスワード指定
+        config.addDataSourceProperty( "user", Config.username );
+        config.addDataSourceProperty( "password", Config.password );
+
+        // キャッシュ系の設定(任意)
+        config.addDataSourceProperty( "cachePrepStmts", "true" );
+        config.addDataSourceProperty( "prepStmtCacheSize", "250" );
+        config.addDataSourceProperty( "prepStmtCacheSqlLimit", "2048" );
+        // サーバサイドプリペアードステートメントを使用する(任意)
+        config.addDataSourceProperty( "useServerPrepStmts", "true" );
+        // エンコーディング
+        config.addDataSourceProperty( "characterEncoding", "utf8" );
+
+        // 最小接続数まで接続を確保できない時に例外を投げる
+        config.setInitializationFailFast( true );
+        // 接続をテストするためのクエリ
+        config.setConnectionInitSql( "SELECT 1" );
+
+        // 接続
+        dataSource = new HikariDataSource( config );
+
+        try {
+            connection = dataSource.getConnection();
+        } catch( SQLException e ) {
+            Tools.Prt( "Connection Error : " + e.getMessage(), programCode);
+        }
+
+        updateTables();
+    }
+
+    public void close() {
+        if ( dataSource != null ) {
+            dataSource.close();
+        }
+    }
+
+    /**
+     * MySQLへのコネクション処理
+     *
+     * @throws SQLException
+     * @throws ClassNotFoundException
+     */
+    private void updateTables() {
+        try {
+            //  mysql> create table list(id int auto_increment, date DATETIME,name varchar(20), uuid varchar(36), ip INTEGER UNSIGNED, status byte, index(id));
+            //  テーブルの作成
+            //  存在すれば、無視される
+            String sql = "CREATE TABLE IF NOT EXISTS list(id int auto_increment, date DATETIME,name varchar(20), uuid varchar(36), ip INTEGER UNSIGNED, status int, index(id))";
+            Tools.Prt( sql, Tools.consoleMode.max, programCode );
+            PreparedStatement preparedStatement = connection.prepareStatement( sql );
+            preparedStatement.executeUpdate();
+
+            //  mysql> create table IF NOT EXISTS unknowns (ip varchar(22), host varchar(60), count int, newdate DATETIME, lastdate DATETIME );
+            //  Unknowns テーブルの作成
+            //  存在すれば、無視される
+            sql = "CREATE TABLE IF NOT EXISTS hosts (ip INTEGER UNSIGNED, host varchar(60), count int, newdate DATETIME, lastdate DATETIME )";
+            Tools.Prt( sql, Tools.consoleMode.max, programCode );
+            preparedStatement = connection.prepareStatement( sql );
+            preparedStatement.executeUpdate();
+        } catch( SQLException ex ) {
+            Tools.Prt( "Error SQL update tables " + ex.getMessage(), programCode );
+        }
     }
 
     /**
@@ -97,7 +156,9 @@ public class StatusRecord {
                 );
             }
 
-        } catch ( SQLException e ) {}
+        } catch ( SQLException e ) {
+            Tools.Prt( "Error LinePrt : " + e.getMessage(), programCode );
+        }
 
         return message;
     }
@@ -116,7 +177,6 @@ public class StatusRecord {
         Tools.Prt( player, "== Login List ==", programCode );
 
         try {
-            openConnection();
             Statement stmt = connection.createStatement();
             String sql = "SELECT * FROM list ORDER BY date DESC;";
             Tools.Prt( "LogPrint : " + sql, Tools.consoleMode.max, programCode );
@@ -139,8 +199,8 @@ public class StatusRecord {
 
             Tools.Prt( player, "================", programCode );
 
-        } catch ( ClassNotFoundException | SQLException e ) {
-            e.printStackTrace();
+        } catch ( SQLException e ) {
+            Tools.Prt( "Error LogPrint : " + e.getMessage(), programCode );
         }
     }
 
@@ -180,7 +240,6 @@ public class StatusRecord {
         }
 
         try {
-            openConnection();
             Statement stmt = connection.createStatement();
             Tools.Prt( "exLogPrint : " + sqlCmd, Tools.consoleMode.max, programCode );
             ResultSet rs = stmt.executeQuery( sqlCmd );
@@ -228,8 +287,8 @@ public class StatusRecord {
 
             Tools.Prt( player, "================", programCode );
 
-        } catch ( ClassNotFoundException | SQLException e ) {
-            Tools.Prt( "Error exLogPrint", programCode );
+        } catch ( SQLException e ) {
+            Tools.Prt( "Error exLogPrint : " + e.getMessage(), programCode );
             return false;
         }
         return true;
@@ -246,14 +305,13 @@ public class StatusRecord {
     public String listGetPlayerName( String ip ) {
 
         try {
-            openConnection();
             Statement stmt = connection.createStatement();
             String sql = "SELECT * FROM list WHERE INET_NTOA(ip) = '" + ip + "' ORDER BY date DESC;";
             Tools.Prt( "listGetPlayerName : " + sql, Tools.consoleMode.max, programCode );
             ResultSet rs = stmt.executeQuery( sql );
             return ( rs.next() ? rs.getString( "name" ):"Unknown" );
-        } catch ( ClassNotFoundException | SQLException e ) {
-            e.printStackTrace();
+        } catch ( SQLException e ) {
+            Tools.Prt( "Error listGetPlayerName : " + e.getMessage(), programCode );
         }
 
         return ip;
@@ -275,7 +333,6 @@ public class StatusRecord {
         PrtData.add( Utility.StringBuild( ChatColor.RED.toString(), "=== Check IP Address ===", ChatColor.YELLOW.toString(), "[", player.getAddress().getHostString(), "]" ) );
 
         try {
-            openConnection();
             Statement stmt = connection.createStatement();
             String sql = "SELECT * FROM list WHERE INET_NTOA(ip) = '" + player.getAddress().getHostString() + "' ORDER BY date DESC;";
             Tools.Prt( "listCheckIP : " + sql, Tools.consoleMode.max, programCode );
@@ -296,8 +353,8 @@ public class StatusRecord {
                 }
             }
 
-        } catch ( ClassNotFoundException | SQLException e ) {
-            e.printStackTrace();
+        } catch ( SQLException e ) {
+            Tools.Prt( "Error listCheckIP : " + e.getMessage(), programCode );
         }
 
         PrtData.add( Utility.StringBuild( ChatColor.RED.toString(), "=== end ===" ) );
@@ -321,15 +378,14 @@ public class StatusRecord {
      */
     public void listChangeStatus( Date date, int status ) {
         try {
-            openConnection();
 
             String sql = "UPDATE list SET status = " + String.valueOf( status ) + " WHERE date = '" + sdf.format( date ) + "';";
             Tools.Prt( "listChangeStatus : " + sql, Tools.consoleMode.max, programCode );
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.executeUpdate();
 
-        } catch ( ClassNotFoundException | SQLException e ) {
-            Tools.Prt( "Error ChangeStatus", programCode );
+        } catch ( SQLException e ) {
+            Tools.Prt( "Error ChangeStatus : " + e.getMessage(), programCode );
         }
     }
 
@@ -353,7 +409,6 @@ public class StatusRecord {
         */
 
         try {
-            openConnection();
 
             String sql = "INSERT INTO list (date, name, uuid, ip, status) VALUES (?, ?, ?, INET_ATON( ? ), ?);";
             Tools.Prt( "listPreSave : " + sql, Tools.consoleMode.max, programCode );
@@ -366,8 +421,8 @@ public class StatusRecord {
 
             preparedStatement.executeUpdate();
 
-        } catch ( ClassNotFoundException | SQLException e ) {
-            Tools.Prt( "Error PreSavePlayer", programCode );
+        } catch ( SQLException e ) {
+            Tools.Prt( "Error PreSavePlayer : " + e.getMessage(), programCode );
         }
     }
 
@@ -394,43 +449,6 @@ public class StatusRecord {
     }
 
     /**
-     * MySQLへのコネクション処理
-     *
-     * @throws SQLException
-     * @throws ClassNotFoundException
-     */
-    private void openConnection() throws SQLException, ClassNotFoundException {
-
-        if ( connection != null && !connection.isClosed() ) {
-            return;
-        }
-
-        synchronized ( this ) {
-            if ( connection != null && !connection.isClosed() ) {
-                return;
-            }
-            Class.forName( "com.mysql.jdbc.Driver" );
-            connection = DriverManager.getConnection( "jdbc:mysql://" + host + ":" + port + "/" + database, username, password );
-
-            //  mysql> create table list(id int auto_increment, date DATETIME,name varchar(20), uuid varchar(36), ip INTEGER UNSIGNED, status byte, index(id));
-            //  テーブルの作成
-            //  存在すれば、無視される
-            String sql = "CREATE TABLE IF NOT EXISTS list(id int auto_increment, date DATETIME,name varchar(20), uuid varchar(36), ip INTEGER UNSIGNED, status int, index(id))";
-            Tools.Prt( sql, Tools.consoleMode.max, programCode );
-            PreparedStatement preparedStatement = connection.prepareStatement( sql );
-            preparedStatement.executeUpdate();
-
-            //  mysql> create table IF NOT EXISTS unknowns (ip varchar(22), host varchar(60), count int, newdate DATETIME, lastdate DATETIME );
-            //  Unknowns テーブルの作成
-            //  存在すれば、無視される
-            sql = "CREATE TABLE IF NOT EXISTS hosts (ip INTEGER UNSIGNED, host varchar(60), count int, newdate DATETIME, lastdate DATETIME )";
-            Tools.Prt( sql, Tools.consoleMode.max, programCode );
-            preparedStatement = connection.prepareStatement( sql );
-            preparedStatement.executeUpdate();
-        }
-    }
-
-    /**
      * IPアドレスからホスト名を取得、接続国を特定する
      *
      * @param IP
@@ -438,7 +456,6 @@ public class StatusRecord {
      */
     public String GetLocale( String IP ) {
         try {
-            openConnection();
             Statement stmt = connection.createStatement();
             String sql = "SELECT * FROM hosts WHERE INET_NTOA(ip) = '" + IP + "' ORDER BY ip DESC;";
             Tools.Prt( "GetLocale : " + sql, Tools.consoleMode.max, programCode );
@@ -452,8 +469,8 @@ public class StatusRecord {
                 }
                 return item[ item.length - 1 ].toUpperCase();
             }
-        } catch ( ClassNotFoundException | SQLException e ) {
-            Tools.Prt( "Error GetLocale", programCode );
+        } catch ( SQLException e ) {
+            Tools.Prt( "Error GetLocale : " + e.getMessage(), programCode );
         }
         return "JP";
     }
@@ -466,7 +483,6 @@ public class StatusRecord {
      */
     public void AddHostToSQL( String IP, String Host ) {
         try {
-            openConnection();
 
             String sql = "INSERT INTO hosts ( ip, host, count, newdate, lastdate ) VALUES ( INET_ATON( ? ), ?, ?, ?, ? );";
             Tools.Prt( "AddHostToSQL : " + sql, Tools.consoleMode.max, programCode );
@@ -479,8 +495,8 @@ public class StatusRecord {
 
             preparedStatement.executeUpdate();
 
-        } catch ( ClassNotFoundException | SQLException e ) {
-            Tools.Prt( "Error AddHostToSQL", programCode );
+        } catch ( SQLException e ) {
+            Tools.Prt( "Error AddHostToSQL : " + e.getMessage(), programCode );
         }
     }
 
@@ -492,14 +508,13 @@ public class StatusRecord {
      */
     public boolean DelHostFromSQL( String IP ) {
         try {
-            openConnection();
             String sql = "DELETE FROM hosts WHERE INET_NTOA(ip) = '" + IP + "'";
             Tools.Prt( "DelHostFromSQL : " + sql, Tools.consoleMode.max, programCode );
             PreparedStatement preparedStatement = connection.prepareStatement( sql );
             preparedStatement.executeUpdate();
             return true;
-        } catch ( ClassNotFoundException | SQLException e ) {
-            Tools.Prt( "Error DelHostFromSQL", programCode );
+        } catch ( SQLException e ) {
+            Tools.Prt( "Error DelHostFromSQL : " + e.getMessage(), programCode );
             return false;
         }
     }
@@ -512,14 +527,13 @@ public class StatusRecord {
      */
     public String GetHost( String IP ) {
         try {
-            openConnection();
             Statement stmt = connection.createStatement();
             String sql = "SELECT * FROM hosts WHERE INET_NTOA(ip) = '" + IP + "';";
             Tools.Prt( "GetHost : " + sql, Tools.consoleMode.max, programCode );
             ResultSet rs = stmt.executeQuery( sql );
             if ( rs.next() ) return rs.getString( "host" );
-        } catch ( ClassNotFoundException | SQLException e ) {
-            Tools.Prt( "Error GetUnknownHost", programCode );
+        } catch ( SQLException e ) {
+            Tools.Prt( "Error GetUnknownHost : " + e.getMessage(), programCode );
         }
         return "Unknown";
     }
@@ -533,7 +547,6 @@ public class StatusRecord {
     public void SearchHost( Player p, String word ) {
 
         try {
-            openConnection();
             Statement stmt = connection.createStatement();
             String sql = "SELECT * FROM hosts WHERE host LIKE '%" + word + "%' ORDER BY ip DESC;";
             Tools.Prt( "SearchHost : " + sql, Tools.consoleMode.max, programCode );
@@ -558,8 +571,8 @@ public class StatusRecord {
 
             if ( DataNum == 0 ) Tools.Prt( p, Utility.StringBuild( ChatColor.RED.toString(), "No data for [", word, "]" ), programCode );
 
-        } catch ( ClassNotFoundException | SQLException e ) {
-            Tools.Prt( ChatColor.RED + "Search Error", programCode );
+        } catch ( SQLException e ) {
+            Tools.Prt( ChatColor.RED + "Search Error : " + e.getMessage(), programCode );
         }
     }
 
@@ -593,7 +606,6 @@ public class StatusRecord {
     public void convertHostName( Player p ) {
         Tools.Prt( p, ChatColor.YELLOW + "Kumaisu Data Converter Execute", programCode );
         try {
-            openConnection();
             Statement stmt = connection.createStatement();
             String sql = "SELECT * FROM hosts;";
             Tools.Prt( "convertHostName : " + sql, Tools.consoleMode.max, programCode );
@@ -611,8 +623,8 @@ public class StatusRecord {
                 }
             }
             Tools.Prt( p, ChatColor.YELLOW + "Convert Finished", programCode );
-        } catch ( ClassNotFoundException | SQLException e ) {
-            Tools.Prt( "HostName Convert Error", programCode );
+        } catch ( SQLException e ) {
+            Tools.Prt( "HostName Convert Error : " + e.getMessage(), programCode );
         }
     }
 
@@ -634,7 +646,7 @@ public class StatusRecord {
         }
 
         //  クマイス鯖特有の特別処理
-        if ( Kumaisu ) {
+        if ( Config.kumaisu ) {
             Tools.Prt( Utility.StringBuild( ChatColor.GREEN.toString(), "Original Hostname = ", ChatColor.AQUA.toString(), HostName ), consoleMode.full, programCode );
             HostName = changeHostName( HostName );
         }
@@ -695,7 +707,6 @@ public class StatusRecord {
         //  True : カウントを開始した日を指定
         //  False : 最後にカウントされた日を指定
         try {
-            openConnection();
             Statement stmt;
             stmt = connection.createStatement();
             String sql = "SELECT * FROM hosts WHERE INET_NTOA(ip) = '" + IP + "';";
@@ -710,7 +721,7 @@ public class StatusRecord {
                 }
             }
         } catch ( SQLException e ) {
-            Tools.Prt( "SQLException:" + e.getMessage(), programCode );
+            Tools.Prt( "SQLException : " + e.getMessage(), programCode );
         }
         return "";
     }
@@ -725,7 +736,6 @@ public class StatusRecord {
     @SuppressWarnings("CallToPrintStackTrace")
     public int GetcountHosts( String IP ) throws UnknownHostException {
         try {
-            openConnection();
             Statement stmt = connection.createStatement();
             String sql = "SELECT * FROM hosts WHERE INET_NTOA(ip) = '" + IP + "';";
             Tools.Prt( "GetcountHosts : " + sql, Tools.consoleMode.max, programCode );
@@ -733,8 +743,8 @@ public class StatusRecord {
 
             if ( rs.next() ) return rs.getInt( "count" );
 
-        } catch ( ClassNotFoundException | SQLException e ) {
-            e.printStackTrace();
+        } catch ( SQLException e ) {
+            Tools.Prt( "Error GetCountHosts : " + e.getMessage(), programCode );
         }
         return 0;
     }
@@ -749,7 +759,6 @@ public class StatusRecord {
     @SuppressWarnings("CallToPrintStackTrace")
     public void AddCountHost( String IP, int ZeroF ) throws UnknownHostException {
         try {
-            openConnection();
             Statement stmt = connection.createStatement();
             String sql = "SELECT * FROM hosts WHERE INET_NTOA(ip) = '" + IP + "';";
             Tools.Prt( "AddCountHost : " + sql, Tools.consoleMode.max, programCode );
@@ -771,8 +780,8 @@ public class StatusRecord {
                 preparedStatement.executeUpdate();
             }
 
-        } catch ( ClassNotFoundException | SQLException e ) {
-            e.printStackTrace();
+        } catch ( SQLException e ) {
+            Tools.Prt( "Error AddCountHosts : " + e.getMessage(), programCode );
         }
     }
 
@@ -788,7 +797,6 @@ public class StatusRecord {
         if ( Hostname.length()>60 ) { Hostname = String.format( "%-60s", Hostname ); }
 
         try {
-            openConnection();
             Statement stmt = connection.createStatement();
             String sql = "SELECT * FROM hosts WHERE INET_NTOA(ip) = '" + IP + "';";
             Tools.Prt( "chgUnknownHost : " + sql, Tools.consoleMode.max, programCode );
@@ -803,7 +811,7 @@ public class StatusRecord {
             } else {
                 Tools.Prt( ChatColor.RED + "could not get " + IP, programCode );
             }
-        } catch ( ClassNotFoundException | SQLException e ) {
+        } catch ( SQLException e ) {
             Tools.Prt( ChatColor.RED + "Change Database Error [" + IP + "][" + Hostname + "]", programCode );
             //  エラー詳細ログの表示
             Tools.Prt( e.getMessage(), programCode );
@@ -819,7 +827,6 @@ public class StatusRecord {
      */
     public void infoUnknownHost( Player p, String IP ) {
         try {
-            openConnection();
             Statement stmt = connection.createStatement();
             String sql = "SELECT * FROM hosts WHERE INET_NTOA(ip) = '" + IP + "' ORDER BY ip DESC;";
             Tools.Prt( "infoUnknownHost : " + sql, Tools.consoleMode.max, programCode );
@@ -835,8 +842,8 @@ public class StatusRecord {
             } else {
                 Tools.Prt( p, ChatColor.RED + "No data for [" + IP + "]", programCode );
             }
-        } catch ( ClassNotFoundException | SQLException e ) {
-            Tools.Prt( p, ChatColor.RED + "Error Information", programCode );
+        } catch ( SQLException e ) {
+            Tools.Prt( p, ChatColor.RED + "Error Information : ", programCode );
             //  エラー詳細ログの表示
             Tools.Prt( e.getMessage(), programCode );
         }
@@ -852,7 +859,6 @@ public class StatusRecord {
         Tools.Prt( p, ChatColor.GREEN + "== Database Duplicat Check ==", programCode );
 
         try {
-            openConnection();
             Statement stmt = connection.createStatement();
             String sql = "SELECT ip FROM hosts GROUP BY ip HAVING COUNT(ip) > 1;";
             Tools.Prt( "DublicateCheck : " + sql, Tools.consoleMode.max, programCode );
@@ -866,7 +872,7 @@ public class StatusRecord {
                 Tools.Prt( p, ChatColor.GREEN + "First Date  : " + ChatColor.WHITE + sdf.format( rs.getTimestamp( "newdate" ) ), programCode );
                 Tools.Prt( p, ChatColor.GREEN + "Last Date   : " + ChatColor.WHITE + sdf.format( rs.getTimestamp( "lastdate" ) ), programCode );
             }
-        } catch ( ClassNotFoundException | SQLException e ) {
+        } catch ( SQLException e ) {
             Tools.Prt( p, ChatColor.RED + "Error Information", programCode );
             //  エラー詳細ログの表示
             Tools.Prt( e.getMessage(), programCode );
@@ -885,7 +891,6 @@ public class StatusRecord {
         Tools.Prt( p, ChatColor.GREEN + "== Ping Count Top " + Lines + " ==", programCode );
 
         try {
-            openConnection();
             Statement stmt = connection.createStatement();
             String sql = "SELECT * FROM hosts ORDER BY count DESC;";
             Tools.Prt( "PingTop : " + sql, Tools.consoleMode.max, programCode );
@@ -911,7 +916,7 @@ public class StatusRecord {
                     chk_name = GetName;
                 }
             }
-        } catch ( ClassNotFoundException | SQLException e ) {
+        } catch ( SQLException e ) {
             Tools.Prt( ChatColor.RED + "Error Pingtop Listing ...", programCode );
             //  エラー詳細ログの表示
             Tools.Prt( e.getMessage(), programCode );

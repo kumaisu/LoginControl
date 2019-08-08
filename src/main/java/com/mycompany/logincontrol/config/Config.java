@@ -24,6 +24,8 @@ public class Config {
     private final Plugin plugin;
     private FileConfiguration config = null;
 
+    public static boolean kumaisu;
+
     public static String host;
     public static String port;
     public static String database;
@@ -69,6 +71,9 @@ public class Config {
         present = new ArrayList<>();
         IgnoreReportName = new ArrayList<>();
         IgnoreReportIP = new ArrayList<>();
+
+        //  特殊個人用フラグ
+        kumaisu = config.getBoolean( "Kumaisu" );
 
         host = config.getString( "mysql.host" );
         port = config.getString( "mysql.port" );
@@ -196,9 +201,5 @@ public class Config {
         String msg = config.getString( "Death_Message.Messages." + mob );
         if ( msg == null ) msg = config.getString( "Death_Message.Messages.DEFAULT" );
         return msg;
-    }
-
-    public boolean getKumaisu() {
-        return config.getBoolean( "Kumaisu" );
     }
 }
