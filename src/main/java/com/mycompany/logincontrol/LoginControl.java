@@ -34,10 +34,14 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.java.JavaPlugin;
 import com.mycompany.logincontrol.config.Config;
 import com.mycompany.logincontrol.database.RecordControl;
+import com.mycompany.logincontrol.database.FileRead;
 import com.mycompany.kumaisulibraries.Utility;
 import com.mycompany.kumaisulibraries.Tools;
 import com.mycompany.kumaisulibraries.Tools.consoleMode;
 import static com.mycompany.logincontrol.config.Config.programCode;
+import java.text.ParseException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -401,6 +405,14 @@ public class LoginControl extends JavaPlugin implements Listener {
                     case "Convert":
                         StatRec.convertHostName( p );
                         return true;
+                    case "Getlog":
+                        FileRead FR = new FileRead( StatRec );
+                        try {
+                            FR.GetLogFile( IP );
+                        } catch ( ParseException ex ) {
+                            Logger.getLogger( LoginControl.class.getName() ).log( Level.SEVERE, null, ex );
+                        }
+                        return true;
                     default:
                 }
             } else {
@@ -414,6 +426,11 @@ public class LoginControl extends JavaPlugin implements Listener {
                         return true;
                     case "Motd":
                         MotData.getStatus( p );
+                        return true;
+                    case "sql":
+                        String SQL_Cmd = "";
+                        for ( int i = 1; args.length > i; i++ ) { SQL_Cmd = SQL_Cmd + " " + args[i]; }
+                        StatRec.SQLCommand( p, SQL_Cmd );
                         return true;
                     case "chg":
                         if ( HostName.length() < 61 ) {
@@ -501,11 +518,13 @@ public class LoginControl extends JavaPlugin implements Listener {
                 Tools.Prt( p, "loginctl Console [max,full,normal,none]", programCode );
                 Tools.Prt( p, "loginctl CheckIP", programCode );
                 Tools.Prt( p, "loginctl Dupcheck", programCode );
+                Tools.Prt( p, "loginctl GetLog", programCode );
             }
             if ( ( p == null ) || p.hasPermission( "LoginCtl.admin" ) ) {
                 //  LoginCtl.admin
                 Tools.Prt( p, "loginctl status", programCode );
                 Tools.Prt( p, "loginctl MotD", programCode );
+                Tools.Prt( p, "loginctl sql SQL_Command", programCode );
                 Tools.Prt( p, "loginctl info IPAddress", programCode );
                 Tools.Prt( p, "loginctl chg IPAddress HostName", programCode );
                 Tools.Prt( p, "loginctl add IPAddress [HostName]", programCode );
