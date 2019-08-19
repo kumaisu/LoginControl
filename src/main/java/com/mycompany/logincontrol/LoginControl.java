@@ -518,7 +518,9 @@ public class LoginControl extends JavaPlugin implements Listener {
                             PTLines = 10;
                         }
                         if ( PTLines < 1 ) { PTLines = 10; }
-                        // StatRec.PingTop( p, PTLines );
+                        DBA.open();
+                        DBA.PingTop( p, PTLines );
+                        DBA.close();
                         return true;
                     default:
                 }

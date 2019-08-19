@@ -852,4 +852,47 @@ public class DatabaseControl {
         return true;
     }
 
+    /**
+     * サーバーへの照会回数が多い順位表示
+     *
+     * @param p
+     * @param Lines 表示する順位の人数
+     */
+    public void PingTop( Player p, int Lines ) {
+        Tools.Prt( p, ChatColor.GREEN + "== Ping Count Top " + Lines + " ==", programCode );
+
+        try {
+            Statement stmt = connection.createStatement();
+            String sql = "SELECT * FROM hosts ORDER BY count DESC;";
+            Tools.Prt( "PingTop : " + sql, Tools.consoleMode.max, programCode );
+            ResultSet rs = stmt.executeQuery( sql );
+
+            int i = 0;
+            String chk_name = "";
+
+            while( rs.next() && ( i<Lines ) ) {
+                String GetName = rs.getString( "host" );
+
+                if ( !chk_name.equals( GetName ) ) {
+                    i++;
+                    Tools.Prt( p,
+                        Utility.StringBuild(
+                            ChatColor.AQUA.toString(), String.format( "%5d", rs.getInt("count" ) ), ": ",
+                            ChatColor.YELLOW.toString(), String.format( "%-15s", InetCalc.toInetAddress( rs.getLong( "ip" ) ) ), " ",
+                            ChatColor.LIGHT_PURPLE.toString(), String.format( "%-40s", Utility.CutMiddleString( rs.getString( "host" ), 40 ) ), " ",
+                            ChatColor.WHITE.toString(), sdf.format( rs.getTimestamp( "lastdate" ) ), " ",
+                            ChatColor.GOLD.toString(), sdf.format( rs.getTimestamp( "newdate" ) )
+                        ), programCode
+                    );
+                    chk_name = GetName;
+                }
+            }
+        } catch ( SQLException e ) {
+            Tools.Prt( ChatColor.RED + "Error Pingtop Listing ...", programCode );
+            //  エラー詳細ログの表示
+            Tools.Prt( e.getMessage(), programCode );
+        }
+
+        Tools.Prt( p, ChatColor.GREEN + "================", programCode );
+    }
 }
