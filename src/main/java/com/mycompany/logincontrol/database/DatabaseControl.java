@@ -37,7 +37,6 @@ import static com.mycompany.logincontrol.config.Config.programCode;
  */
 public class DatabaseControl {
     SimpleDateFormat sdf = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" );
-    private Connection connection = null;
     private HikariDataSource dataSource = null;
     
     /**
@@ -45,16 +44,18 @@ public class DatabaseControl {
      *
      */
     public DatabaseControl() {
+        connect();
+        TableUpdate();
     }
 
     /**
-     * Database Open(接続) 処理
+     * Database Connection(接続) 処理
      */
-    public void open() {
+    public void connect() {
         if ( dataSource != null ) {
             if ( dataSource.isClosed() ) {
                 Tools.Prt( ChatColor.RED + "database closed.", Tools.consoleMode.full, programCode );
-                close();
+                disconnect();
             } else {
                 Tools.Prt( ChatColor.AQUA + "dataSource is not null", Tools.consoleMode.max, programCode );
                 return;
@@ -78,6 +79,7 @@ public class DatabaseControl {
 
         Properties properties = new Properties();
         properties.put( "useSSL", "false" );
+        properties.put( "autoReconnect", "true" );
         properties.put( "maintainTimeStats", "false" );
         properties.put( "elideSetAutoCommits", "true" );
         properties.put( "useLocalSessionState", "true" );
@@ -93,17 +95,29 @@ public class DatabaseControl {
 
         config.setDataSourceProperties( properties );
 
-        try {
-            // 接続
-            dataSource = new HikariDataSource( config );
-            connection = dataSource.getConnection();
+        dataSource = new HikariDataSource( config );
+    }
 
+    /**
+     * Database disConnect(切断) 処理
+     */
+    public void disconnect() {
+        if ( dataSource != null ) {
+            dataSource.close();
+        }
+    }
+
+    /**
+     * Database Table Initialize
+     */
+    public void TableUpdate() {
+        try ( Connection con = dataSource.getConnection() ) {
             //  mysql> create table list(id int auto_increment, date DATETIME,name varchar(20), uuid varchar(36), ip INTEGER UNSIGNED, status byte, index(id));
             //  テーブルの作成
             //  存在すれば、無視される
             String sql = "CREATE TABLE IF NOT EXISTS list(id int auto_increment, date DATETIME,name varchar(20), uuid varchar(36), ip INTEGER UNSIGNED, status int, index(id))";
             Tools.Prt( sql, Tools.consoleMode.max, programCode );
-            PreparedStatement preparedStatement = connection.prepareStatement( sql );
+            PreparedStatement preparedStatement = con.prepareStatement( sql );
             preparedStatement.executeUpdate();
 
             //  mysql> create table IF NOT EXISTS unknowns (ip varchar(22), host varchar(60), count int, newdate DATETIME, lastdate DATETIME );
@@ -111,21 +125,13 @@ public class DatabaseControl {
             //  存在すれば、無視される
             sql = "CREATE TABLE IF NOT EXISTS hosts (ip INTEGER UNSIGNED, host varchar(60), count int, newdate DATETIME, lastdate DATETIME )";
             Tools.Prt( sql, Tools.consoleMode.max, programCode );
-            preparedStatement = connection.prepareStatement( sql );
+            preparedStatement = con.prepareStatement( sql );
             preparedStatement.executeUpdate();
 
             Tools.Prt( ChatColor.AQUA + "dataSource Open Success.", Tools.consoleMode.max, programCode );
+            con.close();
         } catch( SQLException e ) {
-            Tools.Prt( ChatColor.RED + "Connection Error : " + e.getMessage(), programCode);
-        }
-    }
-
-    /**
-     * Database Close 処理
-     */
-    public void close() {
-        if ( dataSource != null ) {
-            dataSource.close();
+            Tools.Prt( ChatColor.RED + "Table Initialize Error : " + e.getMessage(), programCode);
         }
     }
 
@@ -136,8 +142,8 @@ public class DatabaseControl {
      * @return
      */
     public String GetLocale( String IP ) {
-        try {
-            Statement stmt = connection.createStatement();
+        try ( Connection con = dataSource.getConnection() ) {
+            Statement stmt = con.createStatement();
             String sql = "SELECT * FROM hosts WHERE INET_NTOA(ip) = '" + IP + "' ORDER BY ip DESC;";
             Tools.Prt( "GetLocale : " + sql, Tools.consoleMode.max, programCode );
             ResultSet rs = stmt.executeQuery( sql );
@@ -150,6 +156,7 @@ public class DatabaseControl {
                 }
                 return item[ item.length - 1 ].toUpperCase();
             }
+            con.close();
         } catch ( SQLException e ) {
             Tools.Prt( ChatColor.RED + "Error GetLocale : " + e.getMessage(), programCode );
         }
@@ -166,9 +173,9 @@ public class DatabaseControl {
     public String getDateHost( String IP, boolean newf ) {
         //  True : カウントを開始した日を指定
         //  False : 最後にカウントされた日を指定
-        try {
+        try ( Connection con = dataSource.getConnection() ) {
             Statement stmt;
-            stmt = connection.createStatement();
+            stmt = con.createStatement();
             String sql = "SELECT * FROM hosts WHERE INET_NTOA(ip) = '" + IP + "';";
             Tools.Prt( "getDateHost : " + sql, Tools.consoleMode.max, programCode );
             ResultSet rs = stmt.executeQuery( sql );
@@ -180,6 +187,7 @@ public class DatabaseControl {
                     return sdf.format( rs.getTimestamp( "lastdate" ) );
                 }
             }
+            con.close();
         } catch ( SQLException e ) {
             Tools.Prt( ChatColor.RED + "getDateHost Error : " + e.getMessage(), programCode );
         }
@@ -193,16 +201,16 @@ public class DatabaseControl {
      * @param Host
      */
     public void AddHostToSQL( String IP, String Host ) {
-        try {
+        try ( Connection con = dataSource.getConnection() ) {
             String sql = "INSERT INTO hosts ( ip, host, count, newdate, lastdate ) VALUES ( INET_ATON( ? ), ?, ?, ?, ? );";
             Tools.Prt( "AddHostToSQL : " + sql, Tools.consoleMode.max, programCode );
-            PreparedStatement preparedStatement = connection.prepareStatement( sql );
+            PreparedStatement preparedStatement = con.prepareStatement( sql );
             preparedStatement.setString( 1, IP );
             preparedStatement.setString( 2, Host );
             preparedStatement.setInt( 3, 0 );
             preparedStatement.setString( 4, sdf.format( new Date() ) );
             preparedStatement.setString( 5, sdf.format( new Date() ) );
-
+                
             preparedStatement.executeUpdate();
         } catch ( SQLException e ) {
             Tools.Prt( ChatColor.RED + "Error AddHostToSQL : " + e.getMessage(), programCode );
@@ -238,11 +246,12 @@ public class DatabaseControl {
      * @return
      */
     public boolean DelHostFromSQL( String IP ) {
-        try {
+        try ( Connection con = dataSource.getConnection() ) {
             String sql = "DELETE FROM hosts WHERE INET_NTOA(ip) = '" + IP + "'";
             Tools.Prt( "DelHostFromSQL : " + sql, Tools.consoleMode.max, programCode );
-            PreparedStatement preparedStatement = connection.prepareStatement( sql );
+            PreparedStatement preparedStatement = con.prepareStatement( sql );
             preparedStatement.executeUpdate();
+            con.close();
             return true;
         } catch ( SQLException e ) {
             Tools.Prt( ChatColor.RED + "Error DelHostFromSQL : " + e.getMessage(), programCode );
@@ -257,12 +266,15 @@ public class DatabaseControl {
      * @return
      */
     public String GetHost( String IP ) {
-        try {
-            Statement stmt = connection.createStatement();
+        try ( Connection con = dataSource.getConnection() ) {
+            Statement stmt = con.createStatement();
             String sql = "SELECT * FROM hosts WHERE INET_NTOA(ip) = '" + IP + "';";
             Tools.Prt( "GetHost : " + sql, Tools.consoleMode.max, programCode );
             ResultSet rs = stmt.executeQuery( sql );
-            if ( rs.next() ) return rs.getString( "host" );
+            String retStr = "";
+            if ( rs.next() ) retStr = rs.getString( "host" );
+            con.close();
+            return retStr;
         } catch ( SQLException e ) {
             Tools.Prt( ChatColor.RED + "Error GetHost : " + e.getMessage(), programCode );
         }
@@ -298,8 +310,8 @@ public class DatabaseControl {
      * @param word
      */
     public void SearchHost( Player p, String word ) {
-        try {
-            Statement stmt = connection.createStatement();
+        try ( Connection con = dataSource.getConnection() ) {
+            Statement stmt = con.createStatement();
             String sql = "SELECT * FROM hosts WHERE host LIKE '%" + word + "%' ORDER BY ip DESC;";
             Tools.Prt( "SearchHost : " + sql, Tools.consoleMode.max, programCode );
             ResultSet rs = stmt.executeQuery( sql );
@@ -322,6 +334,7 @@ public class DatabaseControl {
             }
 
             if ( DataNum == 0 ) Tools.Prt( p, Utility.StringBuild( ChatColor.RED.toString(), "No data for [", word, "]" ), programCode );
+            con.close();
         } catch ( SQLException e ) {
             Tools.Prt( ChatColor.RED + "Search Error : " + e.getMessage(), programCode );
         }
@@ -334,8 +347,8 @@ public class DatabaseControl {
      * @param ZeroF
      */
     public void AddCountHost( String IP, int ZeroF ) {
-        try {
-            Statement stmt = connection.createStatement();
+        try ( Connection con = dataSource.getConnection() ) {
+            Statement stmt = con.createStatement();
             String sql = "SELECT * FROM hosts WHERE INET_NTOA(ip) = '" + IP + "';";
             Tools.Prt( "AddCountHost : " + sql, Tools.consoleMode.max, programCode );
             ResultSet rs = stmt.executeQuery( sql );
@@ -352,9 +365,10 @@ public class DatabaseControl {
 
                 String chg_sql = "UPDATE hosts SET count = " + count + ResetDate + ", lastdate = '" + sdf.format( new Date() ) + "' WHERE INET_NTOA( ip ) = '" + IP + "';";
                 Tools.Prt( "AddCountHost : " + chg_sql, Tools.consoleMode.max, programCode );
-                PreparedStatement preparedStatement = connection.prepareStatement( chg_sql );
+                PreparedStatement preparedStatement = con.prepareStatement( chg_sql );
                 preparedStatement.executeUpdate();
             }
+            con.close();
         } catch ( SQLException e ) {
             Tools.Prt( ChatColor.RED + "Error AddCountHosts : " + e.getMessage(), programCode );
         }
@@ -367,12 +381,15 @@ public class DatabaseControl {
      * @return
      */
     public int GetCountHosts( String IP ) {
-        try {
-            Statement stmt = connection.createStatement();
+        try ( Connection con = dataSource.getConnection() ) {
+            Statement stmt = con.createStatement();
             String sql = "SELECT * FROM hosts WHERE INET_NTOA(ip) = '" + IP + "';";
             Tools.Prt( "GetcountHosts : " + sql, Tools.consoleMode.max, programCode );
             ResultSet rs = stmt.executeQuery( sql );
-            if ( rs.next() ) return rs.getInt( "count" );
+            int retStr = 0;
+            if ( rs.next() ) retStr = rs.getInt( "count" );
+            con.close();
+            return retStr;
         } catch ( SQLException e ) {
             Tools.Prt( ChatColor.RED + "Error GetCountHosts : " + e.getMessage(), programCode );
         }
@@ -396,10 +413,10 @@ public class DatabaseControl {
         getLogger().log( Level.INFO, "IP     : {0}", IP );
         getLogger().log( Level.INFO, "Status : {0}", Status );
         */
-        try {
+        try ( Connection con = dataSource.getConnection() ) {
             String sql = "INSERT INTO list (date, name, uuid, ip, status) VALUES (?, ?, ?, INET_ATON( ? ), ?);";
             Tools.Prt( "listPreSave : " + sql, Tools.consoleMode.max, programCode );
-            PreparedStatement preparedStatement = connection.prepareStatement( sql );
+            PreparedStatement preparedStatement = con.prepareStatement( sql );
             preparedStatement.setString(1, sdf.format( date ) );
             preparedStatement.setString(2, name );
             preparedStatement.setString(3, UUID );
@@ -407,6 +424,7 @@ public class DatabaseControl {
             preparedStatement.setInt(5, Status );
 
             preparedStatement.executeUpdate();
+            con.close();
         } catch ( SQLException e ) {
             Tools.Prt( ChatColor.RED + "Error PreSavePlayer : " + e.getMessage(), programCode );
         }
@@ -420,12 +438,14 @@ public class DatabaseControl {
      *              SQLエラーが発生した場合は、IPアドレスを戻す
      */
     public String listGetPlayerName( String ip ) {
-        try {
-            Statement stmt = connection.createStatement();
+        try ( Connection con = dataSource.getConnection() ) {
+            Statement stmt = con.createStatement();
             String sql = "SELECT * FROM list WHERE INET_NTOA(ip) = '" + ip + "' ORDER BY date DESC;";
             Tools.Prt( "listGetPlayerName : " + sql, Tools.consoleMode.max, programCode );
             ResultSet rs = stmt.executeQuery( sql );
-            return ( rs.next() ? rs.getString( "name" ):"Unknown" );
+            String retStr = ( rs.next() ? rs.getString( "name" ):"Unknown" );
+            con.close();
+            return retStr;
         } catch ( SQLException e ) {
             Tools.Prt( ChatColor.RED + "Error listGetPlayerName : " + e.getMessage(), programCode );
         }
@@ -439,11 +459,12 @@ public class DatabaseControl {
      * @param status
      */
     public void listChangeStatus( Date date, int status ) {
-        try {
+        try ( Connection con = dataSource.getConnection() ) {
             String sql = "UPDATE list SET status = " + String.valueOf( status ) + " WHERE date = '" + sdf.format( date ) + "';";
             Tools.Prt( "listChangeStatus : " + sql, Tools.consoleMode.max, programCode );
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            PreparedStatement preparedStatement = con.prepareStatement(sql);
             preparedStatement.executeUpdate();
+            con.close();
         } catch ( SQLException e ) {
             Tools.Prt( ChatColor.RED + "Error ChangeStatus : " + e.getMessage(), programCode );
         }
@@ -462,8 +483,8 @@ public class DatabaseControl {
 
         PrtData.add( Utility.StringBuild( ChatColor.RED.toString(), "=== Check IP Address ===", ChatColor.YELLOW.toString(), "[", player.getAddress().getHostString(), "]" ) );
 
-        try {
-            Statement stmt = connection.createStatement();
+        try ( Connection con = dataSource.getConnection() ) {
+            Statement stmt = con.createStatement();
             String sql = "SELECT * FROM list WHERE INET_NTOA(ip) = '" + player.getAddress().getHostString() + "' ORDER BY date DESC;";
             Tools.Prt( "listCheckIP : " + sql, Tools.consoleMode.max, programCode );
             ResultSet rs = stmt.executeQuery( sql );
@@ -482,6 +503,7 @@ public class DatabaseControl {
                     }
                 }
             }
+            con.close();
         } catch ( SQLException e ) {
             Tools.Prt( ChatColor.RED + "Error listCheckIP : " + e.getMessage(), programCode );
         }
@@ -552,9 +574,8 @@ public class DatabaseControl {
     public void SQLCommand( Player player, String cmd ) {
         Tools.Prt( player, "== Original SQL Command ==", programCode );
 
-        try {
-            open();
-            Statement stmt = connection.createStatement();
+        try ( Connection con = dataSource.getConnection() ) {
+            Statement stmt = con.createStatement();
             Tools.Prt( "SQL Command : " + cmd, Tools.consoleMode.max, programCode );
             ResultSet rs = stmt.executeQuery( cmd );
 
@@ -563,7 +584,7 @@ public class DatabaseControl {
             }
 
             Tools.Prt( player, "================", programCode );
-            close();
+            con.close();
         } catch ( SQLException e ) {
             Tools.Prt( ChatColor.RED + "Error SQL Command : " + e.getMessage(), programCode );
         }
@@ -578,8 +599,8 @@ public class DatabaseControl {
         //  重複チェック mysql> SELECT ip FROM hosts GROUP BY ip HAVING COUNT(ip) > 1;
         Tools.Prt( p, ChatColor.GREEN + "== Database Duplicat Check ==", programCode );
 
-        try {
-            Statement stmt = connection.createStatement();
+        try ( Connection con = dataSource.getConnection() ) {
+            Statement stmt = con.createStatement();
             String sql = "SELECT ip FROM hosts GROUP BY ip HAVING COUNT(ip) > 1;";
             Tools.Prt( "DublicateCheck : " + sql, Tools.consoleMode.max, programCode );
             ResultSet rs = stmt.executeQuery( sql );
@@ -592,6 +613,7 @@ public class DatabaseControl {
                 Tools.Prt( p, ChatColor.GREEN + "First Date  : " + ChatColor.WHITE + sdf.format( rs.getTimestamp( "newdate" ) ), programCode );
                 Tools.Prt( p, ChatColor.GREEN + "Last Date   : " + ChatColor.WHITE + sdf.format( rs.getTimestamp( "lastdate" ) ), programCode );
             }
+            con.close();
         } catch ( SQLException e ) {
             Tools.Prt( p, ChatColor.RED + "Error Information", programCode );
             //  エラー詳細ログの表示
@@ -646,8 +668,8 @@ public class DatabaseControl {
 
         if ( Hostname.length()>60 ) { Hostname = String.format( "%-60s", Hostname ); }
 
-        try {
-            Statement stmt = connection.createStatement();
+        try ( Connection con = dataSource.getConnection() ) {
+            Statement stmt = con.createStatement();
             String sql = "SELECT * FROM hosts WHERE INET_NTOA(ip) = '" + IP + "';";
             Tools.Prt( "chgUnknownHost : " + sql, Tools.consoleMode.max, programCode );
             ResultSet rs = stmt.executeQuery( sql );
@@ -655,12 +677,14 @@ public class DatabaseControl {
             if ( rs.next() ) {
                 String chg_sql = "UPDATE hosts SET host = '" + Hostname + "' WHERE INET_NTOA( ip ) = '" + IP + "';";
                 Tools.Prt( "chgUnknownHost : " + chg_sql, Tools.consoleMode.max, programCode );
-                PreparedStatement preparedStatement = connection.prepareStatement( chg_sql );
+                PreparedStatement preparedStatement = con.prepareStatement( chg_sql );
                 preparedStatement.executeUpdate();
+                con.close();
                 return true;
             } else {
                 Tools.Prt( ChatColor.RED + "could not get " + IP, programCode );
             }
+            con.close();
         } catch ( SQLException e ) {
             Tools.Prt( ChatColor.RED + "Change Database Error [" + IP + "][" + Hostname + "]", programCode );
             //  エラー詳細ログの表示
@@ -676,8 +700,8 @@ public class DatabaseControl {
      * @param IP
      */
     public void infoUnknownHost( Player p, String IP ) {
-        try {
-            Statement stmt = connection.createStatement();
+        try ( Connection con = dataSource.getConnection() ) {
+            Statement stmt = con.createStatement();
             String sql = "SELECT * FROM hosts WHERE INET_NTOA(ip) = '" + IP + "' ORDER BY ip DESC;";
             Tools.Prt( "infoUnknownHost : " + sql, Tools.consoleMode.max, programCode );
             ResultSet rs = stmt.executeQuery( sql );
@@ -692,6 +716,7 @@ public class DatabaseControl {
             } else {
                 Tools.Prt( p, ChatColor.RED + "No data for [" + IP + "]", programCode );
             }
+            con.close();
         } catch ( SQLException e ) {
             Tools.Prt( p, ChatColor.RED + "Error Information : ", programCode );
             //  エラー詳細ログの表示
@@ -711,8 +736,8 @@ public class DatabaseControl {
 
         Tools.Prt( player, "== Login List ==", programCode );
 
-        try {
-            Statement stmt = connection.createStatement();
+        try ( Connection con = dataSource.getConnection() ) {
+            Statement stmt = con.createStatement();
             String sql = "SELECT * FROM list ORDER BY date DESC;";
             Tools.Prt( "LogPrint : " + sql, Tools.consoleMode.max, programCode );
             ResultSet rs = stmt.executeQuery( sql );
@@ -731,7 +756,7 @@ public class DatabaseControl {
                     }
                 }
             }
-
+            con.close();
             Tools.Prt( player, "================", programCode );
         } catch ( SQLException e ) {
             Tools.Prt( ChatColor.RED + "Error LogPrint : " + e.getMessage(), programCode );
@@ -773,8 +798,8 @@ public class DatabaseControl {
                 return false;
         }
 
-        try {
-            Statement stmt = connection.createStatement();
+        try ( Connection con = dataSource.getConnection() ) {
+            Statement stmt = con.createStatement();
             Tools.Prt( "exLogPrint : " + sqlCmd, Tools.consoleMode.max, programCode );
             ResultSet rs = stmt.executeQuery( sqlCmd );
 
@@ -818,7 +843,7 @@ public class DatabaseControl {
                     }
                 }
             }
-
+            con.close();
             Tools.Prt( player, "================", programCode );
         } catch ( SQLException e ) {
             Tools.Prt( ChatColor.RED + "Error exLogPrint : " + e.getMessage(), programCode );
@@ -861,8 +886,8 @@ public class DatabaseControl {
     public void PingTop( Player p, int Lines ) {
         Tools.Prt( p, ChatColor.GREEN + "== Ping Count Top " + Lines + " ==", programCode );
 
-        try {
-            Statement stmt = connection.createStatement();
+        try ( Connection con = dataSource.getConnection() ) {
+            Statement stmt = con.createStatement();
             String sql = "SELECT * FROM hosts ORDER BY count DESC;";
             Tools.Prt( "PingTop : " + sql, Tools.consoleMode.max, programCode );
             ResultSet rs = stmt.executeQuery( sql );
@@ -887,6 +912,7 @@ public class DatabaseControl {
                     chk_name = GetName;
                 }
             }
+            con.close();
         } catch ( SQLException e ) {
             Tools.Prt( ChatColor.RED + "Error Pingtop Listing ...", programCode );
             //  エラー詳細ログの表示

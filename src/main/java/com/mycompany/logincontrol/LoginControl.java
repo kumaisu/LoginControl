@@ -51,16 +51,19 @@ public class LoginControl extends JavaPlugin implements Listener {
     private Date date;
     private MotDControl MotData;
     private String lastName = "";
+    private DatabaseControl DBA = null;
 
     @Override
     public void onEnable() {
         this.getServer().getPluginManager().registerEvents( this, this );
         config = new Config( this );
         MotData = new MotDControl( this );
+        DBA = new DatabaseControl();
     }
 
     @Override
     public void onDisable() {
+        DBA.disconnect();
         super.onDisable(); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -79,11 +82,8 @@ public class LoginControl extends JavaPlugin implements Listener {
     public void prePlayerLogin( AsyncPlayerPreLoginEvent event ) {
         Tools.Prt( "PrePlayerLogin process", consoleMode.full, programCode );
         date = new Date();
-        DatabaseControl DBA = new DatabaseControl();
-        DBA.open();
         DBA.listSave( date, event.getName(), event.getUniqueId().toString(), event.getAddress().getHostAddress(), 0 );
         DBA.AddPlayerToSQL( event.getAddress().getHostAddress(), event.getName() );
-        DBA.close();
     }
 
     /**
@@ -95,12 +95,10 @@ public class LoginControl extends JavaPlugin implements Listener {
      */
     @EventHandler( priority = EventPriority.HIGH )
     public void onPlayerLogin( PlayerJoinEvent event ) throws UnknownHostException {
-        DatabaseControl DBA = new DatabaseControl();
 
         Tools.Prt( "onPlayerLogin process", consoleMode.full, programCode );
         event.setJoinMessage( null );
         Player player = event.getPlayer();
-        DBA.open();
         DBA.listChangeStatus( date, 1 );
         DBA.LogPrint( player, 5, false );
         DBA.AddCountHost( player.getAddress().getHostString(), -1 );
@@ -137,7 +135,6 @@ public class LoginControl extends JavaPlugin implements Listener {
                 Bukkit.broadcastMessage( Utility.ReplaceString( config.ReturnJoinMessage( DBA.GetLocale( player.getAddress().getHostString() ) ), player.getDisplayName() ) );
             }
         }
-        DBA.close();
     }
 
     /**
@@ -167,7 +164,6 @@ public class LoginControl extends JavaPlugin implements Listener {
      */
     @EventHandler
     public void onServerListPing( ServerListPingEvent event ) throws UnknownHostException, ClassNotFoundException {
-        DatabaseControl DBA = new DatabaseControl();
         String Names = "Unknown";
         // ConsoleLog Flag 2:Full 1:Normal(Playerのみ)
 	consoleMode PrtStatus = consoleMode.full;
@@ -175,8 +171,6 @@ public class LoginControl extends JavaPlugin implements Listener {
         String MotdMsg = MotData.get1stLine();
         String MsgColor = ChatColor.GRAY.toString();
         String Host = config.KnownServers( event.getAddress().getHostAddress() );
-
-        DBA.open();
 
         if ( Host == null ) {
             //  簡易DNSからホスト名を取得
@@ -242,8 +236,6 @@ public class LoginControl extends JavaPlugin implements Listener {
             MotdMsg = Utility.StringBuild( MotdMsg, MotData.get2ndLine( 4 ) );
         }
 
-        DBA.close();
-
         event.setMotd( Utility.ReplaceString( MotdMsg, Names ) );
         // event.getNumPlayers().set( 30 );
 
@@ -265,7 +257,6 @@ public class LoginControl extends JavaPlugin implements Listener {
      */
     @Override
     public boolean onCommand( CommandSender sender,Command cmd, String commandLabel, String[] args ) {
-        DatabaseControl DBA = new DatabaseControl();
         int lineSet = 30;
         Player p = ( sender instanceof Player ) ? ( Player )sender:( Player )null;
         consoleMode checkConsoleFlag = ( ( p == null ) ? consoleMode.none : consoleMode.stop );
@@ -342,16 +333,12 @@ public class LoginControl extends JavaPlugin implements Listener {
 
             switch ( PrtF ) {
                 case 0:
-                    DBA.open();
                     DBA.LogPrint( p, ( sender instanceof Player ) ? 15:30, FullFlag );
-                    DBA.close();
                     break;
                 case 1:
                 case 2:
                 case 3:
-                    DBA.open();
                     DBA.exLogPrint( p, Param, FullFlag, PrtF, lineSet );
-                    DBA.close();
                     break;
                 default:
                     Tools.Prt( p, Utility.ReplaceString( config.OptError() ), consoleMode.full, programCode );
@@ -394,9 +381,7 @@ public class LoginControl extends JavaPlugin implements Listener {
                         Tools.Prt( p, Utility.ReplaceString( config.Reload() ), checkConsoleFlag, programCode );
                         return true;
                     case "Dupcheck":
-                        DBA = new DatabaseControl();
                         DBA.DuplicateCheck( p );
-                        DBA.close();
                         return true;
                     case "CheckIP":
                         Config.CheckIPAddress = !Config.CheckIPAddress;
@@ -418,7 +403,7 @@ public class LoginControl extends JavaPlugin implements Listener {
                         );
                         return true;
                     case "Getlog":
-                        FileRead.GetLogFile( IP );
+                        FileRead.GetLogFile( IP, DBA );
                         return true;
                     default:
                 }
@@ -437,13 +422,10 @@ public class LoginControl extends JavaPlugin implements Listener {
                     case "sql":
                         String SQL_Cmd = "";
                         for ( int i = 1; args.length > i; i++ ) { SQL_Cmd = SQL_Cmd + " " + args[i]; }
-                        DBA.open();
                         DBA.SQLCommand( p, SQL_Cmd );
-                        DBA.close();
                         return true;
                     case "chg":
                         if ( HostName.length() < 61 ) {
-                            DBA.open();
                             if ( DBA.chgUnknownHost( IP, HostName ) ) {
                                 DBA.infoUnknownHost( p, IP );
                             }
@@ -454,16 +436,13 @@ public class LoginControl extends JavaPlugin implements Listener {
                     case "info":
                         if ( !IP.equals( "" ) ) {
                             Tools.Prt( p, "Check Unknown IP Information [" + IP + "]", checkConsoleFlag, programCode );
-                            DBA.open();
                             DBA.infoUnknownHost( p, IP );
-                            DBA.close();
                         } else {
                             Tools.Prt( p, ChatColor.RED + "usage: info IPAddress", checkConsoleFlag, programCode );
                         }
                         return true;
                     case "add":
                         if ( !IP.equals( "" ) ) {
-                            DBA.open();
                             if ( DBA.GetHost( IP ).equals( "Unknown" ) ) {
                                 if ( !HostName.equals( "" ) ) {
                                     DBA.AddHostToSQL( IP, HostName );
@@ -474,37 +453,30 @@ public class LoginControl extends JavaPlugin implements Listener {
                                 Tools.Prt( p, ChatColor.RED + IP + " is already exists", checkConsoleFlag, programCode );
                             }
                             DBA.infoUnknownHost( p, IP );
-                            DBA.close();
                         } else {
                             Tools.Prt( p, ChatColor.RED + "usage: add IPAddress [HostName]", checkConsoleFlag, programCode );
                         }
                         return true;
                     case "del":
                         if ( !IP.equals( "" ) ) {
-                            DBA.open();
                             if ( DBA.DelHostFromSQL( IP ) ) {
                                 msg = ChatColor.GREEN + "Data Deleted [";
                             } else {
                                 msg = ChatColor.RED + "Failed to Delete Data [";
                             }
                             Tools.Prt( p, msg + IP + "]", checkConsoleFlag, programCode );
-                            DBA.close();
                         } else {
                             Tools.Prt( p, ChatColor.RED + "usage: del IPAddress", checkConsoleFlag, programCode );
                         }
                         return true;
                     case "count":
                         if ( HostName.equals( "Reset" ) ) HostName = "-1";
-                        DBA.open();
                         DBA.AddCountHost( IP, Integer.parseInt( HostName ) );
                         DBA.infoUnknownHost( p, IP );
-                        DBA.close();
                         return true;
                     case "search":
                         if ( !IP.equals( "" ) ) {
-                            DBA.open();
                             DBA.SearchHost( p, IP );
-                            DBA.close();
                         } else {
                             Tools.Prt( p, ChatColor.RED + "usage: search word", checkConsoleFlag, programCode );
                         }
@@ -518,9 +490,7 @@ public class LoginControl extends JavaPlugin implements Listener {
                             PTLines = 10;
                         }
                         if ( PTLines < 1 ) { PTLines = 10; }
-                        DBA.open();
                         DBA.PingTop( p, PTLines );
-                        DBA.close();
                         return true;
                     default:
                 }

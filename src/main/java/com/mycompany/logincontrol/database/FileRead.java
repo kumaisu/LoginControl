@@ -87,46 +87,43 @@ public class FileRead {
         userIP = IP.substring( 0, IP.indexOf( ":" ) );
     }
 
-    private static void GetFileLine( String fileName ) {
-        DatabaseControl DBA = new DatabaseControl();
+    private static void GetFileLine( String fileName, DatabaseControl DBA ) {
         try {
             //ファイルを読み込む
-            FileReader fr = new FileReader( fileName );
-            BufferedReader br = new BufferedReader( fr );
-
+            FileReader fr;
+            fr = new FileReader( fileName );
             //読み込んだファイルを１行ずつ画面出力する
-            String line;
-            int count = 0;
-            DBA.open();
-            while ( ( line = br.readLine() ) != null ) {
-                ++count;
-                if ( line.contains( "Authenticator") ) {
-                    Tools.Prt( count + "行目：" + line, Tools.consoleMode.max, programCode );
-                    if ( line.contains( "UUID of" ) ) {
-                        LoginInfo( line );
-                        // System.out.println(  "Date = " + userDate.toString() + " , Name = [" + userName + "] , UUID = [" + userUUID + "]" );
-                    }
-                    if ( line.contains( "Disconnecting" ) && line.contains( "com.mojang.authlib" ) ) {
-                        MCBanInfo( line );
-                        if ( !userUUID.equals( "<null>" ) ) {
-                            Tools.Prt(  "Date = " + userDate.toString() + " , Name = [" + userName + "] , UUID = [" + userUUID + "], IP = [" + userIP + "]", programCode );
-                            DBA.listSave( userDate, userName, userUUID, userIP, 0 );
+            try ( BufferedReader br = new BufferedReader( fr ) ) {
+                //読み込んだファイルを１行ずつ画面出力する
+                String line;
+                int count = 0;
+                while (( line = br.readLine() ) != null) {
+                    ++count;
+                    if ( line.contains( "Authenticator") ) {
+                        Tools.Prt( count + "行目：" + line, Tools.consoleMode.max, programCode );
+                        if ( line.contains( "UUID of" ) ) {
+                            LoginInfo( line );
+                            // System.out.println(  "Date = " + userDate.toString() + " , Name = [" + userName + "] , UUID = [" + userUUID + "]" );
+                        }
+                        if ( line.contains( "Disconnecting" ) && line.contains( "com.mojang.authlib" ) ) {
+                            MCBanInfo( line );
+                            if ( !userUUID.equals( "<null>" ) ) {
+                                Tools.Prt(  "Date = " + userDate.toString() + " , Name = [" + userName + "] , UUID = [" + userUUID + "], IP = [" + userIP + "]", programCode );
+                                DBA.listSave( userDate, userName, userUUID, userIP, 0 );
+                            }
                         }
                     }
+                    if ( line.contains( userName + "[/" ) ) {
+                        //  [19:41:27] [Server thread/INFO]: peron821[/119.25.60.209:60484] logged in with entity id 42209 at ([world] 6812.276863575932, 63.0, 2.92843090938411)
+                        Tools.Prt( count + "行目：" + line, Tools.consoleMode.max, programCode );
+                        String IP = line.substring( line.indexOf( "[/" ) + 2, line.indexOf( "] l" ) - 1 );
+                        userIP = IP.substring( 0, IP.indexOf( ":" ) );
+                        Tools.Prt(  "Date = " + userDate.toString() + " , Name = [" + userName + "] , UUID = [" + userUUID + "], IP = [" + userIP + "]", programCode );
+                        DBA.listSave( userDate, userName, userUUID, userIP, 1 );
+                    }
                 }
-                if ( line.contains( userName + "[/" ) ) {
-                    //  [19:41:27] [Server thread/INFO]: peron821[/119.25.60.209:60484] logged in with entity id 42209 at ([world] 6812.276863575932, 63.0, 2.92843090938411)
-                    Tools.Prt( count + "行目：" + line, Tools.consoleMode.max, programCode );
-                    String IP = line.substring( line.indexOf( "[/" ) + 2, line.indexOf( "] l" ) - 1 );
-                    userIP = IP.substring( 0, IP.indexOf( ":" ) );
-                    Tools.Prt(  "Date = " + userDate.toString() + " , Name = [" + userName + "] , UUID = [" + userUUID + "], IP = [" + userIP + "]", programCode );
-                    DBA.listSave( userDate, userName, userUUID, userIP, 1 );
-                }
+                //終了処理
             }
-            DBA.close();
-
-            //終了処理
-            br.close();
             fr.close();
         } catch (IOException ex) {
             //例外発生時処理
@@ -137,8 +134,9 @@ public class FileRead {
     /**
      *
      * @param numStr
+     * @param DBA
      */
-    public static void GetLogFile( String numStr ) {
+    public static void GetLogFile( String numStr, DatabaseControl DBA ) {
         int Year;
         
         try {
@@ -169,7 +167,7 @@ public class FileRead {
                 File file = new File( "/home/minecraft/tools/" + FileName );
                 if ( file.exists() ) {
                     Tools.Prt( FileName, Tools.consoleMode.max, programCode );
-                    GetFileLine( "/home/minecraft/tools/" + FileName );
+                    GetFileLine( "/home/minecraft/tools/" + FileName, DBA );
                 } else exit = false;
             } while ( exit );
         } while( !dispCalendar( loopCalendar ).equals( EndDateText ) );
