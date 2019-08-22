@@ -97,9 +97,9 @@ public class FileRead {
                 //読み込んだファイルを１行ずつ画面出力する
                 String line;
                 int count = 0;
-                while (( line = br.readLine() ) != null) {
+                while ( ( line = br.readLine() ) != null ) {
                     ++count;
-                    if ( line.contains( "Authenticator") ) {
+                    if ( line.contains( "Authenticator" ) ) {
                         Tools.Prt( count + "行目：" + line, Tools.consoleMode.max, programCode );
                         if ( line.contains( "UUID of" ) ) {
                             LoginInfo( line );
@@ -125,7 +125,7 @@ public class FileRead {
                 //終了処理
             }
             fr.close();
-        } catch (IOException ex) {
+        } catch ( IOException ex ) {
             //例外発生時処理
             Tools.Prt( "Error : " + ex.getMessage(), programCode );
         }        

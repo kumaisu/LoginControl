@@ -24,8 +24,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
 import com.mycompany.kumaisulibraries.InetCalc;
+import com.zaxxer.hikari.HikariDataSource;
 import com.mycompany.kumaisulibraries.Tools;
 import com.mycompany.kumaisulibraries.Utility;
 import com.mycompany.logincontrol.config.Config;
@@ -69,8 +69,8 @@ public class DatabaseControl {
         config.setPoolName( Config.database );
         config.setAutoCommit( true );
         config.setConnectionInitSql( "SET SESSION query_cache_type=0" );
-        config.setMaximumPoolSize( 5 );
-        config.setMinimumIdle( 5 );
+        config.setMaximumPoolSize( 2 );
+        config.setMinimumIdle( 2 );
         config.setMaxLifetime( TimeUnit.MINUTES.toMillis( 15 ) );
         //  config.setConnectionTimeout(0);
         //  config.setIdleTimeout(0);
@@ -116,7 +116,7 @@ public class DatabaseControl {
             //  テーブルの作成
             //  存在すれば、無視される
             String sql = "CREATE TABLE IF NOT EXISTS list(id int auto_increment, date DATETIME,name varchar(20), uuid varchar(36), ip INTEGER UNSIGNED, status int, index(id))";
-            Tools.Prt( sql, Tools.consoleMode.max, programCode );
+            Tools.Prt( "SQL : " + sql, Tools.consoleMode.max , programCode );
             PreparedStatement preparedStatement = con.prepareStatement( sql );
             preparedStatement.executeUpdate();
 
@@ -124,7 +124,7 @@ public class DatabaseControl {
             //  Unknowns テーブルの作成
             //  存在すれば、無視される
             sql = "CREATE TABLE IF NOT EXISTS hosts (ip INTEGER UNSIGNED, host varchar(60), count int, newdate DATETIME, lastdate DATETIME )";
-            Tools.Prt( sql, Tools.consoleMode.max, programCode );
+            Tools.Prt( "SQL : " + sql, Tools.consoleMode.max , programCode );
             preparedStatement = con.prepareStatement( sql );
             preparedStatement.executeUpdate();
 
@@ -266,19 +266,18 @@ public class DatabaseControl {
      * @return
      */
     public String GetHost( String IP ) {
+        String retStr = "Unknown";
         try ( Connection con = dataSource.getConnection() ) {
             Statement stmt = con.createStatement();
             String sql = "SELECT * FROM hosts WHERE INET_NTOA(ip) = '" + IP + "';";
             Tools.Prt( "GetHost : " + sql, Tools.consoleMode.max, programCode );
             ResultSet rs = stmt.executeQuery( sql );
-            String retStr = "";
             if ( rs.next() ) retStr = rs.getString( "host" );
             con.close();
-            return retStr;
         } catch ( SQLException e ) {
             Tools.Prt( ChatColor.RED + "Error GetHost : " + e.getMessage(), programCode );
         }
-        return "Unknown";
+        return retStr;
     }
 
     /**
@@ -381,19 +380,18 @@ public class DatabaseControl {
      * @return
      */
     public int GetCountHosts( String IP ) {
+        int retStr = 0;
         try ( Connection con = dataSource.getConnection() ) {
             Statement stmt = con.createStatement();
             String sql = "SELECT * FROM hosts WHERE INET_NTOA(ip) = '" + IP + "';";
             Tools.Prt( "GetcountHosts : " + sql, Tools.consoleMode.max, programCode );
             ResultSet rs = stmt.executeQuery( sql );
-            int retStr = 0;
             if ( rs.next() ) retStr = rs.getInt( "count" );
             con.close();
-            return retStr;
         } catch ( SQLException e ) {
             Tools.Prt( ChatColor.RED + "Error GetCountHosts : " + e.getMessage(), programCode );
         }
-        return 0;
+        return retStr;
     }
 
     /**

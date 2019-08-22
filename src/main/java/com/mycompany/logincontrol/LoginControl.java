@@ -96,7 +96,7 @@ public class LoginControl extends JavaPlugin implements Listener {
     @EventHandler( priority = EventPriority.HIGH )
     public void onPlayerLogin( PlayerJoinEvent event ) throws UnknownHostException {
 
-        Tools.Prt( "onPlayerLogin process", consoleMode.full, programCode );
+        Tools.Prt( "onPlayerLogin process", consoleMode.max, programCode );
         event.setJoinMessage( null );
         Player player = event.getPlayer();
         DBA.listChangeStatus( date, 1 );
