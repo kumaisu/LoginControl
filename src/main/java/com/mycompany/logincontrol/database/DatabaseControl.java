@@ -36,22 +36,13 @@ import static com.mycompany.logincontrol.config.Config.programCode;
  * @author sugichan
  */
 public class DatabaseControl {
-    SimpleDateFormat sdf = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" );
-    private HikariDataSource dataSource = null;
+    private static final SimpleDateFormat sdf = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" );
+    private static HikariDataSource dataSource = null;
     
-    /**
-     * ライブラリー読込時の初期設定
-     *
-     */
-    public DatabaseControl() {
-        connect();
-        TableUpdate();
-    }
-
     /**
      * Database Connection(接続) 処理
      */
-    public void connect() {
+    public static void connect() {
         if ( dataSource != null ) {
             if ( dataSource.isClosed() ) {
                 Tools.Prt( ChatColor.RED + "database closed.", Tools.consoleMode.full, programCode );
@@ -101,7 +92,7 @@ public class DatabaseControl {
     /**
      * Database disConnect(切断) 処理
      */
-    public void disconnect() {
+    public static void disconnect() {
         if ( dataSource != null ) {
             dataSource.close();
         }
@@ -110,7 +101,7 @@ public class DatabaseControl {
     /**
      * Database Table Initialize
      */
-    public void TableUpdate() {
+    public static void TableUpdate() {
         try ( Connection con = dataSource.getConnection() ) {
             //  mysql> create table list(id int auto_increment, date DATETIME,name varchar(20), uuid varchar(36), ip INTEGER UNSIGNED, status byte, index(id));
             //  テーブルの作成
@@ -141,7 +132,7 @@ public class DatabaseControl {
      * @param IP
      * @return
      */
-    public String GetLocale( String IP ) {
+    public static String GetLocale( String IP ) {
         try ( Connection con = dataSource.getConnection() ) {
             Statement stmt = con.createStatement();
             String sql = "SELECT * FROM hosts WHERE INET_NTOA(ip) = '" + IP + "' ORDER BY ip DESC;";
@@ -170,7 +161,7 @@ public class DatabaseControl {
      * @param newf  True:初アクセス　False:最終アクセス
      * @return
      */
-    public String getDateHost( String IP, boolean newf ) {
+    public static String getDateHost( String IP, boolean newf ) {
         //  True : カウントを開始した日を指定
         //  False : 最後にカウントされた日を指定
         try ( Connection con = dataSource.getConnection() ) {
@@ -200,7 +191,7 @@ public class DatabaseControl {
      * @param IP
      * @param Host
      */
-    public void AddHostToSQL( String IP, String Host ) {
+    public static void AddHostToSQL( String IP, String Host ) {
         try ( Connection con = dataSource.getConnection() ) {
             String sql = "INSERT INTO hosts ( ip, host, count, newdate, lastdate ) VALUES ( INET_ATON( ? ), ?, ?, ?, ? );";
             Tools.Prt( "AddHostToSQL : " + sql, Tools.consoleMode.max, programCode );
@@ -224,9 +215,10 @@ public class DatabaseControl {
      * @param IP
      * @param Name
      */
-    public void AddPlayerToSQL( String IP, String Name ) {
+    public static void AddPlayerToSQL( String IP, String Name ) {
         String DataName = Utility.StringBuild( Name, ".Player." );
-        String GetName = GetHost( IP );
+        String GetName;
+        GetName = GetHost( IP );
 
         if ( GetName.equals( "Unknown" ) ) {
             AddHostToSQL( IP, Utility.StringBuild( DataName, "none" ) );
@@ -245,7 +237,7 @@ public class DatabaseControl {
      * @param IP
      * @return
      */
-    public boolean DelHostFromSQL( String IP ) {
+    public static boolean DelHostFromSQL( String IP ) {
         try ( Connection con = dataSource.getConnection() ) {
             String sql = "DELETE FROM hosts WHERE INET_NTOA(ip) = '" + IP + "'";
             Tools.Prt( "DelHostFromSQL : " + sql, Tools.consoleMode.max, programCode );
@@ -265,7 +257,7 @@ public class DatabaseControl {
      * @param IP
      * @return
      */
-    public String GetHost( String IP ) {
+    public static String GetHost( String IP ) {
         String retStr = "Unknown";
         try ( Connection con = dataSource.getConnection() ) {
             Statement stmt = con.createStatement();
@@ -286,7 +278,7 @@ public class DatabaseControl {
      * @param hostName  チェックするホスト名
      * @return
      */
-    public String changeHostName( String hostName ) {
+    public static String changeHostName( String hostName ) {
         if ( hostName.contains( "gae.google" ) ) { hostName = "gae.googleusercontent.com"; }
         if ( hostName.contains( "bbtec.net" ) ) { hostName = "softbank.bbtec.net"; }
         if ( hostName.contains( "ec2" ) ) {
@@ -308,7 +300,7 @@ public class DatabaseControl {
      * @param p
      * @param word
      */
-    public void SearchHost( Player p, String word ) {
+    public static void SearchHost( Player p, String word ) {
         try ( Connection con = dataSource.getConnection() ) {
             Statement stmt = con.createStatement();
             String sql = "SELECT * FROM hosts WHERE host LIKE '%" + word + "%' ORDER BY ip DESC;";
@@ -345,7 +337,7 @@ public class DatabaseControl {
      * @param IP
      * @param ZeroF
      */
-    public void AddCountHost( String IP, int ZeroF ) {
+    public static void AddCountHost( String IP, int ZeroF ) {
         try ( Connection con = dataSource.getConnection() ) {
             Statement stmt = con.createStatement();
             String sql = "SELECT * FROM hosts WHERE INET_NTOA(ip) = '" + IP + "';";
@@ -379,7 +371,7 @@ public class DatabaseControl {
      * @param IP
      * @return
      */
-    public int GetCountHosts( String IP ) {
+    public static int GetCountHosts( String IP ) {
         int retStr = 0;
         try ( Connection con = dataSource.getConnection() ) {
             Statement stmt = con.createStatement();
@@ -403,7 +395,7 @@ public class DatabaseControl {
      * @param IP
      * @param Status
      */
-    public void listSave( Date date, String name, String UUID, String IP, int Status ) {
+    public static void listSave( Date date, String name, String UUID, String IP, int Status ) {
         /*
         getLogger().log( Level.INFO, "Date   : {0}", sdf.format( date ) );
         getLogger().log( Level.INFO, "name   : {0}", name );
@@ -435,7 +427,7 @@ public class DatabaseControl {
      * @return     取得成功時はプレイヤー名、記録が無い時はUnknownを戻す
      *              SQLエラーが発生した場合は、IPアドレスを戻す
      */
-    public String listGetPlayerName( String ip ) {
+    public static String listGetPlayerName( String ip ) {
         try ( Connection con = dataSource.getConnection() ) {
             Statement stmt = con.createStatement();
             String sql = "SELECT * FROM list WHERE INET_NTOA(ip) = '" + ip + "' ORDER BY date DESC;";
@@ -456,7 +448,7 @@ public class DatabaseControl {
      * @param date
      * @param status
      */
-    public void listChangeStatus( Date date, int status ) {
+    public static void listChangeStatus( Date date, int status ) {
         try ( Connection con = dataSource.getConnection() ) {
             String sql = "UPDATE list SET status = " + String.valueOf( status ) + " WHERE date = '" + sdf.format( date ) + "';";
             Tools.Prt( "listChangeStatus : " + sql, Tools.consoleMode.max, programCode );
@@ -473,7 +465,7 @@ public class DatabaseControl {
      *
      * @param player    結果を表示するプレイヤー
      */
-    public void listCheckIP( Player player ) {
+    public static void listCheckIP( Player player ) {
         List<String> PrtData;
         PrtData = new ArrayList<>();
         List<String> NameData;
@@ -527,7 +519,7 @@ public class DatabaseControl {
      * @param gs        DBから取得したデータ
      * @return          成形されたメッセージ
      */
-    public String LinePrt( Player player, ResultSet gs ) {
+    public static String LinePrt( Player player, ResultSet gs ) {
         String message = "";
         try {
             message = Utility.StringBuild( message,
@@ -569,7 +561,7 @@ public class DatabaseControl {
      * @param player
      * @param cmd 
      */
-    public void SQLCommand( Player player, String cmd ) {
+    public static void SQLCommand( Player player, String cmd ) {
         Tools.Prt( player, "== Original SQL Command ==", programCode );
 
         try ( Connection con = dataSource.getConnection() ) {
@@ -593,7 +585,7 @@ public class DatabaseControl {
      *
      * @param p
      */
-    public void DuplicateCheck( Player p ) {
+    public static void DuplicateCheck( Player p ) {
         //  重複チェック mysql> SELECT ip FROM hosts GROUP BY ip HAVING COUNT(ip) > 1;
         Tools.Prt( p, ChatColor.GREEN + "== Database Duplicat Check ==", programCode );
 
@@ -629,7 +621,7 @@ public class DatabaseControl {
      * @param CheckFlag
      * @return
      */
-    public String getUnknownHost( String IP, boolean CheckFlag ) {
+    public static String getUnknownHost( String IP, boolean CheckFlag ) {
         Tools.Prt( Utility.StringBuild( ChatColor.RED.toString(), "Unknown New Record : ", ChatColor.AQUA.toString(), IP ), programCode );
         String HostName = "Unknown(IP)";
         if ( CheckFlag ) {
@@ -662,7 +654,7 @@ public class DatabaseControl {
      * @param Hostname
      * @return
      */
-    public boolean chgUnknownHost( String IP, String Hostname ) {
+    public static boolean chgUnknownHost( String IP, String Hostname ) {
 
         if ( Hostname.length()>60 ) { Hostname = String.format( "%-60s", Hostname ); }
 
@@ -697,7 +689,7 @@ public class DatabaseControl {
      * @param p
      * @param IP
      */
-    public void infoUnknownHost( Player p, String IP ) {
+    public static void infoUnknownHost( Player p, String IP ) {
         try ( Connection con = dataSource.getConnection() ) {
             Statement stmt = con.createStatement();
             String sql = "SELECT * FROM hosts WHERE INET_NTOA(ip) = '" + IP + "' ORDER BY ip DESC;";
@@ -729,7 +721,7 @@ public class DatabaseControl {
      * @param lines     リストに表示する人数（過去lines人分)
      * @param FullFlag  重複ログインを省略しないか？
      */
-    public void LogPrint( Player player, int lines, boolean FullFlag ) {
+    public static void LogPrint( Player player, int lines, boolean FullFlag ) {
         boolean hasPermission = ( ( player == null ) || player.isOp() || player.hasPermission( "LoginCtl.view" ) );
 
         Tools.Prt( player, "== Login List ==", programCode );
@@ -771,7 +763,7 @@ public class DatabaseControl {
      * @param lines         表示する行数指定
      * @return
      */
-    public boolean exLogPrint( Player player, String checkString, boolean FullFlag, int PrtMode, int lines )  {
+    public static boolean exLogPrint( Player player, String checkString, boolean FullFlag, int PrtMode, int lines )  {
         String sqlCmd;
         String checkName = "";
         boolean isOP = ( ( player == null ) ? true:player.isOp() );
@@ -857,7 +849,7 @@ public class DatabaseControl {
      * @param DataFolder
      * @return
      */
-    public boolean WriteFileUnknown( String IP, String DataFolder ) {
+    public static boolean WriteFileUnknown( String IP, String DataFolder ) {
         File UKfile = new File( DataFolder, "UnknownIP.yml" );
         FileConfiguration UKData = YamlConfiguration.loadConfiguration( UKfile );
 
@@ -881,7 +873,7 @@ public class DatabaseControl {
      * @param p
      * @param Lines 表示する順位の人数
      */
-    public void PingTop( Player p, int Lines ) {
+    public static void PingTop( Player p, int Lines ) {
         Tools.Prt( p, ChatColor.GREEN + "== Ping Count Top " + Lines + " ==", programCode );
 
         try ( Connection con = dataSource.getConnection() ) {

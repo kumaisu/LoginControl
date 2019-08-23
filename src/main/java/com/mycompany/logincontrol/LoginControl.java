@@ -3,15 +3,11 @@
  */
 package com.mycompany.logincontrol;
 
-import static org.bukkit.Bukkit.getWorld;
-import java.net.Inet4Address;
-import java.net.UnknownHostException;
 import java.util.Date;
+import java.net.UnknownHostException;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.command.Command;
@@ -33,8 +29,11 @@ import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.event.server.ServerListPingEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.java.JavaPlugin;
+import com.mycompany.logincontrol.command.LoginlistCommand;
 import com.mycompany.logincontrol.command.SpawnCommand;
+import com.mycompany.logincontrol.command.PingCommand;
 import com.mycompany.logincontrol.command.FlightCommand;
+import com.mycompany.logincontrol.tools.Teleport;
 import com.mycompany.logincontrol.config.Config;
 import com.mycompany.logincontrol.database.DatabaseControl;
 import com.mycompany.logincontrol.database.FileRead;
@@ -49,25 +48,27 @@ import static com.mycompany.logincontrol.config.Config.programCode;
  */
 public class LoginControl extends JavaPlugin implements Listener {
 
-    private Config config;
+    public Config config;
     private Date date;
     private MotDControl MotData;
     private String lastName = "";
-    private DatabaseControl DBA = null;
 
     @Override
     public void onEnable() {
         this.getServer().getPluginManager().registerEvents( this, this );
         config = new Config( this );
         MotData = new MotDControl( this );
-        DBA = new DatabaseControl();
+        DatabaseControl.connect();
+        DatabaseControl.TableUpdate();
         getCommand( "spawn" ).setExecutor( new SpawnCommand( this ) );
         getCommand( "flight" ).setExecutor( new FlightCommand( this ) );
+        getCommand( "loginlist" ).setExecutor( new LoginlistCommand( this ) );
+        getCommand( "ping" ).setExecutor( new PingCommand( this ) );
     }
 
     @Override
     public void onDisable() {
-        DBA.disconnect();
+        DatabaseControl.disconnect();
         super.onDisable(); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -86,8 +87,8 @@ public class LoginControl extends JavaPlugin implements Listener {
     public void prePlayerLogin( AsyncPlayerPreLoginEvent event ) {
         Tools.Prt( "PrePlayerLogin process", consoleMode.full, programCode );
         date = new Date();
-        DBA.listSave( date, event.getName(), event.getUniqueId().toString(), event.getAddress().getHostAddress(), 0 );
-        DBA.AddPlayerToSQL( event.getAddress().getHostAddress(), event.getName() );
+        DatabaseControl.listSave( date, event.getName(), event.getUniqueId().toString(), event.getAddress().getHostAddress(), 0 );
+        DatabaseControl.AddPlayerToSQL( event.getAddress().getHostAddress(), event.getName() );
     }
 
     /**
@@ -103,10 +104,10 @@ public class LoginControl extends JavaPlugin implements Listener {
         Tools.Prt( "onPlayerLogin process", consoleMode.max, programCode );
         event.setJoinMessage( null );
         Player player = event.getPlayer();
-        DBA.listChangeStatus( date, 1 );
-        DBA.LogPrint( player, 5, false );
-        DBA.AddCountHost( player.getAddress().getHostString(), -1 );
-        DBA.listCheckIP( player );
+        DatabaseControl.listChangeStatus( date, 1 );
+        DatabaseControl.LogPrint( player, 5, false );
+        DatabaseControl.AddCountHost( player.getAddress().getHostString(), -1 );
+        DatabaseControl.listCheckIP( player );
 
         if ( config.Announce() ) {
             Tools.Prt( player, Utility.ReplaceString( config.AnnounceMessage(), player.getDisplayName() ), consoleMode.max, programCode );
@@ -116,13 +117,13 @@ public class LoginControl extends JavaPlugin implements Listener {
             Tools.Prt( ChatColor.LIGHT_PURPLE + "The First Login Player", consoleMode.normal, programCode );
 
             if ( Config.JumpStats ) {
-                if ( !BeginnerCommand.BeginnerTeleport( player ) ) {
+                if ( !Teleport.Beginner( player ) ) {
                     Tools.Prt( player, "You failed the beginner teleport", Tools.consoleMode.full, programCode);
                 }
             } else Tools.Prt( "not Beginner Teleport", Tools.consoleMode.max, programCode );
     
             if( config.NewJoin() ) {
-                String msg = DBA.GetLocale( player.getAddress().getHostString() );
+                String msg = DatabaseControl.GetLocale( player.getAddress().getHostString() );
                 Tools.Prt( "Player host = " + player.getAddress().getHostString(), consoleMode.normal, programCode );
                 Tools.Prt( "Get Locale = " + msg, consoleMode.normal, programCode );
                 Bukkit.broadcastMessage( Utility.ReplaceString( config.NewJoinMessage( msg ), player.getDisplayName() ) );
@@ -136,7 +137,7 @@ public class LoginControl extends JavaPlugin implements Listener {
         } else {
             Tools.Prt( "The Repeat Login Player", consoleMode.normal, programCode );
             if( config.ReturnJoin() && !player.hasPermission( "LoginCtl.silentjoin" ) ) {
-                Bukkit.broadcastMessage( Utility.ReplaceString( config.ReturnJoinMessage( DBA.GetLocale( player.getAddress().getHostString() ) ), player.getDisplayName() ) );
+                Bukkit.broadcastMessage( Utility.ReplaceString( config.ReturnJoinMessage( DatabaseControl.GetLocale( player.getAddress().getHostString() ) ), player.getDisplayName() ) );
             }
         }
     }
@@ -178,21 +179,21 @@ public class LoginControl extends JavaPlugin implements Listener {
 
         if ( Host == null ) {
             //  簡易DNSからホスト名を取得
-            Host = DBA.GetHost( event.getAddress().getHostAddress() );
+            Host = DatabaseControl.GetHost( event.getAddress().getHostAddress() );
             int MsgNum = 0;
             if ( Host.equals( "Unknown" ) ) {
                 //  DBに該当なしなので、DB登録
                 //  ホスト名が取得できなかった場合は、Unknown Player を File に記録し、新規登録
                 MsgColor = ChatColor.RED.toString();
-                Host = DBA.getUnknownHost( event.getAddress().getHostAddress(), Config.CheckIPAddress );
+                Host = DatabaseControl.getUnknownHost( event.getAddress().getHostAddress(), Config.CheckIPAddress );
                 //  新規ホストとして、Unknown.yml ファイルへ書き出し
-                DBA.WriteFileUnknown( event.getAddress().getHostAddress(), this.getDataFolder().toString() );
+                DatabaseControl.WriteFileUnknown( event.getAddress().getHostAddress(), this.getDataFolder().toString() );
             } else {
                 //  未知のホスト名の場合は LIGHT_PURPLE , 既知のPlayerだった場合は WHITE になる
                 if ( Host.contains( "Player" ) ) {
                     MsgColor = ChatColor.WHITE.toString();
                     //  簡易DNSにプレイヤー登録されている場合は、ログイン履歴を参照して最新のプレイヤー名を取得する
-                    Names = DBA.listGetPlayerName( event.getAddress().getHostAddress() );
+                    Names = DatabaseControl.listGetPlayerName( event.getAddress().getHostAddress() );
                     Tools.Prt( "Names    [" + Names + "]", Tools.consoleMode.max, programCode );
                     Tools.Prt( "Ignore   [" + ( Config.IgnoreReportName.contains( Names) ? "True" : "False" ) + "]", Tools.consoleMode.max, programCode);
                     if ( ( Config.playerPingB && !Config.IgnoreReportName.contains( Names ) ) && ( Names != null && !Names.equals( lastName ) ) ) {
@@ -207,9 +208,9 @@ public class LoginControl extends JavaPlugin implements Listener {
                 }
             }
 
-            DBA.AddCountHost( event.getAddress().getHostAddress(), 0 );
+            DatabaseControl.AddCountHost( event.getAddress().getHostAddress(), 0 );
 
-            int count = DBA.GetCountHosts( event.getAddress().getHostAddress() );
+            int count = DatabaseControl.GetCountHosts( event.getAddress().getHostAddress() );
             Host = Utility.StringBuild( Host, "(", String.valueOf( count ), ")" );
 
             String Motd2ndLine = MotData.getModifyMessage( Names, event.getAddress().getHostAddress() );
@@ -225,7 +226,7 @@ public class LoginControl extends JavaPlugin implements Listener {
                 Motd2ndLine = Motd2ndLine.replace( "%count", String.valueOf( count ) );
                 //  True : カウントを開始した日を指定
                 //  False : 最後にカウントされた日を指定
-                Motd2ndLine = Motd2ndLine.replace( "%date", DBA.getDateHost( event.getAddress().getHostAddress(), true ) );
+                Motd2ndLine = Motd2ndLine.replace( "%date", DatabaseControl.getDateHost( event.getAddress().getHostAddress(), true ) );
                 MotdMsg = Utility.StringBuild( MotdMsg, Motd2ndLine );
                 Tools.Prt( Utility.StringBuild( "MotD = ", Utility.ReplaceString( Motd2ndLine, Names ) ), consoleMode.max, programCode );
             } else {
@@ -261,76 +262,8 @@ public class LoginControl extends JavaPlugin implements Listener {
      */
     @Override
     public boolean onCommand( CommandSender sender,Command cmd, String commandLabel, String[] args ) {
-        int lineSet = 30;
         Player p = ( sender instanceof Player ) ? ( Player )sender:( Player )null;
         consoleMode checkConsoleFlag = ( ( p == null ) ? consoleMode.none : consoleMode.stop );
-
-        if ( cmd.getName().toLowerCase().equalsIgnoreCase( "loginlist" ) ) {
-            int PrtF = 0;
-            String Param = "";
-            boolean FullFlag = false;
-
-            for ( String arg : args ) {
-                String[] param = arg.split( ":" );
-                switch ( param[0] ) {
-                    case "d":
-                        PrtF = 1;
-                        Param = param[1];
-                        break;
-                    case "u":
-                        PrtF = 2;
-                        Param = param[1];
-                        break;
-                    case "i":
-                        PrtF = 3;
-                        Param = param[1];
-                        break;
-                    case "l":
-                        try {
-                            lineSet = Integer.parseInt( param[1] );
-                        } catch ( NumberFormatException e ) {
-                            lineSet = 30;
-                        }
-                        break;
-                    case "full":
-                        Tools.Prt( p, Utility.ReplaceString( config.LogFull() ), consoleMode.full, programCode );
-                        FullFlag = true;
-                        break;
-                    default:
-                        Tools.Prt( p, Utility.ReplaceString( config.ArgsErr() ), consoleMode.full, programCode );
-                        return false;
-                }
-            }
-
-            switch ( PrtF ) {
-                case 0:
-                    DBA.LogPrint( p, ( sender instanceof Player ) ? 15:30, FullFlag );
-                    break;
-                case 1:
-                case 2:
-                case 3:
-                    DBA.exLogPrint( p, Param, FullFlag, PrtF, lineSet );
-                    break;
-                default:
-                    Tools.Prt( p, Utility.ReplaceString( config.OptError() ), consoleMode.full, programCode );
-                    return false;
-            }
-            return true;
-        }
-
-        if ( cmd.getName().toLowerCase().equalsIgnoreCase( "ping" ) ) {
-            if ( args.length > 0 ) {
-                Inet4Address inet;
-                try {
-                    inet = ( Inet4Address ) Inet4Address.getByName( args[0] );
-                    String msg = "Check Ping is " + inet.getHostName();
-                    Tools.Prt( p, msg, checkConsoleFlag, programCode );
-                } catch (UnknownHostException ex) {
-                    Tools.Prt( p, ChatColor.RED + "Ping Unknown Host : " + ex.getMessage(), checkConsoleFlag, programCode );
-                }
-                return true;
-            }
-        }
 
         if ( cmd.getName().toLowerCase().equalsIgnoreCase( "loginctl" ) ) {
             String msg;
@@ -352,7 +285,7 @@ public class LoginControl extends JavaPlugin implements Listener {
                         Tools.Prt( p, Utility.ReplaceString( config.Reload() ), checkConsoleFlag, programCode );
                         return true;
                     case "Dupcheck":
-                        DBA.DuplicateCheck( p );
+                        DatabaseControl.DuplicateCheck( p );
                         return true;
                     case "CheckIP":
                         Config.CheckIPAddress = !Config.CheckIPAddress;
@@ -374,7 +307,7 @@ public class LoginControl extends JavaPlugin implements Listener {
                         );
                         return true;
                     case "Getlog":
-                        FileRead.GetLogFile( IP, DBA );
+                        FileRead.GetLogFile( IP );
                         return true;
                     default:
                 }
@@ -393,12 +326,12 @@ public class LoginControl extends JavaPlugin implements Listener {
                     case "sql":
                         String SQL_Cmd = "";
                         for ( int i = 1; args.length > i; i++ ) { SQL_Cmd = SQL_Cmd + " " + args[i]; }
-                        DBA.SQLCommand( p, SQL_Cmd );
+                        DatabaseControl.SQLCommand( p, SQL_Cmd );
                         return true;
                     case "chg":
                         if ( HostName.length() < 61 ) {
-                            if ( DBA.chgUnknownHost( IP, HostName ) ) {
-                                DBA.infoUnknownHost( p, IP );
+                            if ( DatabaseControl.chgUnknownHost( IP, HostName ) ) {
+                                DatabaseControl.infoUnknownHost( p, IP );
                             }
                         } else {
                             Tools.Prt( p, ChatColor.RED + "Hostname is limited to 60 characters", checkConsoleFlag, programCode );
@@ -407,30 +340,30 @@ public class LoginControl extends JavaPlugin implements Listener {
                     case "info":
                         if ( !IP.equals( "" ) ) {
                             Tools.Prt( p, "Check Unknown IP Information [" + IP + "]", checkConsoleFlag, programCode );
-                            DBA.infoUnknownHost( p, IP );
+                            DatabaseControl.infoUnknownHost( p, IP );
                         } else {
                             Tools.Prt( p, ChatColor.RED + "usage: info IPAddress", checkConsoleFlag, programCode );
                         }
                         return true;
                     case "add":
                         if ( !IP.equals( "" ) ) {
-                            if ( DBA.GetHost( IP ).equals( "Unknown" ) ) {
+                            if ( DatabaseControl.GetHost( IP ).equals( "Unknown" ) ) {
                                 if ( !HostName.equals( "" ) ) {
-                                    DBA.AddHostToSQL( IP, HostName );
+                                    DatabaseControl.AddHostToSQL( IP, HostName );
                                 } else {
                                     Tools.Prt( p, ChatColor.RED + " Host name is required", checkConsoleFlag, programCode );
                                 }
                             } else {
                                 Tools.Prt( p, ChatColor.RED + IP + " is already exists", checkConsoleFlag, programCode );
                             }
-                            DBA.infoUnknownHost( p, IP );
+                            DatabaseControl.infoUnknownHost( p, IP );
                         } else {
                             Tools.Prt( p, ChatColor.RED + "usage: add IPAddress [HostName]", checkConsoleFlag, programCode );
                         }
                         return true;
                     case "del":
                         if ( !IP.equals( "" ) ) {
-                            if ( DBA.DelHostFromSQL( IP ) ) {
+                            if ( DatabaseControl.DelHostFromSQL( IP ) ) {
                                 msg = ChatColor.GREEN + "Data Deleted [";
                             } else {
                                 msg = ChatColor.RED + "Failed to Delete Data [";
@@ -442,12 +375,12 @@ public class LoginControl extends JavaPlugin implements Listener {
                         return true;
                     case "count":
                         if ( HostName.equals( "Reset" ) ) HostName = "-1";
-                        DBA.AddCountHost( IP, Integer.parseInt( HostName ) );
-                        DBA.infoUnknownHost( p, IP );
+                        DatabaseControl.AddCountHost( IP, Integer.parseInt( HostName ) );
+                        DatabaseControl.infoUnknownHost( p, IP );
                         return true;
                     case "search":
                         if ( !IP.equals( "" ) ) {
-                            DBA.SearchHost( p, IP );
+                            DatabaseControl.SearchHost( p, IP );
                         } else {
                             Tools.Prt( p, ChatColor.RED + "usage: search word", checkConsoleFlag, programCode );
                         }
@@ -461,7 +394,7 @@ public class LoginControl extends JavaPlugin implements Listener {
                             PTLines = 10;
                         }
                         if ( PTLines < 1 ) { PTLines = 10; }
-                        DBA.PingTop( p, PTLines );
+                        DatabaseControl.PingTop( p, PTLines );
                         return true;
                     default:
                 }

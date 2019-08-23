@@ -87,7 +87,7 @@ public class FileRead {
         userIP = IP.substring( 0, IP.indexOf( ":" ) );
     }
 
-    private static void GetFileLine( String fileName, DatabaseControl DBA ) {
+    private static void GetFileLine( String fileName ) {
         try {
             //ファイルを読み込む
             FileReader fr;
@@ -109,7 +109,7 @@ public class FileRead {
                             MCBanInfo( line );
                             if ( !userUUID.equals( "<null>" ) ) {
                                 Tools.Prt(  "Date = " + userDate.toString() + " , Name = [" + userName + "] , UUID = [" + userUUID + "], IP = [" + userIP + "]", programCode );
-                                DBA.listSave( userDate, userName, userUUID, userIP, 0 );
+                                DatabaseControl.listSave( userDate, userName, userUUID, userIP, 0 );
                             }
                         }
                     }
@@ -119,7 +119,7 @@ public class FileRead {
                         String IP = line.substring( line.indexOf( "[/" ) + 2, line.indexOf( "] l" ) - 1 );
                         userIP = IP.substring( 0, IP.indexOf( ":" ) );
                         Tools.Prt(  "Date = " + userDate.toString() + " , Name = [" + userName + "] , UUID = [" + userUUID + "], IP = [" + userIP + "]", programCode );
-                        DBA.listSave( userDate, userName, userUUID, userIP, 1 );
+                        DatabaseControl.listSave( userDate, userName, userUUID, userIP, 1 );
                     }
                 }
                 //終了処理
@@ -136,7 +136,7 @@ public class FileRead {
      * @param numStr
      * @param DBA
      */
-    public static void GetLogFile( String numStr, DatabaseControl DBA ) {
+    public static void GetLogFile( String numStr ) {
         int Year;
         
         try {
@@ -167,7 +167,7 @@ public class FileRead {
                 File file = new File( "/home/minecraft/tools/" + FileName );
                 if ( file.exists() ) {
                     Tools.Prt( FileName, Tools.consoleMode.max, programCode );
-                    GetFileLine( "/home/minecraft/tools/" + FileName, DBA );
+                    GetFileLine( "/home/minecraft/tools/" + FileName );
                 } else exit = false;
             } while ( exit );
         } while( !dispCalendar( loopCalendar ).equals( EndDateText ) );
