@@ -33,6 +33,8 @@ import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.event.server.ServerListPingEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.java.JavaPlugin;
+import com.mycompany.logincontrol.command.SpawnCommand;
+import com.mycompany.logincontrol.command.FlightCommand;
 import com.mycompany.logincontrol.config.Config;
 import com.mycompany.logincontrol.database.DatabaseControl;
 import com.mycompany.logincontrol.database.FileRead;
@@ -59,6 +61,8 @@ public class LoginControl extends JavaPlugin implements Listener {
         config = new Config( this );
         MotData = new MotDControl( this );
         DBA = new DatabaseControl();
+        getCommand( "spawn" ).setExecutor( new SpawnCommand( this ) );
+        getCommand( "flight" ).setExecutor( new FlightCommand( this ) );
     }
 
     @Override
@@ -112,7 +116,7 @@ public class LoginControl extends JavaPlugin implements Listener {
             Tools.Prt( ChatColor.LIGHT_PURPLE + "The First Login Player", consoleMode.normal, programCode );
 
             if ( Config.JumpStats ) {
-                if ( !BeginnerTeleport( player ) ) {
+                if ( !BeginnerCommand.BeginnerTeleport( player ) ) {
                     Tools.Prt( player, "You failed the beginner teleport", Tools.consoleMode.full, programCode);
                 }
             } else Tools.Prt( "not Beginner Teleport", Tools.consoleMode.max, programCode );
@@ -261,39 +265,6 @@ public class LoginControl extends JavaPlugin implements Listener {
         Player p = ( sender instanceof Player ) ? ( Player )sender:( Player )null;
         consoleMode checkConsoleFlag = ( ( p == null ) ? consoleMode.none : consoleMode.stop );
 
-        if ( p != null ) {
-            if ( cmd.getName().toLowerCase().equalsIgnoreCase( "spawn" ) ) {
-                spawnTeleport( p );
-                return true;
-            }
-
-            if ( cmd.getName().toLowerCase().equalsIgnoreCase( "flight" ) ) {
-                for ( String arg:args ) {
-                    switch ( arg ) {
-                        case "on":
-                            FlightMode( p, true );
-                            break;
-                        case "off":
-                            FlightMode( p, false );
-                            break;
-                        default:
-                            Tools.Prt( p, ChatColor.GREEN + "Fly (on/off)", consoleMode.normal, programCode );
-                    }
-                }
-                return true;
-            }
-        }
-
-        if ( cmd.getName().toLowerCase().equalsIgnoreCase( "beginner" ) && ( Config.JumpStats ) ) {
-            if ( args.length > 0 ) {
-                Player targetPlayer = Bukkit.getPlayer( args[0] );
-                if ( !( targetPlayer == null ) ) {
-                    BeginnerTeleport( targetPlayer );
-                } else { Tools.Prt( "No Match Target Player", Tools.consoleMode.full, programCode); }
-            } else { Tools.Prt( "Select Target Player", Tools.consoleMode.full, programCode ); }
-            return true;
-        }
-        
         if ( cmd.getName().toLowerCase().equalsIgnoreCase( "loginlist" ) ) {
             int PrtF = 0;
             String Param = "";
@@ -583,87 +554,6 @@ public class LoginControl extends JavaPlugin implements Listener {
     }
 
     /**
-     * ワールドの初期スポーン地点へ強制転送コマンド
-     *
-     * @param player 
-     */
-    public void spawnTeleport( Player player ) {
-        if ( player.hasPermission( "LoginCtl.spawn" ) ) {
-            Tools.Prt( player, ChatColor.YELLOW + "Teleport to World Spawn", consoleMode.full, programCode );
-
-            //  player.setBedSpawnLocation(location);
-            World world = player.getWorld();
-            Location worldLocation = world.getSpawnLocation();
-            Tools.Prt(
-                "spawn World=" + worldLocation.getWorld().getName() +
-                " X=" + worldLocation.getX() +
-                " Y=" + worldLocation.getY() +
-                " Z=" + worldLocation.getZ() +
-                " Yaw=" + worldLocation.getYaw() +
-                " Pitch=" + worldLocation.getPitch(),
-                consoleMode.max, programCode
-            );
-
-            Location loc = player.getLocation();
-            Tools.Prt(
-                "player World=" + loc.getWorld().getName() +
-                " X=" + loc.getX() +
-                " Y=" + loc.getY() +
-                " Z=" + loc.getZ() +
-                " Yaw=" + loc.getYaw() +
-                " Pitch=" + loc.getPitch(),
-                consoleMode.max, programCode
-            );
-            player.teleport( worldLocation );
-        }
-    }
-
-    /**
-     * 初心者チュートリアルへの強制転送コマンド
-     *
-     * @param player 
-     * @return  
-     */
-    public boolean BeginnerTeleport( Player player ) {
-        Tools.Prt( player, "This player " + player.getDisplayName() + " is first play to teleport", consoleMode.normal, programCode );
-        World world = getWorld( Config.fworld );
-        Tools.Prt( "World = " + Config.fworld + " : " + world.toString(), Tools.consoleMode.max, programCode);
-        Location loc = new Location( world, Config.fx, Config.fy, Config.fz );
-        loc.setYaw( Config.fyaw );
-        loc.setPitch( Config.fpitch );
-        Tools.Prt(
-            "player Teleport=" + world.getName() +
-            " X=" + Config.fx +
-            " Y=" + Config.fy +
-            " Z=" + Config.fz +
-            " Yaw=" + Config.fyaw +
-            " Pitch=" + Config.fpitch,
-            consoleMode.max, programCode
-        );
-        return player.teleport( loc );
-    }
-
-    /**
-     * プレイヤーのフライを設定または解除する
-     *
-     * @param p
-     * @param flag
-     */
-    public void FlightMode( Player p, boolean flag ) {
-        if ( flag ) {
-            Tools.Prt( p, Utility.StringBuild( ChatColor.AQUA.toString(), "You can FLY !!" ), consoleMode.normal, programCode );
-            // 飛行許可
-            p.setAllowFlight( true );
-            p.setFlySpeed( 0.1F );
-        } else {
-            Tools.Prt( p, Utility.StringBuild( ChatColor.LIGHT_PURPLE.toString(), "Stop your FLY Mode." ), consoleMode.normal, programCode );
-            // 無効化
-            p.setFlying( false );
-            p.setAllowFlight( false );
-        }
-    }
-
-    /**
      * フライが禁止されているプレイヤーのフライを強制解除する
      *
      * @param event
@@ -672,7 +562,7 @@ public class LoginControl extends JavaPlugin implements Listener {
     public void onFlight( PlayerToggleFlightEvent event ) {
         Player p = event.getPlayer();
         // p.sendMessage( "Catch Flight mode " + p.getDisplayName() );
-        if ( !p.hasPermission( "LoginCtl.flight" ) ) FlightMode( p, false );
+        if ( !p.hasPermission( "LoginCtl.flight" ) ) FlightCommand.FlightMode( p, false );
     }
 
     /**
