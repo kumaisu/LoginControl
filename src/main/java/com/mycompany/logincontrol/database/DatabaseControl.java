@@ -60,8 +60,8 @@ public class DatabaseControl {
         config.setPoolName( Config.database );
         config.setAutoCommit( true );
         config.setConnectionInitSql( "SET SESSION query_cache_type=0" );
-        config.setMaximumPoolSize( 2 );
-        config.setMinimumIdle( 2 );
+        config.setMaximumPoolSize( Config.MaximumPoolSize );
+        config.setMinimumIdle( Config.MinimumIdle );
         config.setMaxLifetime( TimeUnit.MINUTES.toMillis( 15 ) );
         //  config.setConnectionTimeout(0);
         //  config.setIdleTimeout(0);

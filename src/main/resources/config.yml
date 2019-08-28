@@ -14,6 +14,8 @@ mysql:
   database: LoginList
   username: root
   password: password
+  MaximumPoolSize: 3
+  MinimumIdle: 3
 
 # Ignore Report
 # 一般へのリスト表示禁止

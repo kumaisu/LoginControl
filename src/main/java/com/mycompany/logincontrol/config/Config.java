@@ -31,6 +31,8 @@ public class Config {
     public static String database;
     public static String username;
     public static String password;
+    public static int MaximumPoolSize;
+    public static int MinimumIdle;
 
     public static boolean JumpStats;
     public static boolean OpJumpStats;
@@ -80,6 +82,8 @@ public class Config {
         database = config.getString( "mysql.database" );
         username = config.getString( "mysql.username" );
         password = config.getString( "mysql.password" );
+        MaximumPoolSize = config.getInt( "mysql.MaximumPoolSize", 3 );
+        MinimumIdle     = config.getInt( "mysql.MinimumIdle", 3 );
         JumpStats = config.getBoolean( "FirstPoint" );
         OpJumpStats = config.getBoolean( "OpJump" );
         fworld  = config.getString( "world" );
