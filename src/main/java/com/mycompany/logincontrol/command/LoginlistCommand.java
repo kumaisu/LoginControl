@@ -63,7 +63,7 @@ public class LoginlistCommand implements CommandExecutor {
                         break;
                     case "l":
                         try {
-                            lineSet = Integer.parseInt( param[1] );
+                            lineSet = Integer.valueOf( param[1] );
                         } catch ( NumberFormatException e ) {
                             lineSet = 30;
                         }
@@ -80,7 +80,7 @@ public class LoginlistCommand implements CommandExecutor {
 
             switch ( PrtF ) {
                 case 0:
-                    DatabaseControl.LogPrint( p, ( sender instanceof Player ) ? 15:30, FullFlag );
+                    DatabaseControl.LogPrint( p, ( sender instanceof Player ) ? 15:lineSet, FullFlag );
                     break;
                 case 1:
                 case 2:
