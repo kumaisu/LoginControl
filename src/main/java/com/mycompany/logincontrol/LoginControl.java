@@ -51,7 +51,7 @@ public class LoginControl extends JavaPlugin implements Listener {
     public Config config;
     private Date date;
     private MotDControl MotData;
-    private String lastName = "";
+    private String lastName = "Begin";
 
     @Override
     public void onEnable() {
@@ -198,7 +198,11 @@ public class LoginControl extends JavaPlugin implements Listener {
                     Tools.Prt( "Ignore   [" + ( Config.IgnoreReportName.contains( Names) ? "True" : "False" ) + "]", Tools.consoleMode.max, programCode);
                     if ( ( Config.playerPingB && !Config.IgnoreReportName.contains( Names ) ) && ( Names != null && !Names.equals( lastName ) ) ) {
                         Tools.Prt( "lastName [" + lastName + "]", Tools.consoleMode.max, programCode );
-                        Bukkit.broadcastMessage( ChatColor.GREEN + "Ping From Player " + ChatColor.WHITE + Names );
+                        if ( Bukkit.getServer().getOnlinePlayers().size() > 0 ) {
+                            Bukkit.broadcastMessage( ChatColor.GREEN + "Ping From Player " + ChatColor.WHITE + Names );
+                        } else {
+                            Tools.Prt( ChatColor.GREEN + "Ping From Player " + ChatColor.WHITE + Names,Tools.consoleMode.full, programCode );
+                        }
                         lastName = Names;
                     }
                     MsgNum = 2;

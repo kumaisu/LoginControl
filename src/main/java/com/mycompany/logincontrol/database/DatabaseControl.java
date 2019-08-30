@@ -339,26 +339,21 @@ public class DatabaseControl {
      */
     public static void AddCountHost( String IP, int ZeroF ) {
         try ( Connection con = dataSource.getConnection() ) {
-            Statement stmt = con.createStatement();
-            String sql = "SELECT * FROM hosts WHERE INET_NTOA(ip) = '" + IP + "';";
-            Tools.Prt( "AddCountHost : " + sql, Tools.consoleMode.max, programCode );
-            ResultSet rs = stmt.executeQuery( sql );
+            String sql = "UPDATE hosts SET count = ";
 
-            if ( rs.next() ) {
-                String ResetDate = "";
-
-                int count = ZeroF;
-                if ( ZeroF < 0 ) {
-                    count = 0;
-                    ResetDate = Utility.StringBuild( ", newdate = '", sdf.format( new Date() ), "'" );
-                }
-                if ( ZeroF == 0 ) count = rs.getInt( "count" ) + 1;
-
-                String chg_sql = "UPDATE hosts SET count = " + count + ResetDate + ", lastdate = '" + sdf.format( new Date() ) + "' WHERE INET_NTOA( ip ) = '" + IP + "';";
-                Tools.Prt( "AddCountHost : " + chg_sql, Tools.consoleMode.max, programCode );
-                PreparedStatement preparedStatement = con.prepareStatement( chg_sql );
-                preparedStatement.executeUpdate();
+            if ( ZeroF < 0 ) {
+                sql += Utility.StringBuild( "0, newdate = '", sdf.format( new Date() ), "'" );
             }
+            if ( ZeroF == 0 ) {
+                sql += "count + 1";
+            } else {
+                sql += ZeroF;
+            }
+
+            sql += Utility.StringBuild( ", lastdate = '", sdf.format( new Date() ), "' WHERE INET_NTOA( ip ) = '", IP, "';" );
+            Tools.Prt( "AddCountHost : " + sql, Tools.consoleMode.max, programCode );
+            PreparedStatement preparedStatement = con.prepareStatement( sql );
+            preparedStatement.executeUpdate();
             con.close();
         } catch ( SQLException e ) {
             Tools.Prt( ChatColor.RED + "Error AddCountHosts : " + e.getMessage(), programCode );
@@ -376,7 +371,7 @@ public class DatabaseControl {
         try ( Connection con = dataSource.getConnection() ) {
             Statement stmt = con.createStatement();
             String sql = "SELECT * FROM hosts WHERE INET_NTOA(ip) = '" + IP + "';";
-            Tools.Prt( "GetcountHosts : " + sql, Tools.consoleMode.max, programCode );
+            Tools.Prt( "GetCountHost : " + sql, Tools.consoleMode.max, programCode );
             ResultSet rs = stmt.executeQuery( sql );
             if ( rs.next() ) retStr = rs.getInt( "count" );
             con.close();
@@ -655,31 +650,21 @@ public class DatabaseControl {
      * @return
      */
     public static boolean chgUnknownHost( String IP, String Hostname ) {
-
         if ( Hostname.length()>60 ) { Hostname = String.format( "%-60s", Hostname ); }
 
         try ( Connection con = dataSource.getConnection() ) {
-            Statement stmt = con.createStatement();
-            String sql = "SELECT * FROM hosts WHERE INET_NTOA(ip) = '" + IP + "';";
+            String sql = "UPDATE hosts SET host = '" + Hostname + "' WHERE INET_NTOA( ip ) = '" + IP + "';";
             Tools.Prt( "chgUnknownHost : " + sql, Tools.consoleMode.max, programCode );
-            ResultSet rs = stmt.executeQuery( sql );
-
-            if ( rs.next() ) {
-                String chg_sql = "UPDATE hosts SET host = '" + Hostname + "' WHERE INET_NTOA( ip ) = '" + IP + "';";
-                Tools.Prt( "chgUnknownHost : " + chg_sql, Tools.consoleMode.max, programCode );
-                PreparedStatement preparedStatement = con.prepareStatement( chg_sql );
-                preparedStatement.executeUpdate();
-                con.close();
-                return true;
-            } else {
-                Tools.Prt( ChatColor.RED + "could not get " + IP, programCode );
-            }
+            PreparedStatement preparedStatement = con.prepareStatement( sql );
+            preparedStatement.executeUpdate();
             con.close();
+            return true;
         } catch ( SQLException e ) {
             Tools.Prt( ChatColor.RED + "Change Database Error [" + IP + "][" + Hostname + "]", programCode );
             //  エラー詳細ログの表示
             Tools.Prt( e.getMessage(), programCode );
         }
+
         return false;
     }
 
