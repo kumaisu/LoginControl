@@ -341,13 +341,14 @@ public class DatabaseControl {
         try ( Connection con = dataSource.getConnection() ) {
             String sql = "UPDATE hosts SET count = ";
 
-            if ( ZeroF < 0 ) {
-                sql += Utility.StringBuild( "0, newdate = '", sdf.format( new Date() ), "'" );
-            }
             if ( ZeroF == 0 ) {
                 sql += "count + 1";
             } else {
-                sql += ZeroF;
+                if ( ZeroF < 0 ) {
+                    sql += Utility.StringBuild( "0, newdate = '", sdf.format( new Date() ), "'" );
+                } else {
+                    sql += String.valueOf( ZeroF );
+                }
             }
 
             sql += Utility.StringBuild( ", lastdate = '", sdf.format( new Date() ), "' WHERE INET_NTOA( ip ) = '", IP, "';" );
