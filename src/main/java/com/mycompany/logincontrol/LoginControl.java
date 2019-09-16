@@ -198,10 +198,12 @@ public class LoginControl extends JavaPlugin implements Listener {
                     Tools.Prt( "Ignore   [" + ( Config.IgnoreReportName.contains( Names) ? "True" : "False" ) + "]", Tools.consoleMode.max, programCode);
                     if ( ( Config.playerPingB && !Config.IgnoreReportName.contains( Names ) ) && ( Names != null && !Names.equals( lastName ) ) ) {
                         Tools.Prt( "lastName [" + lastName + "]", Tools.consoleMode.max, programCode );
-                        if ( Bukkit.getServer().getOnlinePlayers().size() > 0 ) {
-                            Bukkit.broadcastMessage( ChatColor.GREEN + "Ping From Player " + ChatColor.WHITE + Names );
-                        } else {
-                            Tools.Prt( ChatColor.GREEN + "Ping From Player " + ChatColor.WHITE + Names,Tools.consoleMode.full, programCode );
+                        //  if ( Bukkit.getServer().getOnlinePlayers().size() > 0 ) {
+                        for( Player p : Bukkit.getOnlinePlayers() ) {
+                            p.sendMessage( ChatColor.GREEN + "Ping From Player " + ChatColor.WHITE + Names );
+                        }
+                        if ( Names == null ) {
+                            Tools.Prt( ChatColor.GREEN + "(Console) Ping From Player " + ChatColor.WHITE + Names,Tools.consoleMode.full, programCode );
                         }
                         lastName = Names;
                     }

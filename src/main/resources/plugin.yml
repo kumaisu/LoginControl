@@ -4,6 +4,7 @@ version: 0.5
 description: login history plugins
 author: Kumaisu
 database: true
+api-version: 1.14
 commands:
     beginner:
         description: Beginner Area Teleport
