@@ -5,7 +5,9 @@ Minecraft Plugin LoginControl Repository
   
 As for player login, it is a plug-in that supports variously  
 LoginControl は、プレイヤーログインに付いて、サポートをするプラグインです  
-spigot 1.12.2 - 1.14.3  
+
+## Operation check  
+Spigot Server 1.12.2 and 1.14.4  
   
 ## Support  
 Open a new issue here: [https//github.com/kumaisu/LoginControl/issues](https://github.com/kumaisu/LoginControl/issues)  
