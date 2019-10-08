@@ -4,6 +4,7 @@
   <groupId>com.mycompany</groupId>
   <artifactId>LoginControl</artifactId>
   <version>0.5</version>
+  <description>login history plugins</description>
   <scm>
     <connection>scm:svn:http://127.0.0.1/dummy</connection>
     <developerConnection>scm:svn:https://127.0.0.1/dummy</developerConnection>

@@ -3,8 +3,6 @@
  */
 package com.mycompany.logincontrol.database;
 
-import com.mycompany.kumaisulibraries.Tools;
-import static com.mycompany.logincontrol.config.Config.programCode;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -14,6 +12,8 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import org.bukkit.ChatColor;
+import com.mycompany.kumaisulibraries.Tools;
+import static com.mycompany.logincontrol.config.Config.programCode;
 
 /**
  *
@@ -109,7 +109,7 @@ public class FileRead {
                             MCBanInfo( line );
                             if ( !userUUID.equals( "<null>" ) ) {
                                 Tools.Prt(  "Date = " + userDate.toString() + " , Name = [" + userName + "] , UUID = [" + userUUID + "], IP = [" + userIP + "]", programCode );
-                                DatabaseControl.listSave( userDate, userName, userUUID, userIP, 0 );
+                                ListData.AddSQL( userDate, userName, userUUID, userIP, 0 );
                             }
                         }
                     }
@@ -119,7 +119,7 @@ public class FileRead {
                         String IP = line.substring( line.indexOf( "[/" ) + 2, line.indexOf( "] l" ) - 1 );
                         userIP = IP.substring( 0, IP.indexOf( ":" ) );
                         Tools.Prt(  "Date = " + userDate.toString() + " , Name = [" + userName + "] , UUID = [" + userUUID + "], IP = [" + userIP + "]", programCode );
-                        DatabaseControl.listSave( userDate, userName, userUUID, userIP, 1 );
+                        ListData.AddSQL( userDate, userName, userUUID, userIP, 1 );
                     }
                 }
                 //終了処理
@@ -134,7 +134,6 @@ public class FileRead {
     /**
      *
      * @param numStr
-     * @param DBA
      */
     public static void GetLogFile( String numStr ) {
         int Year;

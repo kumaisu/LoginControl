@@ -11,7 +11,7 @@ import com.mycompany.kumaisulibraries.Tools;
 import com.mycompany.kumaisulibraries.Utility;
 import com.mycompany.logincontrol.LoginControl;
 import com.mycompany.logincontrol.config.Config;
-import com.mycompany.logincontrol.database.DatabaseControl;
+import com.mycompany.logincontrol.database.ListData;
 import static com.mycompany.logincontrol.config.Config.programCode;
 
 /**
@@ -80,12 +80,12 @@ public class LoginlistCommand implements CommandExecutor {
 
             switch ( PrtF ) {
                 case 0:
-                    DatabaseControl.LogPrint( p, ( sender instanceof Player ) ? 15:lineSet, FullFlag );
+                    ListData.LogPrint( p, ( sender instanceof Player ) ? 15:lineSet, FullFlag );
                     break;
                 case 1:
                 case 2:
                 case 3:
-                    DatabaseControl.exLogPrint( p, Param, FullFlag, PrtF, lineSet );
+                    ListData.exLogPrint( p, Param, FullFlag, PrtF, lineSet );
                     break;
                 default:
                     Tools.Prt( p, Utility.ReplaceString( config.OptError() ), Tools.consoleMode.full, programCode );
