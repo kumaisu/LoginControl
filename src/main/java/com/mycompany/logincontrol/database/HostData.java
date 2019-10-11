@@ -78,7 +78,6 @@ public class HostData {
      */
     public static boolean GetSQL( String IP ) {
         boolean retFlag = false;
-        Database.Host = "Unknown";
         try ( Connection con = Database.dataSource.getConnection() ) {
             Statement stmt = con.createStatement();
             String sql = "SELECT * FROM hosts WHERE INET_NTOA(ip) = '" + IP + "';";
@@ -108,7 +107,7 @@ public class HostData {
      * @param CheckFlag
      * @return
      */
-    public static String GetHostname( String IP, boolean CheckFlag ) {
+    public static String AddHostname( String IP, boolean CheckFlag ) {
         Tools.Prt( Utility.StringBuild( ChatColor.RED.toString(), "Unknown New Record : ", ChatColor.AQUA.toString(), IP ), programCode );
         String HostName = "Unknown(IP)";
         if ( CheckFlag ) {

@@ -36,6 +36,7 @@ import com.mycompany.logincontrol.command.FlightCommand;
 import com.mycompany.logincontrol.tools.Teleport;
 import com.mycompany.logincontrol.config.Config;
 import com.mycompany.logincontrol.database.DatabaseControl;
+import com.mycompany.logincontrol.database.Database;
 import com.mycompany.logincontrol.database.HostData;
 import com.mycompany.logincontrol.database.ListData;
 import com.mycompany.logincontrol.database.FileRead;
@@ -43,7 +44,6 @@ import com.mycompany.kumaisulibraries.Utility;
 import com.mycompany.kumaisulibraries.Tools;
 import com.mycompany.kumaisulibraries.Tools.consoleMode;
 import static com.mycompany.logincontrol.config.Config.programCode;
-import com.mycompany.logincontrol.database.Database;
 
 /**
  *
@@ -112,10 +112,6 @@ public class LoginControl extends JavaPlugin implements Listener {
         HostData.AddCountHost( player.getAddress().getHostString(), -1 );
         ListData.CheckIP( player );
 
-        String getLocale = Tools.getLanguage( player );
-        String locale2byte = getLocale.substring( 4, 2 ).toUpperCase();
-        Tools.Prt( ChatColor.AQUA + "Player Menu is " + getLocale + " / " + locale2byte, programCode );
-
         if ( config.Announce() ) {
             Tools.Prt( player, Utility.ReplaceString( config.AnnounceMessage(), player.getDisplayName() ), consoleMode.max, programCode );
         }
@@ -129,12 +125,6 @@ public class LoginControl extends JavaPlugin implements Listener {
                 }
             } else Tools.Prt( "not Beginner Teleport", Tools.consoleMode.full, programCode );
     
-            if( config.NewJoin() ) {
-                Tools.Prt( "Player host = " + player.getAddress().getHostString(), consoleMode.normal, programCode );
-                Tools.Prt( "Get Locale = " + locale2byte, consoleMode.normal, programCode );
-                Bukkit.broadcastMessage( Utility.ReplaceString( config.NewJoinMessage( locale2byte ), player.getDisplayName() ) );
-            }
-
             Config.present.stream().forEach( CP -> {
                 Tools.ExecOtherCommand( player, CP, "" );
                 Tools.Prt( ChatColor.AQUA + "Command Execute : " + ChatColor.WHITE + CP, consoleMode.max, programCode );
@@ -142,10 +132,31 @@ public class LoginControl extends JavaPlugin implements Listener {
             
         } else {
             Tools.Prt( ChatColor.AQUA + "The Repeat Login Player", consoleMode.normal, programCode );
-            if( config.ReturnJoin() && !player.hasPermission( "LoginCtl.silentjoin" ) ) {
-                Bukkit.broadcastMessage( Utility.ReplaceString( config.ReturnJoinMessage( locale2byte ), player.getDisplayName() ) );
-            }
         }
+
+        //  プレイヤーの言語設定を取得するために遅延処理の後 Welcome メッセージの表示を行う
+        //  ラグが大きいが現状はこれが精一杯の状態
+        getServer().getScheduler().scheduleSyncDelayedTask( this, new Runnable()
+        {
+            public void run()
+            {
+                String getLocale = Tools.getLanguage( player ).substring( 3, 5 );
+                String locale2byte = Tools.getLanguage( player ).substring( 3, 5 ).toUpperCase();
+                Tools.Prt( ChatColor.AQUA + "Player Menu is " + getLocale + " / " + locale2byte, programCode );
+
+                if ( !player.hasPlayedBefore() || ( Config.OpJumpStats && player.isOp() ) ) {
+                    if( config.NewJoin() ) {
+                        Tools.Prt( "Player host = " + player.getAddress().getHostString(), consoleMode.normal, programCode );
+                        Tools.Prt( "Get Locale = " + locale2byte, consoleMode.normal, programCode );
+                        Bukkit.broadcastMessage( Utility.ReplaceString( config.NewJoinMessage( locale2byte ), player.getDisplayName() ) );
+                    }
+                } else {
+                    if( config.ReturnJoin() && !player.hasPermission( "LoginCtl.silentjoin" ) ) {
+                        Bukkit.broadcastMessage( Utility.ReplaceString( config.ReturnJoinMessage( locale2byte ), player.getDisplayName() ) );
+                    }
+                }
+            }
+        }, 100 );
     }
 
     /**
@@ -186,15 +197,8 @@ public class LoginControl extends JavaPlugin implements Listener {
         if ( Host == null ) {
             //  簡易DNSからホスト名を取得
             int MsgNum = 0;
-            if ( HostData.GetSQL( event.getAddress().getHostAddress() ) ) { Host = Database.Host; }
-            if ( Host.equals( "Unknown" ) ) {
-                //  DBに該当なしなので、DB登録
-                //  ホスト名が取得できなかった場合は、Unknown Player を File に記録し、新規登録
-                MsgColor = ChatColor.RED.toString();
-                Host = HostData.GetHostname( event.getAddress().getHostAddress(), Config.CheckIPAddress );
-                //  新規ホストとして、Unknown.yml ファイルへ書き出し
-                DatabaseControl.WriteFileUnknown( event.getAddress().getHostAddress(), this.getDataFolder().toString() );
-            } else {
+            if ( HostData.GetSQL( event.getAddress().getHostAddress() ) ) {
+                Host = Database.Host;
                 //  未知のホスト名の場合は LIGHT_PURPLE , 既知のPlayerだった場合は WHITE になる
                 if ( Host.contains( "Player" ) ) {
                     MsgColor = ChatColor.WHITE.toString();
@@ -218,6 +222,13 @@ public class LoginControl extends JavaPlugin implements Listener {
                 } else {
                     MsgColor = ChatColor.LIGHT_PURPLE.toString();
                 }
+            } else {
+                //  DBに該当なしなので、DB登録
+                //  ホスト名が取得できなかった場合は、Unknown Player を File に記録し、新規登録
+                MsgColor = ChatColor.RED.toString();
+                Host = HostData.AddHostname( event.getAddress().getHostAddress(), Config.CheckIPAddress );
+                //  新規ホストとして、Unknown.yml ファイルへ書き出し
+                DatabaseControl.WriteFileUnknown( event.getAddress().getHostAddress(), this.getDataFolder().toString() );
             }
 
             HostData.AddCountHost( event.getAddress().getHostAddress(), 0 );
