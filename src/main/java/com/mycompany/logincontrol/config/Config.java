@@ -53,7 +53,7 @@ public class Config {
 
     public Config(Plugin plugin) {
         this.plugin = plugin;
-        Tools.entryDebugFlag( programCode, consoleMode.none );
+        Tools.entryDebugFlag( programCode, consoleMode.print );
         Tools.Prt( "Config Loading now...", programCode );
         load();
     }

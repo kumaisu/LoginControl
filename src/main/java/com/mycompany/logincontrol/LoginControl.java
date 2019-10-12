@@ -254,7 +254,7 @@ public class LoginControl extends JavaPlugin implements Listener {
                 Tools.Prt( Utility.StringBuild( "Change = ", Utility.ReplaceString( Motd2ndLine.replace( "\n", " " ), Names ) ), consoleMode.max, programCode );
             }
 
-            if ( ( Config.AlarmCount != 0 ) && ( Database.Count >= Config.AlarmCount ) ) { PrtStatus = consoleMode.none; }
+            if ( ( Config.AlarmCount != 0 ) && ( Database.Count >= Config.AlarmCount ) ) { PrtStatus = consoleMode.print; }
 
         } else {
             //  Configに既知のホスト登録があった場合

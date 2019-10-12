@@ -38,16 +38,14 @@ public class PingCommand implements CommandExecutor {
     @Override
     public boolean onCommand( CommandSender sender,Command cmd, String commandLabel, String[] args ) {
         Player p = ( sender instanceof Player ) ? ( Player )sender:( Player )null;
-        Tools.consoleMode checkConsoleFlag = ( ( p == null ) ? Tools.consoleMode.none : Tools.consoleMode.stop );
-
         if ( args.length > 0 ) {
             Inet4Address inet;
             try {
                 inet = ( Inet4Address ) Inet4Address.getByName( args[0] );
                 String msg = "Check Ping is " + inet.getHostName();
-                Tools.Prt( p, msg, checkConsoleFlag, programCode );
+                Tools.Prt( p, msg, programCode );
             } catch (UnknownHostException ex) {
-                Tools.Prt( p, ChatColor.RED + "Ping Unknown Host : " + ex.getMessage(), checkConsoleFlag, programCode );
+                Tools.Prt( p, ChatColor.RED + "Ping Unknown Host : " + ex.getMessage(), programCode );
             }
             return true;
         }
