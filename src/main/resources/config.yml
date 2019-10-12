@@ -4,7 +4,7 @@
 # クマイス鯖独自の動作設定
 Kumaisu: false
 
-# Debug ( max / full / Default:normal / none )
+# Debug ( max / full / Default:normal / stop )
 Debug: normal
 
 # MySQL Settings
