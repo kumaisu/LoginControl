@@ -315,7 +315,10 @@ public class LoginControl extends JavaPlugin implements Listener {
                         );
                         return true;
                     case "Console":
-                        Tools.setDebug( IP, programCode );
+                        if ( !Tools.setDebug( IP, programCode ) ) {
+                            Tools.entryDebugFlag( programCode, Tools.consoleMode.normal );
+                            Tools.Prt( ChatColor.RED + "Config Debugモードの指定値が不正なので、normal設定にしました", programCode );
+                        }
                         Tools.Prt( p,
                             ChatColor.GREEN + "System Debug Mode is [ " +
                             ChatColor.RED + Tools.consoleFlag.get( programCode ) +
