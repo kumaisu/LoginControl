@@ -66,30 +66,35 @@ ANNOUNCE:
     Home Page [ %$4http://wikiwiki.jp/kumaisu/%$7 ]/n
     JMS Vote  [ %$4https://minecraft.jp/servers/kumaisu.mydns.jp%$f ]"
 
+# Database 接続が完了していない場合のクライアントへの表示
+Incomplete_Message: 起動が完了していません、時間を置いて接続してください。
+
 # Login/Logout時のコメント表示用
 # /n で改行が可能、複数行の表示に対応
 New_Join_Message:
   Enabled: true
   Message: "%$d%player% さん、スナック・クマイスサーバーへ、ようこそ"
-  JP: "%$d%player% さん、スナック・クマイスサーバーへ、ようこそ"
-  US: "%$d%player%, welcome to Snack Kumaisu Server"
-  TW: "%$d%player%，歡迎來到 Snack Kumaisu 服務器"
-  DE: "%$d%player%, willkommen im Snack Kumaisu Server"
-  FR: "%$d%player%, bienvenue sur Snack Kumaisu Server"
-  IT: "%$d%player%, benvenuto su Snack Kumaisu Server"
-  PH: "%$d%player%, maligayang pagdating sa Snack Kumaisu Server"
-  RU: "%$d%player%, добро пожаловать на сервер Snack Kumaisu"
+  Lang:
+    - "JP,%$d%player% さん、スナック・クマイスサーバーへ、ようこそ"
+    - "US,%$d%player% welcome to Snack Kumaisu Server"
+    - "TW,%$d%player% 歡迎來到 Snack Kumaisu 服務器"
+    - "DE,%$d%player% willkommen im Snack Kumaisu Server"
+    - "FR,%$d%player% bienvenue sur Snack Kumaisu Server"
+    - "IT,%$d%player% benvenuto su Snack Kumaisu Server"
+    - "PH,%$d%player% maligayang pagdating sa Snack Kumaisu Server"
+    - "RU,%$d%player% добро пожаловать на сервер Snack Kumaisu"
 Returning_Join_Message:
   Enabled: true
   Message: "%$b%player% %$dさん、おかえりなさい！ゆっくりしていってね！"
-  JP: "%$b%player% %$dさん、おかえりなさい！ゆっくりしていってね！"
-  US: "%$b%player% %$d, welcome back! Please go slow!"
-  TW: "%$b%player% %$d，歡迎回來！ 請慢一點！"
-  DE: "%$b%player% %$d, willkommen zuruck! Bitte geh langsam!"
-  FR: "%$b%player% %$d, bon retour! S'il vous plait allez lentement!"
-  IT: "%$b%player% %$d, bentornato! Per favore vai piano!"
-  PH: "%$b%player% %$d, maligayang pagdating pabalik! Mangyaring magpatuloy!"
-  RU: "%$b%player% %$d, добро пожаловать! Пожалуйста, идите медленно!"
+  Lang:
+    - "JP,%$b%player% %$dさん、おかえりなさい！ゆっくりしていってね！"
+    - "US,%$b%player% %$d welcome back! Please go slow!"
+    - "TW,%$b%player% %$d 歡迎回來！ 請慢一點！"
+    - "DE,%$b%player% %$d willkommen zuruck! Bitte geh langsam!"
+    - "FR,%$b%player% %$d bon retour! S'il vous plait allez lentement!"
+    - "IT,%$b%player% %$d bentornato! Per favore vai piano!"
+    - "PH,%$b%player% %$d maligayang pagdating pabalik! Mangyaring magpatuloy!"
+    - "RU,%$b%player% %$d добро пожаловать! Пожалуйста, идите медленно!"
 Quit_Message:
   Enabled: true
   Message: "%$b%player% %$dさんがログアウトしました"
@@ -151,16 +156,16 @@ Message:
 #    ArgsErr: "%$4引数指定の誤り：未知の引数が指定されました"
 #    OptError: "%$4ログ表示指定に誤りがあります"
 
-#Known servers
-104.155.197.233: JapanMinecraftServer
-213.239.204.169: Minecraft-Statistic
-104.20.70.236: Minecraft-Server-List
-104.20.237.39: MinecraftServers.org
-72.52.216.181: MinecraftServers.net
-104.25.139.100: MinecraftServers.biz
-104.25.153.114: ServerPact.com
-104.20.7.164: Minecraft-mp.com
-104.31.90.225: mcserverstatus.com
+UnknownServer:
+    - "104.155.197.233,JapanMinecraftServer"
+    - "213.239.204.169,Minecraft-Statistic"
+    - "104.20.70.236,Minecraft-Server-List"
+    - "104.20.237.39,MinecraftServers.org"
+    - "72.52.216.181,MinecraftServers.net"
+    - "104.25.139.100,MinecraftServers.biz"
+    - "104.25.153.114,ServerPact.com"
+    - "104.20.7.164,Minecraft-mp.com"
+    - "104.31.90.225,mcserverstatus.com"
 
 #CIDR Host List
 107.178.192.0/18: GoogleIncUS,MountainView)

@@ -11,6 +11,7 @@ import com.mycompany.kumaisulibraries.Tools;
 import com.mycompany.kumaisulibraries.Utility;
 import com.mycompany.logincontrol.LoginControl;
 import com.mycompany.logincontrol.config.Config;
+import com.mycompany.logincontrol.config.ConfigManager;
 import com.mycompany.logincontrol.database.ListData;
 import static com.mycompany.logincontrol.config.Config.programCode;
 
@@ -20,7 +21,7 @@ import static com.mycompany.logincontrol.config.Config.programCode;
  */
 public class LoginlistCommand implements CommandExecutor {
     private final LoginControl instance;
-    private final Config config;
+    private final ConfigManager config;
 
     public LoginlistCommand( LoginControl instance ) {
         this.instance = instance;
@@ -69,11 +70,11 @@ public class LoginlistCommand implements CommandExecutor {
                         }
                         break;
                     case "full":
-                        Tools.Prt( p, Utility.ReplaceString( config.LogFull() ), Tools.consoleMode.full, programCode );
+                        Tools.Prt( p, Utility.ReplaceString( Config.LogFull ), Tools.consoleMode.full, programCode );
                         FullFlag = true;
                         break;
                     default:
-                        Tools.Prt( p, Utility.ReplaceString( config.ArgsErr() ), Tools.consoleMode.full, programCode );
+                        Tools.Prt( p, Utility.ReplaceString( Config.ArgsErr ), Tools.consoleMode.full, programCode );
                         return false;
                 }
             }
@@ -88,7 +89,7 @@ public class LoginlistCommand implements CommandExecutor {
                     ListData.exLogPrint( p, Param, FullFlag, PrtF, lineSet );
                     break;
                 default:
-                    Tools.Prt( p, Utility.ReplaceString( config.OptError() ), Tools.consoleMode.full, programCode );
+                    Tools.Prt( p, Utility.ReplaceString( Config.OptError ), Tools.consoleMode.full, programCode );
                     return false;
             }
             return true;

@@ -18,31 +18,31 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.event.server.ServerListPingEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.java.JavaPlugin;
+import com.mycompany.kumaisulibraries.Tools;
+import com.mycompany.kumaisulibraries.Utility;
 import com.mycompany.logincontrol.command.LoginlistCommand;
 import com.mycompany.logincontrol.command.SpawnCommand;
 import com.mycompany.logincontrol.command.PingCommand;
 import com.mycompany.logincontrol.command.FlightCommand;
 import com.mycompany.logincontrol.tools.Teleport;
 import com.mycompany.logincontrol.config.Config;
-import com.mycompany.logincontrol.database.DatabaseControl;
+import com.mycompany.logincontrol.config.ConfigManager;
 import com.mycompany.logincontrol.database.Database;
 import com.mycompany.logincontrol.database.HostData;
 import com.mycompany.logincontrol.database.ListData;
 import com.mycompany.logincontrol.database.FileRead;
-import com.mycompany.kumaisulibraries.Utility;
-import com.mycompany.kumaisulibraries.Tools;
-import com.mycompany.kumaisulibraries.Tools.consoleMode;
+import com.mycompany.logincontrol.database.DatabaseControl;
 import static com.mycompany.logincontrol.config.Config.programCode;
 
 /**
@@ -51,7 +51,7 @@ import static com.mycompany.logincontrol.config.Config.programCode;
  */
 public class LoginControl extends JavaPlugin implements Listener {
 
-    public Config config;
+    public ConfigManager config;
     private Date date;
     private MotDControl MotData;
     private String lastName = "Begin";
@@ -59,7 +59,7 @@ public class LoginControl extends JavaPlugin implements Listener {
     @Override
     public void onEnable() {
         this.getServer().getPluginManager().registerEvents( this, this );
-        config = new Config( this );
+        config = new ConfigManager( this );
         MotData = new MotDControl( this );
         DatabaseControl.connect();
         DatabaseControl.TableUpdate();
@@ -88,7 +88,7 @@ public class LoginControl extends JavaPlugin implements Listener {
      */
     @EventHandler
     public void prePlayerLogin( AsyncPlayerPreLoginEvent event ) {
-        Tools.Prt( "PrePlayerLogin process", consoleMode.max, programCode );
+        Tools.Prt( "PrePlayerLogin process", Tools.consoleMode.max, programCode );
         date = new Date();
         ListData.AddSQL( date, event.getName(), event.getUniqueId().toString(), event.getAddress().getHostAddress(), 0 );
         HostData.AddPlayerToSQL( event.getAddress().getHostAddress(), event.getName() );
@@ -104,20 +104,23 @@ public class LoginControl extends JavaPlugin implements Listener {
     @EventHandler( priority = EventPriority.HIGH )
     public void onPlayerLogin( PlayerJoinEvent event ) throws UnknownHostException {
 
-        Tools.Prt( "onPlayerLogin process", consoleMode.max, programCode );
+        Tools.Prt( "onPlayerLogin process", Tools.consoleMode.max, programCode );
         event.setJoinMessage( null );
         Player player = event.getPlayer();
+        if ( Database.dataSource == null ) {
+            player.kickPlayer( Config.Incomplete_Message );
+        }
         ListData.ChangeStatus( date, 1 );
         ListData.LogPrint( player, 5, false );
         HostData.AddCountHost( player.getAddress().getHostString(), -1 );
         ListData.CheckIP( player );
 
-        if ( config.Announce() ) {
-            Tools.Prt( player, Utility.ReplaceString( config.AnnounceMessage(), player.getDisplayName() ), consoleMode.max, programCode );
+        if ( Config.Announce ) {
+            Tools.Prt( player, Utility.ReplaceString( Config.AnnounceMessage, player.getDisplayName() ), Tools.consoleMode.max, programCode );
         }
 
         if ( !player.hasPlayedBefore() || ( Config.OpJumpStats && player.isOp() ) ) {
-            Tools.Prt( ChatColor.AQUA + "The First Login Player", consoleMode.normal, programCode );
+            Tools.Prt( ChatColor.AQUA + "The First Login Player", Tools.consoleMode.normal, programCode );
 
             if ( Config.JumpStats ) {
                 if ( !Teleport.Beginner( player ) ) {
@@ -127,11 +130,11 @@ public class LoginControl extends JavaPlugin implements Listener {
     
             Config.present.stream().forEach( CP -> {
                 Tools.ExecOtherCommand( player, CP, "" );
-                Tools.Prt( ChatColor.AQUA + "Command Execute : " + ChatColor.WHITE + CP, consoleMode.max, programCode );
+                Tools.Prt( ChatColor.AQUA + "Command Execute : " + ChatColor.WHITE + CP, Tools.consoleMode.max, programCode );
             } );
             
         } else {
-            Tools.Prt( ChatColor.AQUA + "The Repeat Login Player", consoleMode.normal, programCode );
+            Tools.Prt( ChatColor.AQUA + "The Repeat Login Player", Tools.consoleMode.normal, programCode );
         }
 
         //  プレイヤーの言語設定を取得するために遅延処理の後 Welcome メッセージの表示を行う
@@ -145,14 +148,14 @@ public class LoginControl extends JavaPlugin implements Listener {
                 Tools.Prt( ChatColor.AQUA + "Player Menu is " + getLocale + " / " + locale2byte, programCode );
 
                 if ( !player.hasPlayedBefore() || ( Config.OpJumpStats && player.isOp() ) ) {
-                    if( config.NewJoin() ) {
-                        Tools.Prt( "Player host = " + player.getAddress().getHostString(), consoleMode.normal, programCode );
-                        Tools.Prt( "Get Locale = " + locale2byte, consoleMode.normal, programCode );
-                        Bukkit.broadcastMessage( Utility.ReplaceString( config.NewJoinMessage( locale2byte ), player.getDisplayName() ) );
+                    if( Config.NewJoin ) {
+                        Tools.Prt( "Player host = " + player.getAddress().getHostString(), Tools.consoleMode.normal, programCode );
+                        Tools.Prt( "Get Locale = " + locale2byte, Tools.consoleMode.normal, programCode );
+                        Bukkit.broadcastMessage( Utility.ReplaceString( Config.NewJoinMessage.get( locale2byte ), player.getDisplayName() ) );
                     }
                 } else {
-                    if( config.ReturnJoin() && !player.hasPermission( "LoginCtl.silentjoin" ) ) {
-                        Bukkit.broadcastMessage( Utility.ReplaceString( config.ReturnJoinMessage( locale2byte ), player.getDisplayName() ) );
+                    if( Config.ReturnJoin && !player.hasPermission( "LoginCtl.silentjoin" ) ) {
+                        Bukkit.broadcastMessage( Utility.ReplaceString( Config.ReturnJoinMessage.get( locale2byte ), player.getDisplayName() ) );
                     }
                 }
             }
@@ -170,9 +173,9 @@ public class LoginControl extends JavaPlugin implements Listener {
             event.setQuitMessage( null );
             return;
         }
-        if ( config.PlayerQuit() ) {
-            event.setQuitMessage( Utility.ReplaceString( config.PlayerQuitMessage(), event.getPlayer().getDisplayName() ) );
-            Bukkit.broadcastMessage( Utility.ReplaceString( config.PlayerQuitMessage(), event.getPlayer().getDisplayName() ) );
+        if ( Config.PlayerQuit ) {
+            event.setQuitMessage( Utility.ReplaceString( Config.PlayerQuitMessage, event.getPlayer().getDisplayName() ) );
+            Bukkit.broadcastMessage( Utility.ReplaceString( Config.PlayerQuitMessage, event.getPlayer().getDisplayName() ) );
         }
     }
 
@@ -188,11 +191,11 @@ public class LoginControl extends JavaPlugin implements Listener {
     public void onServerListPing( ServerListPingEvent event ) throws UnknownHostException, ClassNotFoundException {
         String Names = "Unknown";
         // ConsoleLog Flag 2:Full 1:Normal(Playerのみ)
-	consoleMode PrtStatus = consoleMode.full;
+	Tools.consoleMode PrtStatus = Tools.consoleMode.full;
 
         String MotdMsg = MotData.get1stLine();
         String MsgColor = ChatColor.GRAY.toString();
-        String Host = config.KnownServers( event.getAddress().getHostAddress() );
+        String Host = Config.KnownServers.get( event.getAddress().getHostAddress() );
 
         if ( Host == null ) {
             //  簡易DNSからホスト名を取得
@@ -218,7 +221,7 @@ public class LoginControl extends JavaPlugin implements Listener {
                         lastName = Names;
                     }
                     MsgNum = 2;
-                    PrtStatus = consoleMode.normal;
+                    PrtStatus = Tools.consoleMode.normal;
                 } else {
                     MsgColor = ChatColor.LIGHT_PURPLE.toString();
                 }
@@ -248,13 +251,13 @@ public class LoginControl extends JavaPlugin implements Listener {
                 Motd2ndLine = Motd2ndLine.replace( "%count", String.valueOf( Database.Count ) );
                 Motd2ndLine = Motd2ndLine.replace( "%date", Database.sdf.format( Database.NewDate ) );
                 MotdMsg = Utility.StringBuild( MotdMsg, Motd2ndLine );
-                Tools.Prt( Utility.StringBuild( "MotD = ", Utility.ReplaceString( Motd2ndLine, Names ) ), consoleMode.max, programCode );
+                Tools.Prt( Utility.StringBuild( "MotD = ", Utility.ReplaceString( Motd2ndLine, Names ) ), Tools.consoleMode.max, programCode );
             } else {
                 MotdMsg = Motd2ndLine;
-                Tools.Prt( Utility.StringBuild( "Change = ", Utility.ReplaceString( Motd2ndLine.replace( "\n", " " ), Names ) ), consoleMode.max, programCode );
+                Tools.Prt( Utility.StringBuild( "Change = ", Utility.ReplaceString( Motd2ndLine.replace( "\n", " " ), Names ) ), Tools.consoleMode.max, programCode );
             }
 
-            if ( ( Config.AlarmCount != 0 ) && ( Database.Count >= Config.AlarmCount ) ) { PrtStatus = consoleMode.print; }
+            if ( ( Config.AlarmCount != 0 ) && ( Database.Count >= Config.AlarmCount ) ) { PrtStatus = Tools.consoleMode.print; }
 
         } else {
             //  Configに既知のホスト登録があった場合
@@ -300,8 +303,8 @@ public class LoginControl extends JavaPlugin implements Listener {
             if ( hasConsolePerm ) {
                 switch ( CtlCmd ) {
                     case "Reload":
-                        config = new Config( this );
-                        Tools.Prt( p, Utility.ReplaceString( config.Reload() ), programCode );
+                        config = new ConfigManager( this );
+                        Tools.Prt( p, Utility.ReplaceString( Config.Reload ), programCode );
                         return true;
                     case "Dupcheck":
                         HostData.DuplicateCheck( p );
@@ -459,8 +462,8 @@ public class LoginControl extends JavaPlugin implements Listener {
      */
     @EventHandler
     public void onKickMessage( PlayerKickEvent event ) {
-        if ( config.PlayerKick() ) {
-            String msg = Utility.ReplaceString( config.KickMessage(), event.getPlayer().getDisplayName() );
+        if ( Config.PlayerKick ) {
+            String msg = Utility.ReplaceString( Config.KickMessage, event.getPlayer().getDisplayName() );
             if ( !event.getReason().equals( "" ) ) {
                 msg = Utility.ReplaceString( msg.replace( "%Reason%", event.getReason() ) );
             } else {
@@ -479,20 +482,20 @@ public class LoginControl extends JavaPlugin implements Listener {
      */
     @EventHandler
     public void onPlayerDeath( PlayerDeathEvent event ) {
-        if ( config.DeathMessageFlag() ) {
-            Tools.Prt( Utility.StringBuild( "DeathMessage: ", event.getDeathMessage() ), consoleMode.full, programCode );
-            Tools.Prt( Utility.StringBuild( "DisplayName : ", event.getEntity().getDisplayName() ), consoleMode.full, programCode );
+        if ( Config.DeathMessageFlag ) {
+            Tools.Prt( Utility.StringBuild( "DeathMessage: ", event.getDeathMessage() ), Tools.consoleMode.full, programCode );
+            Tools.Prt( Utility.StringBuild( "DisplayName : ", event.getEntity().getDisplayName() ), Tools.consoleMode.full, programCode );
             if ( event.getEntity().getLastDamageCause() instanceof EntityDamageByEntityEvent ) {
                 EntityDamageByEntityEvent lastcause = ( EntityDamageByEntityEvent ) event.getEntity().getLastDamageCause();
                 Entity entity = lastcause.getDamager();
-                Tools.Prt( Utility.StringBuild( "Killer Name : ", entity.getName() ), consoleMode.full, programCode );
+                Tools.Prt( Utility.StringBuild( "Killer Name : ", entity.getName() ), Tools.consoleMode.full, programCode );
                 String msg = config.DeathMessage( entity.getName().toUpperCase() );
                 msg = Utility.ReplaceString( msg, event.getEntity().getDisplayName() );
                 msg = msg.replace( "%mob%", entity.getName() );
                 //event.setDeathMessage( null );
                 Bukkit.broadcastMessage( msg );
             } else {
-                Tools.Prt( "Other Death", consoleMode.normal, programCode );
+                Tools.Prt( "Other Death", Tools.consoleMode.normal, programCode );
                 Bukkit.broadcastMessage(
                     Utility.StringBuild(
                         ChatColor.YELLOW.toString(), "[天の声] ",
