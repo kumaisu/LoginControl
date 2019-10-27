@@ -139,24 +139,22 @@ public class LoginControl extends JavaPlugin implements Listener {
 
         //  プレイヤーの言語設定を取得するために遅延処理の後 Welcome メッセージの表示を行う
         //  ラグが大きいが現状はこれが精一杯の状態
-        getServer().getScheduler().scheduleSyncDelayedTask( this, new Runnable()
-        {
-            public void run()
-            {
-                String getLocale = Tools.getLanguage( player ).substring( 3, 5 );
-                String locale2byte = Tools.getLanguage( player ).substring( 3, 5 ).toUpperCase();
-                Tools.Prt( ChatColor.AQUA + "Player Menu is " + getLocale + " / " + locale2byte, programCode );
-
-                if ( !player.hasPlayedBefore() || ( Config.OpJumpStats && player.isOp() ) ) {
-                    if( Config.NewJoin ) {
-                        Tools.Prt( "Player host = " + player.getAddress().getHostString(), Tools.consoleMode.normal, programCode );
-                        Tools.Prt( "Get Locale = " + locale2byte, Tools.consoleMode.normal, programCode );
-                        Bukkit.broadcastMessage( Utility.ReplaceString( Config.NewJoinMessage.get( locale2byte ), player.getDisplayName() ) );
-                    }
-                } else {
-                    if( Config.ReturnJoin && !player.hasPermission( "LoginCtl.silentjoin" ) ) {
-                        Bukkit.broadcastMessage( Utility.ReplaceString( Config.ReturnJoinMessage.get( locale2byte ), player.getDisplayName() ) );
-                    }
+        getServer().getScheduler().scheduleSyncDelayedTask( this, () -> {
+            String getLocale = Tools.getLanguage( player ).substring( 3, 5 );
+            String locale2byte = Tools.getLanguage( player ).substring( 3, 5 ).toUpperCase();
+            Tools.Prt( ChatColor.AQUA + "Player Menu is " + getLocale + " / " + locale2byte, programCode );
+            
+            if ( !player.hasPlayedBefore() || ( Config.OpJumpStats && player.isOp() ) ) {
+                if( Config.NewJoin ) {
+                    Tools.Prt( "Player host = " + player.getAddress().getHostString(), Tools.consoleMode.normal, programCode );
+                    Tools.Prt( "Get Locale = " + locale2byte, Tools.consoleMode.normal, programCode );
+                    String WelcomeMessage = ( Config.NewJoinMessage.get( locale2byte) == null ? Config.New_Join_Message : Config.NewJoinMessage.get( locale2byte ) );
+                    Bukkit.broadcastMessage( Utility.ReplaceString( WelcomeMessage, player.getDisplayName() ) );
+                }
+            } else {
+                if( Config.ReturnJoin && !player.hasPermission( "LoginCtl.silentjoin" ) ) {
+                    String ReturnMessage = ( Config.ReturnJoinMessage.get( locale2byte) == null ? Config.Returning_Join_Message : Config.ReturnJoinMessage.get( locale2byte ) );
+                    Bukkit.broadcastMessage( Utility.ReplaceString( ReturnMessage, player.getDisplayName() ) );
                 }
             }
         }, 100 );

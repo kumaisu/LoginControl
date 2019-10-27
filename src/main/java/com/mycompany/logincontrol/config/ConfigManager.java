@@ -152,4 +152,16 @@ public class ConfigManager {
         if ( msg == null ) msg = config.getString( "Death_Message.Messages.DEFAULT" );
         return msg;
     }
+
+    public String KnownServers( String IP ) {
+        return config.getString( IP, null );
+    }
+
+    public String NewJoinMessage( String Lang ) {
+        return config.getString( "New_Join_Message." + Lang, config.getString( "New_Join_Message.Message" ) );
+    }
+
+    public String ReturnJoinMessage( String Lang ) {
+        return config.getString( "Returning_Join_Message." + Lang, config.getString( "Returning_Join_Message.Message" ) );
+    }
 }
