@@ -47,7 +47,6 @@ public class LoginControl extends JavaPlugin implements Listener {
 
     @Override
     public void onDisable() {
-        DatabaseControl.disconnect();
         super.onDisable(); //To change body of generated methods, choose Tools | Templates.
     }
 
