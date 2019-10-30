@@ -5,15 +5,15 @@
  */
 package com.mycompany.logincontrol.config;
 
-import org.bukkit.plugin.Plugin;
-import org.bukkit.configuration.file.FileConfiguration;
-import com.mycompany.kumaisulibraries.Tools;
-import static com.mycompany.logincontrol.config.Config.programCode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.configuration.file.FileConfiguration;
+import com.mycompany.kumaisulibraries.Tools;
+import static com.mycompany.logincontrol.config.Config.programCode;
 
 /**
  *
@@ -34,7 +34,7 @@ public class ConfigManager {
     /*
      * 設定をロードします
      */
-    public void load() {
+    public static void load() {
         // 設定ファイルを保存
         plugin.saveDefaultConfig();
         if (config != null) { // configが非null == リロードで呼び出された
@@ -119,7 +119,7 @@ public class ConfigManager {
         }
     }
 
-    public void Status( Player p ) {
+    public static void Status( Player p ) {
         Tools.Prt( p, ChatColor.GREEN + "=== LoginContrl Status ===", programCode );
         Tools.Prt( p, ChatColor.WHITE + "Degub Mode : " + ChatColor.YELLOW + Tools.consoleFlag.get( programCode ).toString(), programCode );
         Tools.Prt( p, ChatColor.WHITE + "Mysql : " + ChatColor.YELLOW + Config.host + ":" + Config.port, programCode );

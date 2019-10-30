@@ -1,7 +1,7 @@
 /*
  *  Copyright (c) 2019 sugichan. All rights reserved.
  */
-package com.mycompany.logincontrol;
+package com.mycompany.logincontrol.config;
 
 import java.io.File;
 import java.io.IOException;
