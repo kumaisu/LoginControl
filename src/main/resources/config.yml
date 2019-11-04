@@ -75,25 +75,23 @@ New_Join_Message:
   Enabled: true
   Message: "%$d%player% さん、スナック・クマイスサーバーへ、ようこそ"
   Lang:
-    - "JP,%$d%player% さん、スナック・クマイスサーバーへ、ようこそ"
-    - "US,%$d%player% welcome to Snack Kumaisu Server"
-    - "TW,%$d%player% 歡迎來到 Snack Kumaisu 服務器"
+    - "JA,%$d%player% さん、スナック・クマイスサーバーへ、ようこそ"
+    - "EN,%$d%player% welcome to Snack Kumaisu Server"
+    - "ZH,%$d%player% 歡迎來到 Snack Kumaisu 服務器"
     - "DE,%$d%player% willkommen im Snack Kumaisu Server"
     - "FR,%$d%player% bienvenue sur Snack Kumaisu Server"
     - "IT,%$d%player% benvenuto su Snack Kumaisu Server"
-    - "PH,%$d%player% maligayang pagdating sa Snack Kumaisu Server"
     - "RU,%$d%player% добро пожаловать на сервер Snack Kumaisu"
 Returning_Join_Message:
   Enabled: true
   Message: "%$b%player% %$dさん、おかえりなさい！ゆっくりしていってね！"
   Lang:
-    - "JP,%$b%player% %$dさん、おかえりなさい！ゆっくりしていってね！"
-    - "US,%$b%player% %$d welcome back! Please go slow!"
-    - "TW,%$b%player% %$d 歡迎回來！ 請慢一點！"
+    - "JA,%$b%player% %$dさん、おかえりなさい！ゆっくりしていってね！"
+    - "EN,%$b%player% %$d welcome back! Please go slow!"
+    - "ZH,%$b%player% %$d 歡迎回來！ 請慢一點！"
     - "DE,%$b%player% %$d willkommen zuruck! Bitte geh langsam!"
     - "FR,%$b%player% %$d bon retour! S'il vous plait allez lentement!"
     - "IT,%$b%player% %$d bentornato! Per favore vai piano!"
-    - "PH,%$b%player% %$d maligayang pagdating pabalik! Mangyaring magpatuloy!"
     - "RU,%$b%player% %$d добро пожаловать! Пожалуйста, идите медленно!"
 Quit_Message:
   Enabled: true

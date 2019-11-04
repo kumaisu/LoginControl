@@ -102,8 +102,9 @@ public class LoginListener implements Listener {
         //  プレイヤーの言語設定を取得するために遅延処理の後 Welcome メッセージの表示を行う
         //  ラグが大きいが現状はこれが精一杯の状態
         Bukkit.getServer().getScheduler().scheduleSyncDelayedTask( plugin, () -> {
-            String getLocale = Tools.getLanguage( player ).substring( 3, 5 );
-            String locale2byte = Tools.getLanguage( player ).substring( 3, 5 ).toUpperCase();
+            String getLocale = Tools.getLanguage( player );
+            String locale2byte = getLocale.substring( 0, 2 ).toUpperCase();
+
             Tools.Prt( ChatColor.AQUA + "Player Menu is " + getLocale + " / " + locale2byte, programCode );
             
             if ( !player.hasPlayedBefore() || ( Config.OpJumpStats && player.isOp() ) ) {
@@ -115,7 +116,7 @@ public class LoginListener implements Listener {
                 }
             } else {
                 if( Config.ReturnJoin && !player.hasPermission( "LoginCtl.silentjoin" ) ) {
-                    String ReturnMessage = ( Config.ReturnJoinMessage.get( locale2byte) == null ? Config.Returning_Join_Message : Config.ReturnJoinMessage.get( locale2byte ) );
+                    String ReturnMessage = ( Config.ReturnJoinMessage.get( locale2byte ) == null ? Config.Returning_Join_Message : Config.ReturnJoinMessage.get( locale2byte ) );
                     Bukkit.broadcastMessage( Utility.ReplaceString( ReturnMessage, player.getDisplayName() ) );
                 }
             }
