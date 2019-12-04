@@ -124,14 +124,21 @@ public class ConfigManager {
         Tools.Prt( p, ChatColor.WHITE + "Degub Mode : " + ChatColor.YELLOW + Tools.consoleFlag.get( programCode ).toString(), programCode );
         Tools.Prt( p, ChatColor.WHITE + "Mysql : " + ChatColor.YELLOW + Config.host + ":" + Config.port, programCode );
         Tools.Prt( p, ChatColor.WHITE + "DB Name : " + ChatColor.YELLOW + Config.database, programCode );
+        if ( p == null ) {
+            Tools.Prt( p, ChatColor.WHITE + "DB UserName : " + ChatColor.YELLOW + Config.username, programCode );
+            Tools.Prt( p, ChatColor.WHITE + "DB Password : " + ChatColor.YELLOW + Config.password, programCode );
+        }
         Tools.Prt( p, ChatColor.WHITE + "FirstJump : " + ChatColor.YELLOW + ( ( Config.JumpStats ) ? "True":"None" ), programCode );
         if ( Config.JumpStats ) {
-            Tools.Prt( p, ChatColor.WHITE + "  world : " + ChatColor.YELLOW + Config.fworld, programCode );
-            Tools.Prt( p, ChatColor.WHITE + "  x     : " + ChatColor.YELLOW + String.valueOf( Config.fx ), programCode );
-            Tools.Prt( p, ChatColor.WHITE + "  y     : " + ChatColor.YELLOW + String.valueOf( Config.fy ), programCode );
-            Tools.Prt( p, ChatColor.WHITE + "  z     : " + ChatColor.YELLOW + String.valueOf( Config.fz ), programCode );
-            Tools.Prt( p, ChatColor.WHITE + "  p     : " + ChatColor.YELLOW + String.valueOf( Config.fpitch ), programCode );
-            Tools.Prt( p, ChatColor.WHITE + "  y     : " + ChatColor.YELLOW + String.valueOf( Config.fyaw ), programCode );
+            Tools.Prt( p, ChatColor.WHITE + "Position : " +
+                ChatColor.YELLOW + "[" + Config.fworld + "] " +
+                ChatColor.WHITE + "x:" + ChatColor.YELLOW + String.valueOf( Config.fx ) + "," +
+                ChatColor.WHITE + "y:" + ChatColor.YELLOW + String.valueOf( Config.fy ) + "," +
+                ChatColor.WHITE + "z:" + ChatColor.YELLOW + String.valueOf( Config.fz ) + "," +
+                ChatColor.WHITE + "pit:" + ChatColor.YELLOW + String.valueOf( Config.fpitch ) + "," +
+                ChatColor.WHITE + "yaw:" + ChatColor.YELLOW + String.valueOf( Config.fyaw ),
+                programCode
+            );
         }
         Tools.Prt( p, ChatColor.WHITE + "Present Items", programCode );
         Config.present.stream().forEach( CP -> { Tools.Prt( p, ChatColor.WHITE + " - " + ChatColor.YELLOW + CP, programCode ); } );
