@@ -3,6 +3,11 @@
  */
 package com.mycompany.logincontrol.listener;
 
+import java.util.Date;
+import java.net.UnknownHostException;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.event.Listener;
 import org.bukkit.event.EventHandler;
@@ -10,19 +15,13 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
-import java.util.Date;
-import java.net.UnknownHostException;
-import com.mycompany.kumaisulibraries.Tools;
-import com.mycompany.kumaisulibraries.Utility;
 import com.mycompany.logincontrol.config.Config;
 import com.mycompany.logincontrol.database.Database;
 import com.mycompany.logincontrol.database.HostData;
 import com.mycompany.logincontrol.database.ListData;
 import com.mycompany.logincontrol.tools.Teleport;
-import static com.mycompany.logincontrol.config.Config.programCode;
+import com.mycompany.kumaisulibraries.Tools;
+import com.mycompany.kumaisulibraries.Utility;
 
 /**
  *
@@ -50,7 +49,7 @@ public class LoginListener implements Listener {
      */
     @EventHandler
     public void prePlayerLogin( AsyncPlayerPreLoginEvent event ) {
-        Tools.Prt( "PrePlayerLogin process", Tools.consoleMode.max, programCode );
+        Tools.Prt( "PrePlayerLogin process", Tools.consoleMode.max, Config.programCode );
         date = new Date();
         ListData.AddSQL( date, event.getName(), event.getUniqueId().toString(), event.getAddress().getHostAddress(), 0 );
         HostData.AddPlayerToSQL( event.getAddress().getHostAddress(), event.getName() );
@@ -66,7 +65,7 @@ public class LoginListener implements Listener {
     @EventHandler( priority = EventPriority.HIGH )
     public void onPlayerLogin( PlayerJoinEvent event ) throws UnknownHostException {
 
-        Tools.Prt( "onPlayerLogin process", Tools.consoleMode.max, programCode );
+        Tools.Prt( "onPlayerLogin process", Tools.consoleMode.max, Config.programCode );
         event.setJoinMessage( null );
         Player player = event.getPlayer();
         if ( Database.dataSource == null ) {
@@ -78,25 +77,25 @@ public class LoginListener implements Listener {
         ListData.CheckIP( player );
 
         if ( Config.Announce ) {
-            Tools.Prt( player, Utility.ReplaceString( Config.AnnounceMessage, player.getDisplayName() ), Tools.consoleMode.max, programCode );
+            Tools.Prt( player, Utility.ReplaceString( Config.AnnounceMessage, player.getDisplayName() ), Tools.consoleMode.max, Config.programCode );
         }
 
         if ( !player.hasPlayedBefore() || ( Config.OpJumpStats && player.isOp() ) ) {
-            Tools.Prt( ChatColor.AQUA + "The First Login Player", Tools.consoleMode.normal, programCode );
+            Tools.Prt( ChatColor.AQUA + "The First Login Player", Tools.consoleMode.normal, Config.programCode );
 
             if ( Config.JumpStats ) {
                 if ( !Teleport.Beginner( player ) ) {
-                    Tools.Prt( player, "You failed the beginner teleport", Tools.consoleMode.full, programCode);
+                    Tools.Prt( player, "You failed the beginner teleport", Tools.consoleMode.full, Config.programCode );
                 }
-            } else Tools.Prt( "not Beginner Teleport", Tools.consoleMode.full, programCode );
+            } else Tools.Prt( "not Beginner Teleport", Tools.consoleMode.full, Config.programCode );
     
             Config.present.stream().forEach( CP -> {
                 Tools.ExecOtherCommand( player, CP, "" );
-                Tools.Prt( ChatColor.AQUA + "Command Execute : " + ChatColor.WHITE + CP, Tools.consoleMode.max, programCode );
+                Tools.Prt( ChatColor.AQUA + "Command Execute : " + ChatColor.WHITE + CP, Tools.consoleMode.max, Config.programCode );
             } );
             
         } else {
-            Tools.Prt( ChatColor.AQUA + "The Repeat Login Player", Tools.consoleMode.normal, programCode );
+            Tools.Prt( ChatColor.AQUA + "The Repeat Login Player", Tools.consoleMode.normal, Config.programCode );
         }
 
         //  プレイヤーの言語設定を取得するために遅延処理の後 Welcome メッセージの表示を行う
@@ -105,12 +104,12 @@ public class LoginListener implements Listener {
             String getLocale = Tools.getLanguage( player );
             String locale2byte = getLocale.substring( 0, 2 ).toUpperCase();
 
-            Tools.Prt( ChatColor.AQUA + "Player Menu is " + getLocale + " / " + locale2byte, programCode );
+            Tools.Prt( ChatColor.AQUA + "Player Menu is " + getLocale + " / " + locale2byte, Config.programCode );
             
             if ( !player.hasPlayedBefore() || ( Config.OpJumpStats && player.isOp() ) ) {
                 if( Config.NewJoin ) {
-                    Tools.Prt( "Player host = " + player.getAddress().getHostString(), Tools.consoleMode.normal, programCode );
-                    Tools.Prt( "Get Locale = " + locale2byte, Tools.consoleMode.normal, programCode );
+                    Tools.Prt( "Player host = " + player.getAddress().getHostString(), Tools.consoleMode.normal, Config.programCode );
+                    Tools.Prt( "Get Locale = " + locale2byte, Tools.consoleMode.normal, Config.programCode );
                     String WelcomeMessage = ( Config.NewJoinMessage.get( locale2byte) == null ? Config.New_Join_Message : Config.NewJoinMessage.get( locale2byte ) );
                     Bukkit.broadcastMessage( Utility.ReplaceString( WelcomeMessage, player.getDisplayName() ) );
                 }
@@ -139,5 +138,4 @@ public class LoginListener implements Listener {
             Bukkit.broadcastMessage( Utility.ReplaceString( Config.PlayerQuitMessage, event.getPlayer().getDisplayName() ) );
         }
     }
-
 }
