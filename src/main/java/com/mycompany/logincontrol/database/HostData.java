@@ -231,8 +231,10 @@ public class HostData {
                 Database.Count++;
             } else {
                 if ( ZeroF < 0 ) {
-                    sql += Utility.StringBuild( "0, newdate = '", Database.sdf.format( new Date() ), "'" );
-                    Database.NewDate = new Date();
+                    //  sql += Utility.StringBuild( "0, newdate = '", Database.sdf.format( new Date() ), "'" );
+                    //  Database.NewDate = new Date();
+                    sql += Utility.StringBuild( "0, newdate = '", Database.sdf.format( Database.LastDate ), "'" );
+                    Database.NewDate = Database.LastDate;
                 } else {
                     sql += String.valueOf( ZeroF );
                 }

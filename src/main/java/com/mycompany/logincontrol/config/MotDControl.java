@@ -158,6 +158,7 @@ public class MotDControl {
         Tools.Prt( p, ChatColor.WHITE + "Player        : " + ChatColor.YELLOW + MotD2ndLine.get( 2 ), programCode );
         Tools.Prt( p, ChatColor.WHITE + "Player Count  : " + ChatColor.YELLOW + MotD2ndLine.get( 3 ), programCode );
         Tools.Prt( p, ChatColor.WHITE + "Alive         : " + ChatColor.YELLOW + MotD2ndLine.get( 4 ), programCode );
+        Tools.Prt( p, ChatColor.WHITE + "Warning       : " + ChatColor.YELLOW + MotD2ndLine.get( 5 ), programCode );
         Tools.Prt( p, ChatColor.GREEN + "==================================", programCode );
     }
 }

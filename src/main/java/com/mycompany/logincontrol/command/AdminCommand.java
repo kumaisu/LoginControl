@@ -28,6 +28,15 @@ public class AdminCommand implements CommandExecutor {
         this.instance = instance;
     }
 
+    public int getNum( Player player, String NumStr ) {
+        try {
+            return Integer.parseInt( NumStr );
+        } catch ( NumberFormatException e ) {
+            Tools.Prt( player, ChatColor.RED + "数値を入力してください", Config.programCode );
+            return 0;
+        }
+    }
+
     /**
      * コマンド入力があった場合に発生するイベント
      *
@@ -152,9 +161,14 @@ public class AdminCommand implements CommandExecutor {
                         return true;
                     case "count":
                         if ( HostName.equals( "Reset" ) ) HostName = "-1";
-                        HostData.AddCountHost( IP, Integer.parseInt( HostName ) );
-                        HostData.infoHostname( p, IP );
-                        return true;
+                        try {
+                            HostData.AddCountHost( IP, Integer.parseInt( HostName ) );
+                            HostData.infoHostname( p, IP );
+                            return true;
+                        } catch ( NumberFormatException e ) {
+                            Tools.Prt( p, ChatColor.RED + "値を入力してください", Config.programCode );
+                            break;
+                        }
                     case "search":
                         if ( !IP.equals( "" ) ) {
                             HostData.SearchHostname( p, IP );
