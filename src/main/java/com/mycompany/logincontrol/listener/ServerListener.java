@@ -76,7 +76,7 @@ public class ServerListener implements Listener {
                             p.sendMessage( ChatColor.GREEN + "Ping From Player " + ChatColor.WHITE + Names );
                         }
                         if ( Names == null ) {
-                            Tools.Prt( ChatColor.GREEN + "(Console) Ping From Player " + ChatColor.WHITE + Names,Tools.consoleMode.full, programCode );
+                            Tools.Prt( ChatColor.GREEN + "(Con) Ping From Player " + ChatColor.WHITE + Names,Tools.consoleMode.full, programCode );
                         }
                         lastName = Names;
                     }
@@ -101,10 +101,15 @@ public class ServerListener implements Listener {
             String Motd2ndLine = LoginControl.MotData.getModifyMessage( Names, event.getAddress().getHostAddress() );
 
             if ( "".equals( Motd2ndLine ) ) {
-                if ( ( LoginControl.MotData.getmotDMaxCount() != 0 ) && ( Database.Count>LoginControl.MotData.getmotDMaxCount() ) ) {
-                    MsgNum = 4;
+                if ( ( Config.AlarmCount != 0 ) && ( Database.Count >= Config.AlarmCount ) ) {
+                    MsgNum = 5;
+                    MsgColor = ChatColor.RED.toString();                    
                 } else {
-                    if ( ( LoginControl.MotData.getmotDCount() != 0 ) && ( Database.Count>LoginControl.MotData.getmotDCount() ) ) MsgNum++;
+                    if ( ( LoginControl.MotData.getmotDMaxCount() != 0 ) && ( Database.Count>LoginControl.MotData.getmotDMaxCount() ) ) {
+                        MsgNum = 4;
+                    } else {
+                        if ( ( LoginControl.MotData.getmotDCount() != 0 ) && ( Database.Count>LoginControl.MotData.getmotDCount() ) ) MsgNum++;
+                    }
                 }
 
                 Motd2ndLine = LoginControl.MotData.get2ndLine( MsgNum );

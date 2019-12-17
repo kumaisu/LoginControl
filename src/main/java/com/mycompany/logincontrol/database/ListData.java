@@ -145,12 +145,14 @@ public class ListData {
 
         PrtData.add( Utility.StringBuild( ChatColor.RED.toString(), "=== end ===" ) );
 
+        if ( NameData.size() < 2 ) { return; }
+
         PrtData.stream().forEach( PD -> {
             String msg = PD;
-            Tools.Prt( ( ( NameData.size() > 1 ) ? player:null ), msg, Tools.consoleMode.normal, programCode );
+            Tools.Prt( msg, Tools.consoleMode.normal, Config.programCode );
             Bukkit.getOnlinePlayers().stream().filter( ( p ) -> (
-                ( player != p ) && ( p.hasPermission( "LoginCtl.view" ) || p.isOp() ) ) ).forEachOrdered( ( p ) -> {
-                    Tools.Prt( p, msg, Tools.consoleMode.max, programCode );
+                ( p.hasPermission( "LoginCtl.view" ) ) ) ).forEachOrdered( ( p ) -> {
+                    Tools.Prt( p, msg, Config.programCode );
                 }
             );
         } );

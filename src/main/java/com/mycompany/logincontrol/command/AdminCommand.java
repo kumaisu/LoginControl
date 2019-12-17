@@ -190,7 +190,7 @@ public class AdminCommand implements CommandExecutor {
             if ( ( p == null ) || p.hasPermission( "LoginCtl.admin" ) ) {
                 //  LoginCtl.admin
                 Tools.Prt( p, "loginctl status", programCode );
-                Tools.Prt( p, "loginctl MotD", programCode );
+                Tools.Prt( p, "loginctl Motd", programCode );
                 Tools.Prt( p, "loginctl sql SQL_Command", programCode );
                 Tools.Prt( p, "loginctl info IPAddress", programCode );
                 Tools.Prt( p, "loginctl chg IPAddress HostName", programCode );

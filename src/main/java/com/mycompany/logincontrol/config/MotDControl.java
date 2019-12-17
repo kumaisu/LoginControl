@@ -57,6 +57,7 @@ public class MotDControl {
         MotD2ndLine.add( UKData.getString( "MotD2nd-Player", "Player" ) );
         MotD2ndLine.add( UKData.getString( "MotD2nd-Ping-Player", "PlayerPing" ) );
         MotD2ndLine.add( UKData.getString( "MotD2nd-Alive", "Alive" ) );
+        MotD2ndLine.add( UKData.getString( "MotD2nd-Warning", "Warning" ) );
 
         // return true;
     }
