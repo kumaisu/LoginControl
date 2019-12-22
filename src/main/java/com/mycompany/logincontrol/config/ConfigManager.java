@@ -14,6 +14,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.configuration.file.FileConfiguration;
 import com.mycompany.kumaisulibraries.Tools;
 import static com.mycompany.logincontrol.config.Config.programCode;
+import java.util.Map;
 
 /**
  *
@@ -164,11 +165,27 @@ public class ConfigManager {
         return config.getString( IP, null );
     }
 
+    /*
     public String NewJoinMessage( String Lang ) {
         return config.getString( "New_Join_Message." + Lang, config.getString( "New_Join_Message.Message" ) );
     }
-
+    
     public String ReturnJoinMessage( String Lang ) {
         return config.getString( "Returning_Join_Message." + Lang, config.getString( "Returning_Join_Message.Message" ) );
+    }
+    */
+
+    public static void NewJoinStatus( Player player ) {
+        Tools.Prt( player, ChatColor.WHITE + "New Join Message's", Config.programCode );
+        for ( Map.Entry< String, String > entry : Config.NewJoinMessage.entrySet() ) {
+            Tools.Prt( player, ChatColor.WHITE + entry.getKey() + " - " + entry.getValue(), Config.programCode );
+        }
+    }
+
+    public static void RetJoinStatus( Player player ) {
+        Tools.Prt( player, ChatColor.WHITE + "Return Join Message's", Config.programCode );
+        for ( Map.Entry< String, String > entry : Config.ReturnJoinMessage.entrySet() ) {
+            Tools.Prt( player, ChatColor.WHITE + entry.getKey() + " - " + entry.getValue(), Config.programCode );
+        }
     }
 }

@@ -12,6 +12,7 @@ import com.mycompany.kumaisulibraries.Tools;
 import com.mycompany.kumaisulibraries.Utility;
 import com.mycompany.logincontrol.LoginControl;
 import com.mycompany.logincontrol.config.Config;
+import com.mycompany.logincontrol.config.ConfigManager;
 import com.mycompany.logincontrol.database.DatabaseControl;
 import com.mycompany.logincontrol.database.FileRead;
 import com.mycompany.logincontrol.database.HostData;
@@ -102,12 +103,18 @@ public class AdminCommand implements CommandExecutor {
             }
 
             if ( hasAdminPerm ) {
-                switch ( CtlCmd ) {
+                switch ( CtlCmd.toLowerCase() ) {
                     case "status":
                         LoginControl.config.Status( p );
                         return true;
-                    case "Motd":
+                    case "motd":
                         LoginControl.MotData.getStatus( p );
+                        return true;
+                    case "joinmsg":
+                        ConfigManager.NewJoinStatus( p );
+                        return true;
+                    case "retmsg":
+                        ConfigManager.RetJoinStatus( p );
                         return true;
                     case "sql":
                         String SQL_Cmd = "";
@@ -204,7 +211,9 @@ public class AdminCommand implements CommandExecutor {
             if ( ( p == null ) || p.hasPermission( "LoginCtl.admin" ) ) {
                 //  LoginCtl.admin
                 Tools.Prt( p, "loginctl status", programCode );
-                Tools.Prt( p, "loginctl Motd", programCode );
+                Tools.Prt( p, "loginctl motd", programCode );
+                Tools.Prt( p, "loginctl joinmsg", programCode );
+                Tools.Prt( p, "loginctl retmsg", programCode );
                 Tools.Prt( p, "loginctl sql SQL_Command", programCode );
                 Tools.Prt( p, "loginctl info IPAddress", programCode );
                 Tools.Prt( p, "loginctl chg IPAddress HostName", programCode );

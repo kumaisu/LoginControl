@@ -114,9 +114,20 @@ public class LoginListener implements Listener {
                     Bukkit.broadcastMessage( Utility.ReplaceString( WelcomeMessage, player.getDisplayName() ) );
                 }
             } else {
-                if( Config.ReturnJoin && !player.hasPermission( "LoginCtl.silentjoin" ) ) {
-                    String ReturnMessage = ( Config.ReturnJoinMessage.get( locale2byte ) == null ? Config.Returning_Join_Message : Config.ReturnJoinMessage.get( locale2byte ) );
-                    Bukkit.broadcastMessage( Utility.ReplaceString( ReturnMessage, player.getDisplayName() ) );
+                if( Config.ReturnJoin ) {
+                    String ReturnMessage = 
+                        Utility.ReplaceString( 
+                            ( Config.ReturnJoinMessage.get( locale2byte ) == null ?
+                                Config.Returning_Join_Message
+                                :
+                                Config.ReturnJoinMessage.get( locale2byte )
+                            ), player.getDisplayName() );
+                    if ( player.hasPermission( "LoginCtl.silentjoin" ) ) {
+                        Tools.Prt( player, ChatColor.YELLOW + "You are silent Join", Tools.consoleMode.full, Config.programCode );
+                        Tools.Prt( player, ReturnMessage, Config.programCode );
+                    } else {
+                        Bukkit.broadcastMessage( ReturnMessage );
+                    }
                 }
             }
         }, 100 );
@@ -130,6 +141,7 @@ public class LoginListener implements Listener {
     @EventHandler
     public void onPlayerQuit( PlayerQuitEvent event ) {
         if ( event.getPlayer().hasPermission( "LoginCtl.silentquit" ) ) {
+            Tools.Prt( event.getPlayer(), ChatColor.YELLOW + "You are silent Quit", Tools.consoleMode.full, Config.programCode );
             event.setQuitMessage( null );
             return;
         }
