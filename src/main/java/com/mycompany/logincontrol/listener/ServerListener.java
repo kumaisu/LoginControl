@@ -122,7 +122,8 @@ public class ServerListener implements Listener {
                 Tools.Prt( Utility.StringBuild( "Change = ", Utility.ReplaceString( Motd2ndLine.replace( "\n", " " ), Names ) ), Tools.consoleMode.max, programCode );
             }
 
-            if ( ( Config.AlarmCount != 0 ) && ( Database.Count >= Config.AlarmCount ) ) { PrtStatus = Tools.consoleMode.print; }
+            //  アラーム表示するかの設定
+            if ( ( Config.AlarmCount != 0 ) && ( Database.Count >= Config.AlarmCount ) && Database.Warning ) { PrtStatus = Tools.consoleMode.print; }
 
         } else {
             //  Configに既知のホスト登録があった場合

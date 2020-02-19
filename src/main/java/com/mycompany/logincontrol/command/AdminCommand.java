@@ -94,6 +94,7 @@ public class AdminCommand implements CommandExecutor {
                         );
                         return true;
                     case "Getlog":
+                        //  Getlog YYYY
                         FileRead.GetLogFile( IP );
                         return true;
                     default:
@@ -194,6 +195,13 @@ public class AdminCommand implements CommandExecutor {
                         if ( PTLines < 1 ) { PTLines = 10; }
                         HostData.PingTop( p, PTLines );
                         return true;
+                    case "alart":
+                        if ( HostName.equals( "true" ) || HostName.equals( "false" ) ) {
+                            HostData.ChangeWarning( IP, ( "true".equals( HostName ) ) );
+                            return true;
+                        } else {
+                            Tools.Prt( p, ChatColor.RED + "true か false を指定してください", programCode );
+                        }
                     default:
                 }
             } else {
@@ -206,7 +214,7 @@ public class AdminCommand implements CommandExecutor {
                 Tools.Prt( p, "loginctl Console [max,full,normal,none]", programCode );
                 Tools.Prt( p, "loginctl CheckIP", programCode );
                 Tools.Prt( p, "loginctl Dupcheck", programCode );
-                Tools.Prt( p, "loginctl GetLog", programCode );
+                Tools.Prt( p, "loginctl GetLog YYYY", programCode );
             }
             if ( ( p == null ) || p.hasPermission( "LoginCtl.admin" ) ) {
                 //  LoginCtl.admin
@@ -220,6 +228,7 @@ public class AdminCommand implements CommandExecutor {
                 Tools.Prt( p, "loginctl add IPAddress [HostName]", programCode );
                 Tools.Prt( p, "loginctl del IPAddress", programCode );
                 Tools.Prt( p, "loginctl count IPAddress ( num or Reset )", programCode );
+                Tools.Prt( p, "loginctl alart IPAddress [true/false]", programCode );
                 Tools.Prt( p, "loginctl search word", programCode );
                 Tools.Prt( p, "loginctl pingtop [LineCount]", programCode );
             }

@@ -23,4 +23,5 @@ public class Database {
     public static int Count = 0;
     public static Date NewDate = new Date();
     public static Date LastDate = new Date();
+    public static boolean Warning = false;
 }

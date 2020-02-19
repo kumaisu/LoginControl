@@ -33,7 +33,7 @@ public class HostData {
      */
     public static void AddSQL( String IP, String Host ) {
         try ( Connection con = Database.dataSource.getConnection() ) {
-            String sql = "INSERT INTO hosts ( ip, host, count, newdate, lastdate ) VALUES ( INET_ATON( ? ), ?, ?, ?, ? );";
+            String sql = "INSERT INTO hosts ( ip, host, count, newdate, lastdate, warning ) VALUES ( INET_ATON( ? ), ?, ?, ?, ?, ? );";
             Tools.Prt( "SQL : " + sql, Tools.consoleMode.max, programCode );
             PreparedStatement preparedStatement = con.prepareStatement( sql );
             preparedStatement.setString( 1, IP );
@@ -41,6 +41,7 @@ public class HostData {
             preparedStatement.setInt( 3, 0 );
             preparedStatement.setString( 4, Database.sdf.format( new Date() ) );
             preparedStatement.setString( 5, Database.sdf.format( new Date() ) );
+            preparedStatement.setInt( 6, 0 );
                 
             preparedStatement.executeUpdate();
             Tools.Prt( "Add Host to SQL Success.", Tools.consoleMode.max, programCode );
@@ -89,6 +90,7 @@ public class HostData {
                 Database.Count      = rs.getInt( "count" );
                 Database.NewDate    = rs.getTimestamp( "newdate" );
                 Database.LastDate   = rs.getTimestamp( "lastdate" );
+                Database.Warning    = ( rs.getInt( "warning" ) == 0 );
                 retFlag = true;
             }
             con.close();
@@ -252,6 +254,20 @@ public class HostData {
         }
     }
 
+    public static void ChangeWarning( String IP, boolean Flag ) {
+       try ( Connection con = Database.dataSource.getConnection() ) {
+            String sql = "UPDATE hosts SET waning = " + ( Flag ? 0:1 ) + " WHERE INET_NTOA( ip ) = '" + IP + "';";
+            Database.Warning = Flag;
+            Tools.Prt( "SQL : " + sql, Tools.consoleMode.max, programCode );
+            PreparedStatement preparedStatement = con.prepareStatement( sql );
+            preparedStatement.executeUpdate();
+            con.close();
+            Tools.Prt( "Change Warning Flag Success", Tools.consoleMode.max, programCode );
+        } catch ( SQLException e ) {
+            Tools.Prt( ChatColor.RED + "Error ChangeWarning : " + e.getMessage(), programCode );
+        }
+     }
+
     /**
      * サーバーへの照会回数が多い順位表示
      *
@@ -371,4 +387,5 @@ public class HostData {
         }
         return hostName;
     }
+
 }

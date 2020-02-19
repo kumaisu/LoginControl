@@ -166,7 +166,7 @@ public class ListData {
      * @param FullFlag  重複ログインを省略しないか？
      */
     public static void LogPrint( Player player, int lines, boolean FullFlag ) {
-        boolean hasPermission = ( ( player == null ) || player.isOp() || player.hasPermission( "LoginCtl.view" ) );
+        boolean hasPermission = ( ( player == null ) || player.hasPermission( "LoginCtl.view" ) );
 
         Tools.Prt( player, "== Login List ==", programCode );
 
