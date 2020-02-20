@@ -199,6 +199,15 @@ public class HostData {
         }
     }
 
+    public static void InfoPrint( Player player ) {
+        Tools.Prt( player, ChatColor.GREEN + "IP Address  : " + ChatColor.WHITE + Database.IP, programCode );
+        Tools.Prt( player, ChatColor.GREEN + "Host Name   : " + ChatColor.WHITE + Database.Host, programCode );
+        Tools.Prt( player, ChatColor.GREEN + "AccessCount : " + ChatColor.WHITE + Database.Count, programCode );
+        Tools.Prt( player, ChatColor.GREEN + "First Date  : " + ChatColor.WHITE + Database.sdf.format( Database.NewDate ), programCode );
+        Tools.Prt( player, ChatColor.GREEN + "Last Date   : " + ChatColor.WHITE + Database.sdf.format( Database.LastDate ), programCode );
+        Tools.Prt( player, ChatColor.GREEN + "WarningCheck: " + ChatColor.WHITE + ( Database.Warning ? "Warning":"None" ), programCode );
+    }
+
     /**
      * 登録されているIPの情報を表示する
      *
@@ -208,11 +217,7 @@ public class HostData {
     public static void infoHostname( Player p, String IP ) {
         if ( GetSQL( IP ) ) {
             Tools.Prt( p, ChatColor.YELLOW + "Check Unknown IP Information.......", programCode );
-            Tools.Prt( p, ChatColor.GREEN + "IP Address  : " + ChatColor.WHITE + Database.IP, programCode );
-            Tools.Prt( p, ChatColor.GREEN + "Host Name   : " + ChatColor.WHITE + Database.Host, programCode );
-            Tools.Prt( p, ChatColor.GREEN + "AccessCount : " + ChatColor.WHITE + Database.Count, programCode );
-            Tools.Prt( p, ChatColor.GREEN + "First Date  : " + ChatColor.WHITE + Database.sdf.format( Database.NewDate ), programCode );
-            Tools.Prt( p, ChatColor.GREEN + "Last Date   : " + ChatColor.WHITE + Database.sdf.format( Database.LastDate ), programCode );
+            InfoPrint( p );
         } else {
             Tools.Prt( p, ChatColor.RED + "No data for [" + IP + "]", programCode );
         }
@@ -254,9 +259,15 @@ public class HostData {
         }
     }
 
+    /**
+     * 参照回数警告表示抑制フラグ操作
+     *
+     * @param IP
+     * @param Flag 
+     */
     public static void ChangeWarning( String IP, boolean Flag ) {
        try ( Connection con = Database.dataSource.getConnection() ) {
-            String sql = "UPDATE hosts SET waning = " + ( Flag ? 0:1 ) + " WHERE INET_NTOA( ip ) = '" + IP + "';";
+            String sql = "UPDATE hosts SET warning = " + ( Flag ? 0:1 ) + " WHERE INET_NTOA( ip ) = '" + IP + "';";
             Database.Warning = Flag;
             Tools.Prt( "SQL : " + sql, Tools.consoleMode.max, programCode );
             PreparedStatement preparedStatement = con.prepareStatement( sql );
@@ -274,7 +285,7 @@ public class HostData {
      * @param p
      * @param Lines 表示する順位の人数
      */
-    public static void PingTop( Player p, int Lines ) {
+    public static void PingTop( Player p, int Lines, boolean Full ) {
         Tools.Prt( p, ChatColor.GREEN + "== Ping Count Top " + Lines + " ==", programCode );
 
         try ( Connection con = Database.dataSource.getConnection() ) {
@@ -284,12 +295,9 @@ public class HostData {
             ResultSet rs = stmt.executeQuery( sql );
 
             int i = 0;
-            String chk_name = "";
 
             while( rs.next() && ( i<Lines ) ) {
-                String GetName = rs.getString( "host" );
-
-                if ( !chk_name.equals( GetName ) ) {
+                if ( ( rs.getInt( "warning" ) == 0 ) || Full ) {
                     i++;
                     Tools.Prt( p,
                         Utility.StringBuild(
@@ -297,10 +305,10 @@ public class HostData {
                             ChatColor.YELLOW.toString(), String.format( "%-15s", InetCalc.toInetAddress( rs.getLong( "ip" ) ) ), " ",
                             ChatColor.LIGHT_PURPLE.toString(), String.format( "%-40s", Utility.CutMiddleString( rs.getString( "host" ), 40 ) ), " ",
                             ChatColor.WHITE.toString(), Database.sdf.format( rs.getTimestamp( "lastdate" ) ), " ",
-                            ChatColor.GOLD.toString(), Database.sdf.format( rs.getTimestamp( "newdate" ) )
+                            ChatColor.GOLD.toString(), Database.sdf.format( rs.getTimestamp( "newdate" ) ), " (",
+                            ChatColor.GREEN.toString(), String.format( "%1d", rs.getInt( "warning" ) ), ")"
                         ), programCode
                     );
-                    chk_name = GetName;
                 }
             }
             con.close();
@@ -331,11 +339,7 @@ public class HostData {
 
             while( rs.next() ) {
                 Tools.Prt( p, ChatColor.YELLOW + "Duplicate Check IP Information.......", programCode );
-                Tools.Prt( p, ChatColor.GREEN + "IP Address  : " + ChatColor.WHITE + InetCalc.toInetAddress( rs.getLong( "ip" ) ), programCode );
-                Tools.Prt( p, ChatColor.GREEN + "Host Name   : " + ChatColor.WHITE + rs.getString( "host" ), programCode );
-                Tools.Prt( p, ChatColor.GREEN + "AccessCount : " + ChatColor.WHITE + String.valueOf( rs.getInt( "count" ) ), programCode );
-                Tools.Prt( p, ChatColor.GREEN + "First Date  : " + ChatColor.WHITE + Database.sdf.format( rs.getTimestamp( "newdate" ) ), programCode );
-                Tools.Prt( p, ChatColor.GREEN + "Last Date   : " + ChatColor.WHITE + Database.sdf.format( rs.getTimestamp( "lastdate" ) ), programCode );
+                InfoPrint( p );
             }
             con.close();
         } catch ( SQLException e ) {

@@ -193,11 +193,11 @@ public class AdminCommand implements CommandExecutor {
                             PTLines = 10;
                         }
                         if ( PTLines < 1 ) { PTLines = 10; }
-                        HostData.PingTop( p, PTLines );
+                        HostData.PingTop( p, PTLines, ( HostName.equals( "full" ) ) );
                         return true;
                     case "alart":
                         if ( HostName.equals( "true" ) || HostName.equals( "false" ) ) {
-                            HostData.ChangeWarning( IP, ( "true".equals( HostName ) ) );
+                            HostData.ChangeWarning( IP, ( HostName.equals( "true" ) ) );
                             return true;
                         } else {
                             Tools.Prt( p, ChatColor.RED + "true か false を指定してください", programCode );
