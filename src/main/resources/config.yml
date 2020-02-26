@@ -70,7 +70,6 @@ rewards:
     commands:
     - giveitem kumasoul %player%
   advanced:
-    random: true
     claim-message: "%$aRewards%$f: %$3追加報酬%$fをプレゼントしました"
     commands:
     - give %player% diamond 9

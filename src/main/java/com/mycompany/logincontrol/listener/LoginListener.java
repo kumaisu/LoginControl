@@ -99,12 +99,9 @@ public class LoginListener implements Listener {
             Tools.Prt( ChatColor.AQUA + "The Repeat Login Player", Tools.consoleMode.normal, Config.programCode );
         }
 
-        int progress = Utility.dateDiff( Database.LastDate, new Date() );
+        int progress = Utility.dateDiff( Database.RewardDate, new Date() );
         Tools.Prt( "Player Progress : " + progress, Tools.consoleMode.full, Config.programCode );
-        if ( progress > 0 ) {
-            Tools.Prt( player, ChatColor.YELLOW + "Daily Rewards !!", Config.programCode );
-            Rewards.Reward( player );
-        }
+        if ( progress > 0 ) { Rewards.Reward( player ); }
 
         //  プレイヤーの言語設定を取得するために遅延処理の後 Welcome メッセージの表示を行う
         //  ラグが大きいが現状はこれが精一杯の状態

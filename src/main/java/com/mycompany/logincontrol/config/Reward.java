@@ -19,7 +19,6 @@ public class Reward {
     public static String basic_message;
     public static List<String> basic_command;
 
-    public static boolean advance_random;
     public static String advance_message;
     public static List<String> advance_command;
 }

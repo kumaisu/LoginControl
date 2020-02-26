@@ -123,9 +123,8 @@ public class ConfigManager {
         Reward.sound_type       = config.getString( "rewards.sound.type", "" );
         Reward.sound_volume     = config.getInt( "rewards.sound.volume", 1 );
         Reward.sound_pitch      = config.getInt( "rewards.sound.pitch", 1 );
-        Reward.basic_message    = config.getString( "rewards.sound.basic.claim-message", "error" );
+        Reward.basic_message    = config.getString( "rewards.basic.claim-message", "error" );
         Reward.basic_command    = config.getStringList( "rewards.basic.commands" );
-        Reward.advance_random   = config.getBoolean( "rewards.advanced.random", false );
         Reward.advance_message  = config.getString( "rewards.advanced.claim-message", "error" );
         Reward.advance_command  = config.getStringList( "rewards.advanced.commands" );
     }
@@ -167,7 +166,7 @@ public class ConfigManager {
 
     public static void RewardStatus( Player player ) {
         Tools.Prt( player, ChatColor.GREEN + "=== LoginContrl Rewards ===", programCode );
-        Tools.Prt( player, ChatColor.WHITE + "Play Sound  : " + ChatColor.YELLOW + ( Reward.sound_play ? "Yes" : "No" ), programCode );
+        Tools.Prt( player, ChatColor.WHITE + "Play Sound   : " + ChatColor.YELLOW + ( Reward.sound_play ? "Yes" : "No" ), programCode );
         if ( Reward.sound_play ) {
             Tools.Prt( player, ChatColor.WHITE + "Sound Type   : " + ChatColor.YELLOW + Reward.sound_type, programCode );
             Tools.Prt( player, ChatColor.WHITE + "      Volume : " + ChatColor.YELLOW + Reward.sound_volume, programCode );
@@ -178,7 +177,6 @@ public class ConfigManager {
         Tools.Prt( player, ChatColor.WHITE + "Commands    :", programCode );
         Reward.basic_command.stream().forEach( BR -> { Tools.Prt( player, ChatColor.WHITE + " - " + ChatColor.YELLOW + BR, programCode ); } );
         Tools.Prt( player, ChatColor.WHITE + "---Advanced Rewards---", programCode );
-        Tools.Prt( player, ChatColor.WHITE + "Rondom      : " + ChatColor.YELLOW + ( Reward.advance_random ? "Yes" : "No" ), programCode );
         Tools.Prt( player, ChatColor.WHITE + "Message     : " + ChatColor.YELLOW + Reward.advance_message, programCode );
         Tools.Prt( player, ChatColor.WHITE + "Commands    :", programCode );
         Reward.advance_command.stream().forEach( AR -> { Tools.Prt( player, ChatColor.WHITE + " - " + ChatColor.YELLOW + AR, programCode ); } );
