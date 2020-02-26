@@ -105,6 +105,9 @@ public class AdminCommand implements CommandExecutor {
 
             if ( hasAdminPerm ) {
                 switch ( CtlCmd.toLowerCase() ) {
+                    case "reward":
+                        LoginControl.config.RewardStatus( p );
+                        return true;
                     case "status":
                         LoginControl.config.Status( p );
                         return true;
