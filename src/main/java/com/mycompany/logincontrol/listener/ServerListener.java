@@ -122,9 +122,6 @@ public class ServerListener implements Listener {
                 Tools.Prt( Utility.StringBuild( "Change = ", Utility.ReplaceString( Motd2ndLine.replace( "\n", " " ), Names ) ), Tools.consoleMode.max, programCode );
             }
 
-            //  アラーム表示するかの設定
-            if ( ( Config.AlarmCount != 0 ) && ( Database.Count >= Config.AlarmCount ) && Database.Warning ) { PrtStatus = Tools.consoleMode.print; }
-
         } else {
             //  Configに既知のホスト登録があった場合
             MotdMsg = Utility.StringBuild( MotdMsg, LoginControl.MotData.get2ndLine( 4 ) );
@@ -133,7 +130,7 @@ public class ServerListener implements Listener {
         event.setMotd( Utility.ReplaceString( MotdMsg, Names ) );
         // event.getNumPlayers().set( 30 );
 
-        if ( !Config.IgnoreReportIP.contains( event.getAddress().getHostAddress() ) ) {
+        if ( ( !Config.IgnoreReportIP.contains( event.getAddress().getHostAddress() ) ) && Database.Warning ) {
             String msg = Utility.StringBuild( ChatColor.GREEN.toString(), "Ping from ", MsgColor, Host, ChatColor.YELLOW.toString(), " [", event.getAddress().getHostAddress(), "]" );
             Tools.Prt( msg, PrtStatus, programCode );
             Bukkit.getOnlinePlayers().stream().filter( ( p ) -> ( p.hasPermission( "LoginCtl.view" ) || p.isOp() ) ).forEachOrdered( ( p ) -> { p.sendMessage( msg ); } );
