@@ -3,14 +3,14 @@
  */
 package com.mycompany.logincontrol.tools;
 
+import org.bukkit.World;
+import org.bukkit.Location;
+import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
+import static org.bukkit.Bukkit.getWorld;
 import com.mycompany.kumaisulibraries.Tools;
 import com.mycompany.logincontrol.config.Config;
 import static com.mycompany.logincontrol.config.Config.programCode;
-import static org.bukkit.Bukkit.getWorld;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.entity.Player;
 
 /**
  *
@@ -24,11 +24,11 @@ public class Teleport {
      */
     public static void Spawn( Player player ) {
         if ( player.hasPermission( "LoginCtl.spawn" ) ) {
-            Tools.Prt( player, ChatColor.YELLOW + "Teleport to World Spawn", Tools.consoleMode.full, programCode );
 
             //  player.setBedSpawnLocation(location);
             World world = player.getWorld();
             Location worldLocation = world.getSpawnLocation();
+            Tools.Prt( player, ChatColor.YELLOW + "Teleport to " + worldLocation.getWorld().getName() + " Spawn", Tools.consoleMode.full, programCode );
             Tools.Prt(
                 "spawn World=" + worldLocation.getWorld().getName() +
                 " X=" + worldLocation.getX() +
