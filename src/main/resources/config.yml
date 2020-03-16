@@ -57,26 +57,6 @@ Present:
     - give %player% stone_axe 1
     - give %player% stone_pickaxe 1
 
-# Daily Reward
-# デイリー報酬設定
-rewards:
-  sound:
-    enabled: true
-    type: ENTITY_PLAYER_LEVELUP
-    volume: 1
-    pitch: 1
-  basic:
-    claim-message: "%$aRewards%$f: %$3デイリー報酬%$a(くまそうる)%$fをプレゼントしました"
-    commands:
-    - giveitem kumasoul %player%
-  advanced:
-    claim-message: "%$aRewards%$f: %$3追加報酬%$fをプレゼントしました"
-    commands:
-    - give %player% diamond 9
-    - give %player% emerald 9
-    - giveitem expcube %player%
-    - giveitem kumaorb %player%
-    
 # Login時の案内表示用
 # /n で改行が可能、複数行の表示に対応
 ANNOUNCE:

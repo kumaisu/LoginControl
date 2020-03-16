@@ -22,7 +22,6 @@ import com.mycompany.logincontrol.database.Database;
 import com.mycompany.logincontrol.database.HostData;
 import com.mycompany.logincontrol.database.ListData;
 import com.mycompany.logincontrol.tools.Teleport;
-import com.mycompany.logincontrol.rewards.Rewards;
 
 /**
  *
@@ -97,23 +96,6 @@ public class LoginListener implements Listener {
             
         } else {
             Tools.Prt( ChatColor.AQUA + "The Repeat Login Player", Tools.consoleMode.normal, Config.programCode );
-        }
-
-        //  Daily Rewards の判定
-        if ( Tools.isDebugFlag( Tools.consoleMode.full, Config.programCode ) ) {
-            long dateTimeTo = new Date().getTime();
-            long dateTimeFrom = Database.RewardDate.getTime();
-            long dayDiff = dateTimeTo - dateTimeFrom;
-            Tools.Prt( "Last distribution : " + dateTimeFrom, Tools.consoleMode.full, Config.programCode );
-            Tools.Prt( "Current time      : " + dateTimeTo, Tools.consoleMode.full, Config.programCode );
-            Tools.Prt( "Differential time : " + dayDiff, Tools.consoleMode.full, Config.programCode );
-        }
-        int progress = Utility.dateDiff( Database.RewardDate, new Date() );
-        if ( 1 >= progress ) {
-            Tools.Prt( "Player Progress : " + progress, Config.programCode );
-        } else {
-            Tools.Prt( "Rewards distribution : " + progress, Config.programCode );
-            Rewards.Reward( player );
         }
 
         //  プレイヤーの言語設定を取得するために遅延処理の後 Welcome メッセージの表示を行う

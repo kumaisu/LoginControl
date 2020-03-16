@@ -262,25 +262,6 @@ public class HostData {
     }
 
     /**
-     * Reward 配布日のセット
-     *
-     * @param IP 
-     */
-    public static void SetRewardDate( String IP ) {
-        try ( Connection con = Database.dataSource.getConnection() ) {
-            String sql = "UPDATE hosts SET rewarddate = '" + Database.sdf.format( new Date() ) + "' WHERE INET_NTOA( ip ) = '" + IP + "';";
-            Database.RewardDate = new Date();
-            Tools.Prt( "SQL : " + sql, Tools.consoleMode.max, programCode );
-            PreparedStatement preparedStatement = con.prepareStatement( sql );
-            preparedStatement.executeUpdate();
-            con.close();
-            Tools.Prt( "Reward Date Reset Success", Tools.consoleMode.max, programCode );
-        } catch ( SQLException e ) {
-            Tools.Prt( ChatColor.RED + "Error SetRewardDate : " + e.getMessage(), programCode );
-        }
-    }
-
-    /**
      * 参照回数警告表示抑制フラグ操作
      *
      * @param IP

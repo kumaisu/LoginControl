@@ -26,6 +26,7 @@ import com.mycompany.logincontrol.command.FlightCommand;
 import com.mycompany.logincontrol.config.Config;
 import static com.mycompany.logincontrol.LoginControl.config;
 import static com.mycompany.logincontrol.config.Config.programCode;
+import org.bukkit.Sound;
 
 /**
  *
@@ -130,6 +131,15 @@ public class ExtraListener implements Listener {
         try {
             Sign sign = (Sign) clickedBlock.getState();
             if ( sign.getLine( 0 ).equals( "[TrashCan]" ) ) {
+
+                Tools.Prt( "Sound Play !!", Tools.consoleMode.full, Config.programCode );
+                ( player.getWorld() ).playSound(
+                    player.getLocation(),       // 鳴らす場所
+                    Sound.ENTITY_SHULKER_OPEN,
+                    1,                          // 音量
+                    1                           // 音程
+                );
+
                 Inventory inv;
                 inv = Bukkit.createInventory( null, 36, "Trash Can" );
                 player.openInventory( inv );
