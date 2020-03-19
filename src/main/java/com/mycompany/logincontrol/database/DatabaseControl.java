@@ -109,17 +109,16 @@ public class DatabaseControl {
             PreparedStatement preparedStatement = con.prepareStatement( sql );
             preparedStatement.executeUpdate();
 
-            //  sql = "CREATE TABLE IF NOT EXISTS hosts (ip INTEGER UNSIGNED, host varchar(60), count int, newdate DATETIME, lastdate DATETIME, rewarddate DATETIME, warning TINYINT )";
+            //  sql = "CREATE TABLE IF NOT EXISTS hosts (ip INTEGER UNSIGNED, host varchar(60), count int, newdate DATETIME, lastdate DATETIME, warning TINYINT )";
             //  ip INTEGER UNSIGNED IP Address
             //  host varchar(60)    Host name
             //  count int           Reference Count   
             //  newdate DATETIME    First Log Date
             //  lastdate DATETIME   Last Log Date
-            //  rewarddate DATETIME Reward Date
             //  warning TINYINT     Warning Flag 0:Warning 1:Silent
             //  Host テーブルの作成
             //  存在すれば、無視される
-            sql = "CREATE TABLE IF NOT EXISTS hosts (ip INTEGER UNSIGNED, host varchar(60), count int, newdate DATETIME, lastdate DATETIME, rewarddate DATETIME, warning TINYINT )";
+            sql = "CREATE TABLE IF NOT EXISTS hosts (ip INTEGER UNSIGNED, host varchar(60), count int, newdate DATETIME, lastdate DATETIME, warning TINYINT )";
             Tools.Prt( "SQL : " + sql, Tools.consoleMode.max , programCode );
             preparedStatement = con.prepareStatement( sql );
             preparedStatement.executeUpdate();

@@ -33,7 +33,7 @@ public class HostData {
      */
     public static void AddSQL( String IP, String Host ) {
         try ( Connection con = Database.dataSource.getConnection() ) {
-            String sql = "INSERT INTO hosts ( ip, host, count, newdate, lastdate, rewarddate, warning ) VALUES ( INET_ATON( ? ), ?, ?, ?, ?, ?, ? );";
+            String sql = "INSERT INTO hosts ( ip, host, count, newdate, lastdate, warning ) VALUES ( INET_ATON( ? ), ?, ?, ?, ?, ? );";
             Tools.Prt( "SQL : " + sql, Tools.consoleMode.max, programCode );
             PreparedStatement preparedStatement = con.prepareStatement( sql );
             preparedStatement.setString( 1, IP );
@@ -41,8 +41,7 @@ public class HostData {
             preparedStatement.setInt( 3, 0 );
             preparedStatement.setString( 4, Database.sdf.format( new Date() ) );
             preparedStatement.setString( 5, Database.sdf.format( new Date() ) );
-            preparedStatement.setString( 6, Database.sdf.format( new Date() ) );
-            preparedStatement.setInt( 7, 0 );
+            preparedStatement.setInt( 6, 0 );
 
             preparedStatement.executeUpdate();
             Tools.Prt( "Add Host to SQL Success.", Tools.consoleMode.max, programCode );
@@ -91,7 +90,6 @@ public class HostData {
                 Database.Count      = rs.getInt( "count" );
                 Database.NewDate    = rs.getTimestamp( "newdate" );
                 Database.LastDate   = rs.getTimestamp( "lastdate" );
-                Database.RewardDate = rs.getTimestamp( "rewarddate" );
                 Database.Warning    = ( rs.getInt( "warning" ) == 0 );
                 retFlag = true;
             }

@@ -118,6 +118,9 @@ public class ConfigManager {
             Tools.entryDebugFlag( programCode, Tools.consoleMode.normal );
             Tools.Prt( ChatColor.RED + "Config Debugモードの指定値が不正なので、normal設定にしました", programCode );
         }
+        
+        //Extra Config
+        Config.TrashCanSound = config.getString( "Extra.TrashCanSound", "BLOCK_SHULKER_BOX_OPEN" );
     }
 
     public static void Status( Player p ) {

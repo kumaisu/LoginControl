@@ -169,3 +169,5 @@ UnknownServer:
 107.178.192.0/18: GoogleIncUS,MountainView)
 54.216.0.0/15: AmazonCom(Ireland,Dublin)
 
+Extra:
+    TrashCanSound: BLOCK_SHULKER_BOX_OPEN

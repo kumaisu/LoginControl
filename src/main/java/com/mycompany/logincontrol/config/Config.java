@@ -61,4 +61,6 @@ public class Config {
     public static Map< String, String > NewJoinMessage;
     public static Map< String, String > ReturnJoinMessage;
     public static String Incomplete_Message;
+
+    public static String TrashCanSound;
 }

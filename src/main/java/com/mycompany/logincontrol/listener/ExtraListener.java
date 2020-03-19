@@ -134,10 +134,11 @@ public class ExtraListener implements Listener {
 
                 Tools.Prt( "Sound Play !!", Tools.consoleMode.full, Config.programCode );
                 ( player.getWorld() ).playSound(
-                    player.getLocation(),       // 鳴らす場所
-                    Sound.ENTITY_SHULKER_OPEN,
-                    1,                          // 音量
-                    1                           // 音程
+                    player.getLocation(),                   // 鳴らす場所
+                    //  Sound.BLOCK_SHULKER_BOX_OPEN,       // 鳴らす音
+                    Sound.valueOf( Config.TrashCanSound ),  // 鳴らす音
+                    1,                                      // 音量
+                    1                                       // 音程
                 );
 
                 Inventory inv;

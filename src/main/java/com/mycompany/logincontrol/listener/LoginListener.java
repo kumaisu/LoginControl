@@ -140,13 +140,13 @@ public class LoginListener implements Listener {
      */
     @EventHandler
     public void onPlayerQuit( PlayerQuitEvent event ) {
+        event.setQuitMessage( null );
         if ( event.getPlayer().hasPermission( "LoginCtl.silentquit" ) ) {
             Tools.Prt( event.getPlayer(), ChatColor.YELLOW + "You are silent Quit", Tools.consoleMode.full, Config.programCode );
-            event.setQuitMessage( null );
             return;
         }
         if ( Config.PlayerQuit ) {
-            event.setQuitMessage( Utility.ReplaceString( Config.PlayerQuitMessage, event.getPlayer().getDisplayName() ) );
+            //  event.setQuitMessage( Utility.ReplaceString( Config.PlayerQuitMessage, event.getPlayer().getDisplayName() ) );
             Bukkit.broadcastMessage( Utility.ReplaceString( Config.PlayerQuitMessage, event.getPlayer().getDisplayName() ) );
         }
     }
