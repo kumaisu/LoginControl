@@ -72,7 +72,7 @@ public class LoginListener implements Listener {
             player.kickPlayer( Config.Incomplete_Message );
         }
         ListData.ChangeStatus( date, 1 );
-        ListData.LogPrint( player, 5, false );
+        ListData.LogPrint( player, 3, false );
         HostData.AddCountHost( player.getAddress().getHostString(), -1 );
         ListData.CheckIP( player );
 

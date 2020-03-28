@@ -50,17 +50,12 @@ public class Config {
     public static boolean NewJoin;
     public static boolean ReturnJoin;
     public static boolean PlayerQuit;
-    public static boolean PlayerKick;
-    public static boolean DeathMessageFlag;
     public static String New_Join_Message;
     public static String Returning_Join_Message;
     public static String AnnounceMessage;
     public static String PlayerQuitMessage;
-    public static String KickMessage;
     public static Map< String, String > KnownServers;
     public static Map< String, String > NewJoinMessage;
     public static Map< String, String > ReturnJoinMessage;
     public static String Incomplete_Message;
-
-    public static String TrashCanSound;
 }

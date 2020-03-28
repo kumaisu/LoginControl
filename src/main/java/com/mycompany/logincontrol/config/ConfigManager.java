@@ -83,9 +83,6 @@ public class ConfigManager {
         Config.ReturnJoin               = config.getBoolean( "Returning_Join_Message.Enabled" );
         Config.PlayerQuit               = config.getBoolean( "Quit_Message.Enabled" );
         Config.PlayerQuitMessage        = config.getString( "Quit_Message.Message" );
-        Config.PlayerKick               = config.getBoolean( "Kick_Message.Enabled" );
-        Config.KickMessage              = config.getString( "Kick_Message.Message" );
-        Config.DeathMessageFlag         = config.getBoolean( "Death_Message.Enabled" );
         Config.New_Join_Message         = config.getString( "New_Join_Message.Message" );
         Config.Returning_Join_Message   = config.getString( "Returning_Join_Message.Message" );
         Config.Incomplete_Message       = config.getString( "Incomplete_Message" );
@@ -118,9 +115,6 @@ public class ConfigManager {
             Tools.entryDebugFlag( programCode, Tools.consoleMode.normal );
             Tools.Prt( ChatColor.RED + "Config Debugモードの指定値が不正なので、normal設定にしました", programCode );
         }
-        
-        //Extra Config
-        Config.TrashCanSound = config.getString( "Extra.TrashCanSound", "BLOCK_SHULKER_BOX_OPEN" );
     }
 
     public static void Status( Player p ) {
@@ -156,12 +150,6 @@ public class ConfigManager {
         Tools.Prt( p, ChatColor.WHITE + "Unknown IP Check : " + ChatColor.YELLOW + ( Config.CheckIPAddress ? "True":"False" ), programCode );
         Tools.Prt( p, ChatColor.WHITE + "Ping Broadcast   : " + ChatColor.YELLOW + ( Config.playerPingB ? "True":"False" ), programCode );
         Tools.Prt( p, ChatColor.GREEN + "==========================", programCode );
-    }
-
-    public String DeathMessage( String mob ) {
-        String msg = config.getString( "Death_Message.Messages." + mob );
-        if ( msg == null ) msg = config.getString( "Death_Message.Messages.DEFAULT" );
-        return msg;
     }
 
     public String KnownServers( String IP ) {

@@ -96,52 +96,6 @@ Returning_Join_Message:
 Quit_Message:
   Enabled: true
   Message: "%$b%player% %$dさんがログアウトしました"
-Kick_Message:
-  Enabled: true
-  Message: "%$e%player% %$eさんを%$4[%Reason%]%$eにより、サーバーからキックしました"
-    
-#   死亡時のメッセージ類
-Death_Message:
-  Enabled: true
-  Messages:
-    Player: "%$9%world% %$cで%$player% %$cさんを%$9%killer% %$cさんが%$9%weapon% %$cで殺しました"
-    DEFAULT: "%$c%player% %$7was killed by a %$c%mob%"
-    ZOMBIE: "%$b%player%%$f は%$c %mob% %$7に殺された"
-    CREEPER: "%$b%player% %$7は%$c %mob% %$7のリフォームの巻き添えになってしまった"
-    HUSK: "%$b%player%%$f は%$c %mob% %$7に殺された"
-    SHULKER: "%$c%player% %$7was shot by a %$c%mob%"
-    PIG_ZOMBIE: "%$b%player%%$f は%$c %mob% %$7に殺された"
-    SKELETON: "%$b%player%%$f は%$c %mob% %$7に殺された"
-    GHAST: "%$b%player%%$f は%$c %mob% %$7に殺された"
-    MAGMA_CUBE: "%$b%player%%$f は%$c %mob% %$7に殺された"
-    SLIME: "%$b%player%%$f は%$c %mob% %$7に殺された"
-    WOLF: "%$c%player% %$7はかわいい%$c%mob% %$7に復讐された"
-    SPIDER: "%$b%player%%$f は%$c %mob% %$7に殺された"
-    CAVE_SPIDER: "%$b%player%%$f は%$c %mob% %$7に殺された"
-    GIANT: "%$c%player% %$7はとっても大きい%$c%mob% %$7に殺された!"
-    BLAZE: "%$b%player%%$f は%$c %mob% %$7に殺された"
-    SILVERFISH: "%$b%player%%$f は%$c %mob% %$7に殺された"
-    ENDERMAN: "%$b%player%%$f は%$c %mob% %$7に殺された"
-    ENDER_DRAGON: "%$b%player%%$f は%$c %mob% %$7に殺された"
-    WITHER: "%$b%player%%$f は%$c %mob% %$7に殺された"
-    WITHER_BOSS: "%$b%player%%$f は%$c %mob% %$7に殺された"
-    IRON_GOLEM: "%$b%player%%$f は%$c %mob% %$7に殺された"
-    DROWNING: "%$c%player% %$7は夢中になりすぎて溺れてしまった・・・"
-    FALL: "%$c%player% %$7はピーターパンにはなれなかった・・・"
-    FIRE: "%$c%player% %$7燃え尽きてしまった"
-    SUFFOCATION: "%$c%player% %$7suffocated"
-    VOID: "%$c%player% %$7Fell into the Void"
-    STARVATION: "%$c%player% %$7Starved To Death"
-    SUICIDE: "%$c%player% %$7Decided To End It All"
-    MAGIC: "%$c%player% %$7was killed by magic"
-    POISON: "%$c%player% %$7was poisoned to death!"
-    LIGHTENING: "%$c%player% %$7was struck by lightening!"
-    LAVA: "%$c%player% %$7は、マグマダイブを試みた"
-    FIRE_TICK: "%$c%player% %$7died from the burns of fire"
-    ENDER_PEARL: "%$c%player% %$7died from throwing an ender pearl"
-    CONTACT: "%$c%player% %$7was pricked by a %$cCactus"
-    BLOCK_EXPLOSION: "%$c%player% %$7blew up"
-    UnknownReason: "%player% Just Died... (Cause: %cause%)"
 
 #Program Inner Messages
 Message:
@@ -168,6 +122,3 @@ UnknownServer:
 #CIDR Host List
 107.178.192.0/18: GoogleIncUS,MountainView)
 54.216.0.0/15: AmazonCom(Ireland,Dublin)
-
-Extra:
-    TrashCanSound: BLOCK_SHULKER_BOX_OPEN

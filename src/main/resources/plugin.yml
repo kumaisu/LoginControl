@@ -1,6 +1,6 @@
 main: com.mycompany.logincontrol.LoginControl
 name: LoginControl
-version: 0.9.4
+version: 1.0.0
 description: login history plugins
 author: Kumaisu
 database: true
@@ -12,32 +12,18 @@ commands:
         permission-message: You do not have permission.
         default: op
         usage: /<command>
-    spawn:
-        description: Player Spawn command
-        permission: LoginCtl.spawn
-        permission-message: You do not have permission.
-        default: false
-        usage: /<command>
-    flight:
-        description: Fly Switch
-        permission: LoginCtl.fly
-        permission-message: You do not have permission.
-        default: false
-        usage: /<command> [on/off]
-    ping:
-        description: Inet Ping Command
-        default: op
-        usage: /<command> IPAddress or HostName
     loginlist:
         description: Login History Print
         aliases: ll
         permission: LoginCtl.loginlist
         permission-message: You do not have permission.
-        default: false
+        default: op
         usage: /<command> [full] [d:yymmdd] [u:player name] [i:IP Address] [l:Lines]
     loginctl:
         description: LoginControl Admin Commands
-        default: false
+        permission: LoginCtl.admin
+        permission-message: You do not have permission.
+        default: op
 permissions:
     LoginCtl.silentjoin:
         description: Silent Login non Message
@@ -47,9 +33,6 @@ permissions:
         default: false
     LoginCtl.view:
         description: Ping Display
-        default: op
-    LoginCtl.flight:
-        description: Player Flight Mode Switch
         default: op
     LoginCtl.admin:
         permission-message: You do not have permission.
