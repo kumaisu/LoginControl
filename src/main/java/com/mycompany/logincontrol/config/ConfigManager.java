@@ -89,26 +89,38 @@ public class ConfigManager {
 
         List< String > getName = ( List< String > ) config.getList( "KnownServer" );
         Config.KnownServers = new TreeMap<>();
-        for( int i = 0; i<getName.size(); i++ ) {
-            String[] param = getName.get( i ).split(",");
-            if ( param[1] == null ) { param[1] = "Unknown"; }
-            Config.KnownServers.put( param[0], param[1] );
+        Tools.Prt( "KnownServer List.", Tools.consoleMode.full, programCode );
+        if ( getName != null ) {
+            for( int i = 0; i<getName.size(); i++ ) {
+                String[] param = getName.get( i ).split(",");
+                if ( param[1] == null ) { param[1] = "Unknown"; }
+                Tools.Prt( "Param0:" + param[0] + " Param1:" + param[1], Tools.consoleMode.full, programCode );
+                Config.KnownServers.put( param[0], param[1] );
+            }
         }
 
         List< String > getWelcome = ( List< String > ) config.getList( "New_Join_Message.Lang" );
         Config.NewJoinMessage = new TreeMap<>();
-        for( int i = 0; i<getWelcome.size(); i++ ) {
-            String[] param = getWelcome.get( i ).split(",");
-            if ( param[1] == null ) { param[1] = Config.New_Join_Message; }
-            Config.NewJoinMessage.put( param[0], param[1] );
+        Tools.Prt( "NewJoingMessage List.", Tools.consoleMode.full, programCode );
+        if ( getWelcome != null ) {
+            for( int i = 0; i<getWelcome.size(); i++ ) {
+                String[] param = getWelcome.get( i ).split(",");
+                if ( param[1] == null ) { param[1] = Config.New_Join_Message; }
+                Tools.Prt( "Param0:" + param[0] + " Param1:" + param[1], Tools.consoleMode.full, programCode );
+                Config.NewJoinMessage.put( param[0], param[1] );
+            }
         }
 
         List< String > getRetMsg = ( List< String > ) config.getList( "Returning_Join_Message.Lang" );
         Config.ReturnJoinMessage = new TreeMap<>();
-        for( int i = 0; i<getRetMsg.size(); i++ ) {
-            String[] param = getRetMsg.get( i ).split(",");
-            if ( param[1] == null ) { param[1] = Config.Returning_Join_Message; }
-            Config.ReturnJoinMessage.put( param[0], param[1] );
+        Tools.Prt( "ReturnJoinMessage List.", Tools.consoleMode.full, programCode );
+        if ( getRetMsg != null ) {
+            for( int i = 0; i<getRetMsg.size(); i++ ) {
+                String[] param = getRetMsg.get( i ).split(",");
+                if ( param[1] == null ) { param[1] = Config.Returning_Join_Message; }
+                Tools.Prt( "Param0:" + param[0] + " Param1:" + param[1], Tools.consoleMode.full, programCode );
+                Config.ReturnJoinMessage.put( param[0], param[1] );
+            }
         }
 
         if ( !Tools.setDebug( config.getString( "Debug" ), programCode ) ) {
