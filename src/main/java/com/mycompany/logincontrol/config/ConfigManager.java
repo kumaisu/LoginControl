@@ -5,8 +5,9 @@
  */
 package com.mycompany.logincontrol.config;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
 import java.util.TreeMap;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -14,7 +15,6 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.configuration.file.FileConfiguration;
 import com.mycompany.kumaisulibraries.Tools;
 import static com.mycompany.logincontrol.config.Config.programCode;
-import java.util.Map;
 
 /**
  *
@@ -47,6 +47,11 @@ public class ConfigManager {
         Config.present = new ArrayList<>();
         Config.IgnoreReportName = new ArrayList<>();
         Config.IgnoreReportIP = new ArrayList<>();
+
+        if ( !Tools.setDebug( config.getString( "Debug" ), programCode ) ) {
+            Tools.entryDebugFlag( programCode, Tools.consoleMode.normal );
+            Tools.Prt( ChatColor.RED + "Config Debugモードの指定値が不正なので、normal設定にしました", programCode );
+        }
 
         //  特殊個人用フラグ
         Config.kumaisu = config.getBoolean( "Kumaisu" );
@@ -121,11 +126,6 @@ public class ConfigManager {
                 Tools.Prt( "Param0:" + param[0] + " Param1:" + param[1], Tools.consoleMode.full, programCode );
                 Config.ReturnJoinMessage.put( param[0], param[1] );
             }
-        }
-
-        if ( !Tools.setDebug( config.getString( "Debug" ), programCode ) ) {
-            Tools.entryDebugFlag( programCode, Tools.consoleMode.normal );
-            Tools.Prt( ChatColor.RED + "Config Debugモードの指定値が不正なので、normal設定にしました", programCode );
         }
     }
 

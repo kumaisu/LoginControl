@@ -62,7 +62,7 @@ public class LoginListener implements Listener {
      * @param event
      * @throws UnknownHostException
      */
-    @EventHandler( priority = EventPriority.HIGH )
+    @EventHandler( priority = EventPriority.LOW )
     public void onPlayerLogin( PlayerJoinEvent event ) throws UnknownHostException {
 
         Tools.Prt( "onPlayerLogin process", Tools.consoleMode.max, Config.programCode );

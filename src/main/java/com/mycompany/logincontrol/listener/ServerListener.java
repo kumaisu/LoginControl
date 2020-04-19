@@ -119,7 +119,7 @@ public class ServerListener implements Listener {
                 Tools.Prt( Utility.StringBuild( "MotD = ", Utility.ReplaceString( Motd2ndLine, Names ) ), Tools.consoleMode.max, programCode );
             } else {
                 MotdMsg = Motd2ndLine;
-                Tools.Prt( Utility.StringBuild( "Change = ", Utility.ReplaceString( Motd2ndLine.replace( "\n", " " ), Names ) ), Tools.consoleMode.max, programCode );
+                Tools.Prt( Utility.StringBuild( "Change = ", Utility.ReplaceString( Motd2ndLine.replace( "\n", " " ), Names ) ), Tools.consoleMode.full, programCode );
             }
 
         } else {
@@ -128,7 +128,6 @@ public class ServerListener implements Listener {
         }
 
         event.setMotd( Utility.ReplaceString( MotdMsg, Names ) );
-        // event.getNumPlayers().set( 30 );
 
         if ( ( !Config.IgnoreReportIP.contains( event.getAddress().getHostAddress() ) ) && Database.Warning ) {
             String msg = Utility.StringBuild( ChatColor.GREEN.toString(), "Ping from ", MsgColor, Host, ChatColor.YELLOW.toString(), " [", event.getAddress().getHostAddress(), "]" );
