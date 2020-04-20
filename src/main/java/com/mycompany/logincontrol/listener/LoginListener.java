@@ -81,7 +81,7 @@ public class LoginListener implements Listener {
         }
 
         if ( !player.hasPlayedBefore() || ( Config.OpJumpStats && player.isOp() ) ) {
-            Tools.Prt( ChatColor.AQUA + "The First Login Player", Tools.consoleMode.normal, Config.programCode );
+            Tools.Prt( ChatColor.AQUA + "The First Login Player", Tools.consoleMode.full, Config.programCode );
 
             if ( Config.JumpStats ) {
                 if ( !Teleport.Beginner( player ) ) {
@@ -95,7 +95,7 @@ public class LoginListener implements Listener {
             } );
             
         } else {
-            Tools.Prt( ChatColor.AQUA + "The Repeat Login Player", Tools.consoleMode.normal, Config.programCode );
+            Tools.Prt( ChatColor.AQUA + "The Repeat Login Player", Tools.consoleMode.full, Config.programCode );
         }
 
         //  プレイヤーの言語設定を取得するために遅延処理の後 Welcome メッセージの表示を行う
@@ -104,7 +104,7 @@ public class LoginListener implements Listener {
             String getLocale = Tools.getLanguage( player );
             String locale2byte = getLocale.substring( 0, 2 ).toUpperCase();
 
-            Tools.Prt( ChatColor.AQUA + "Player Menu is " + getLocale + " / " + locale2byte, Config.programCode );
+            Tools.Prt( ChatColor.AQUA + "Player Menu is " + getLocale + " / " + locale2byte, Tools.consoleMode.full, Config.programCode );
             
             if ( !player.hasPlayedBefore() || ( Config.OpJumpStats && player.isOp() ) ) {
                 if( Config.NewJoin ) {
