@@ -90,8 +90,8 @@ public class LoginListener implements Listener {
             } else Tools.Prt( "not Beginner Teleport", Tools.consoleMode.full, Config.programCode );
     
             Config.present.stream().forEach( CP -> {
-                Tools.ExecOtherCommand( player, CP, "" );
                 Tools.Prt( ChatColor.AQUA + "Command Execute : " + ChatColor.WHITE + CP, Tools.consoleMode.max, Config.programCode );
+                Tools.ExecOtherCommand( player, CP, "" );
             } );
             
         } else {

@@ -132,15 +132,12 @@ public class ConfigManager {
     public static void Status( Player p ) {
         Tools.Prt( p, ChatColor.GREEN + "=== LoginContrl Status ===", programCode );
         Tools.Prt( p, ChatColor.WHITE + "Degub Mode : " + ChatColor.YELLOW + Tools.consoleFlag.get( programCode ).toString(), programCode );
-        Tools.Prt( p, ChatColor.WHITE + "Mysql : " + ChatColor.YELLOW + Config.host + ":" + Config.port, programCode );
-        Tools.Prt( p, ChatColor.WHITE + "DB Name : " + ChatColor.YELLOW + Config.database, programCode );
+        Tools.Prt( p, ChatColor.WHITE + "Mysql : " + ChatColor.YELLOW + Config.host + ":" + Config.port + "/" + Config.database, programCode );
         if ( p == null ) {
-            Tools.Prt( p, ChatColor.WHITE + "DB UserName : " + ChatColor.YELLOW + Config.username, programCode );
-            Tools.Prt( p, ChatColor.WHITE + "DB Password : " + ChatColor.YELLOW + Config.password, programCode );
+            Tools.Prt( p, ChatColor.WHITE + "DB UserName  : " + ChatColor.YELLOW + Config.username + "[" + Config.password + "]", programCode );
         }
-        Tools.Prt( p, ChatColor.WHITE + "FirstJump : " + ChatColor.YELLOW + ( ( Config.JumpStats ) ? "True":"None" ), programCode );
         if ( Config.JumpStats ) {
-            Tools.Prt( p, ChatColor.WHITE + "Position : " +
+            Tools.Prt( p, ChatColor.WHITE + "First Jump Position : " +
                 ChatColor.YELLOW + "[" + Config.fworld + "] " +
                 ChatColor.WHITE + "x:" + ChatColor.YELLOW + String.valueOf( Config.fx ) + "," +
                 ChatColor.WHITE + "y:" + ChatColor.YELLOW + String.valueOf( Config.fy ) + "," +
@@ -149,6 +146,8 @@ public class ConfigManager {
                 ChatColor.WHITE + "yaw:" + ChatColor.YELLOW + String.valueOf( Config.fyaw ),
                 programCode
             );
+        } else {
+            Tools.Prt( p, ChatColor.WHITE + "FirstJump : " + ChatColor.YELLOW + "None", programCode );
         }
         Tools.Prt( p, ChatColor.WHITE + "Present Items", programCode );
         Config.present.stream().forEach( CP -> { Tools.Prt( p, ChatColor.WHITE + " - " + ChatColor.YELLOW + CP, programCode ); } );
