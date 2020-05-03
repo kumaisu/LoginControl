@@ -134,21 +134,28 @@ public class ConfigManager {
         Tools.Prt( p, ChatColor.WHITE + "Degub Mode : " + ChatColor.YELLOW + Tools.consoleFlag.get( programCode ).toString(), programCode );
         Tools.Prt( p, ChatColor.WHITE + "Mysql : " + ChatColor.YELLOW + Config.host + ":" + Config.port + "/" + Config.database, programCode );
         if ( p == null ) {
-            Tools.Prt( p, ChatColor.WHITE + "DB UserName  : " + ChatColor.YELLOW + Config.username + "[" + Config.password + "]", programCode );
+            Tools.Prt( p, ChatColor.WHITE + "DB User : " + ChatColor.YELLOW + Config.username + " [" + Config.password + "]", programCode );
         }
-        if ( Config.JumpStats ) {
-            Tools.Prt( p, ChatColor.WHITE + "First Jump Position : " +
+        Tools.Prt( p,
+            ( Config.JumpStats ?
+                ChatColor.WHITE + "First Jump Position : " +
                 ChatColor.YELLOW + "[" + Config.fworld + "] " +
                 ChatColor.WHITE + "x:" + ChatColor.YELLOW + String.valueOf( Config.fx ) + "," +
                 ChatColor.WHITE + "y:" + ChatColor.YELLOW + String.valueOf( Config.fy ) + "," +
                 ChatColor.WHITE + "z:" + ChatColor.YELLOW + String.valueOf( Config.fz ) + "," +
                 ChatColor.WHITE + "pit:" + ChatColor.YELLOW + String.valueOf( Config.fpitch ) + "," +
-                ChatColor.WHITE + "yaw:" + ChatColor.YELLOW + String.valueOf( Config.fyaw ),
-                programCode
-            );
-        } else {
-            Tools.Prt( p, ChatColor.WHITE + "FirstJump : " + ChatColor.YELLOW + "None", programCode );
-        }
+                ChatColor.WHITE + "yaw:" + ChatColor.YELLOW + String.valueOf( Config.fyaw )
+                    :
+                ChatColor.WHITE + "FirstJump : " + ChatColor.YELLOW + "None" ),
+            programCode
+        );
+        Tools.Prt( p, ChatColor.WHITE + "Unknown IP Check : " + ChatColor.YELLOW + ( Config.CheckIPAddress ? "True":"False" ), programCode );
+        Tools.Prt( p, ChatColor.WHITE + "Ping Broadcast   : " + ChatColor.YELLOW + ( Config.playerPingB ? "True":"False" ), programCode );
+        Tools.Prt( p, ChatColor.GREEN + "==========================", programCode );
+    }
+
+    public static void Lists( Player p ) {
+        Tools.Prt( p, ChatColor.GREEN + "=== LoginContrl List Item ===", programCode );
         Tools.Prt( p, ChatColor.WHITE + "Present Items", programCode );
         Config.present.stream().forEach( CP -> { Tools.Prt( p, ChatColor.WHITE + " - " + ChatColor.YELLOW + CP, programCode ); } );
 
@@ -157,9 +164,6 @@ public class ConfigManager {
 
         Tools.Prt( p, ChatColor.WHITE + "Ignore IPs", programCode );
         Config.IgnoreReportIP.stream().forEach( IRI -> { Tools.Prt( p, ChatColor.YELLOW + " - " + IRI, programCode ); } );
-
-        Tools.Prt( p, ChatColor.WHITE + "Unknown IP Check : " + ChatColor.YELLOW + ( Config.CheckIPAddress ? "True":"False" ), programCode );
-        Tools.Prt( p, ChatColor.WHITE + "Ping Broadcast   : " + ChatColor.YELLOW + ( Config.playerPingB ? "True":"False" ), programCode );
         Tools.Prt( p, ChatColor.GREEN + "==========================", programCode );
     }
 

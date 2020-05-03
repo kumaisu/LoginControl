@@ -67,7 +67,7 @@ public class AdminCommand implements CommandExecutor {
             if ( hasConsolePerm ) {
                 switch ( CtlCmd ) {
                     case "Reload":
-                        LoginControl.config.load();
+                        ConfigManager.load();
                         Tools.Prt( p, Utility.ReplaceString( Config.Reload ), programCode );
                         return true;
                     case "Dupcheck":
@@ -106,8 +106,10 @@ public class AdminCommand implements CommandExecutor {
             if ( hasAdminPerm ) {
                 switch ( CtlCmd.toLowerCase() ) {
                     case "status":
-                        LoginControl.config.Status( p );
+                        ConfigManager.Status( p );
                         return true;
+                    case "data":
+                        ConfigManager.Lists( p );
                     case "motd":
                         LoginControl.MotData.getStatus( p );
                         return true;
@@ -219,6 +221,7 @@ public class AdminCommand implements CommandExecutor {
             if ( ( p == null ) || p.hasPermission( "LoginCtl.admin" ) ) {
                 //  LoginCtl.admin
                 Tools.Prt( p, "loginctl status", programCode );
+                Tools.Prt( p, "loginctl data", programCode );
                 Tools.Prt( p, "loginctl motd", programCode );
                 Tools.Prt( p, "loginctl joinmsg", programCode );
                 Tools.Prt( p, "loginctl retmsg", programCode );
