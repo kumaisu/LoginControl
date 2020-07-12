@@ -75,6 +75,7 @@ public class LoginListener implements Listener {
         ListData.LogPrint( player, 3, false );
         HostData.AddCountHost( player.getAddress().getHostString(), -1 );
         ListData.CheckIP( player );
+        ListData.CheckUUID( player );
 
         if ( Config.Announce ) {
             Tools.Prt( player, Utility.ReplaceString( Config.AnnounceMessage, player.getDisplayName() ), Tools.consoleMode.max, Config.programCode );

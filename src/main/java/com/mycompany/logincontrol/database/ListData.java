@@ -159,6 +159,61 @@ public class ListData {
     }
 
     /**
+     * 同一UUIDで別IPアドレスのアクセスがあるかチェックする
+     *
+     * @param player 
+     */
+    public static void CheckUUID( Player player ) {
+        List<String> PrtData;
+        PrtData = new ArrayList<>();
+        List<String> IPData;
+        IPData = new ArrayList<>();
+
+        PrtData.add( Utility.StringBuild( ChatColor.RED.toString(), "=== Check UUID ===", ChatColor.YELLOW.toString(), "[", player.getAddress().getHostString(), "]" ) );
+
+        try ( Connection con = Database.dataSource.getConnection() ) {
+            Statement stmt = con.createStatement();
+            String sql = "SELECT * FROM list WHERE uuid = '" + player.getUniqueId().toString() + "' ORDER BY date DESC;";
+            Tools.Prt( "SQL : " + sql, Tools.consoleMode.max, programCode );
+            Tools.Prt( "listCheckUUID : " + sql, Tools.consoleMode.max, programCode );
+            ResultSet rs = stmt.executeQuery( sql );
+
+            int i = 0;
+            while( rs.next() ) {
+                String GetIP = InetCalc.toInetAddress( rs.getLong( "ip" ) );
+                
+                if ( i>0 ) {
+                    if ( !IPData.contains( GetIP ) ) {
+                        i++;
+                        IPData.add( GetIP );
+                        PrtData.add( LinePrt( player,rs ) );
+                    }
+                } else {
+                    i++;
+                }
+            }
+            con.close();
+        } catch ( SQLException e ) {
+            Tools.Prt( ChatColor.RED + "Error listCheckUUID : " + e.getMessage(), programCode );
+        }
+
+        PrtData.add( Utility.StringBuild( ChatColor.RED.toString(), "=== end ===" ) );
+
+        if ( IPData.size() < 2 ) { return; }
+
+        PrtData.stream().forEach( PD -> {
+            String msg = PD;
+            Tools.Prt( msg, Tools.consoleMode.normal, Config.programCode );
+            Bukkit.getOnlinePlayers().stream().filter( ( p ) -> (
+                ( p.hasPermission( "LoginCtl.view" ) ) ) ).forEachOrdered( ( p ) -> {
+                    Tools.Prt( p, msg, Config.programCode );
+                }
+            );
+        } );
+        
+    }
+
+    /**
      * 直近のログインプレイヤーリストを表示する関数
      *
      * @param player    表示するプレイヤー
@@ -313,19 +368,16 @@ public class ListData {
                 );
             }
 
-            message = Utility.StringBuild( message,
-                    gs.getInt( "status" )==0 ? ChatColor.RED.toString() : ChatColor.AQUA.toString(),
-                    gs.getString( "name" )
-            );
+            message = Utility.StringBuild( message, gs.getInt( "status" )==0 ? ChatColor.RED.toString() : ChatColor.AQUA.toString() );
 
             if ( player == null ) {
                 HostData.GetSQL( InetCalc.toInetAddress( gs.getLong( "ip" ) ) );
                 message = Utility.StringBuild(
                         message,
-                        " : ",
-                        ( gs.getInt( "status" )==0 ? ChatColor.RED.toString() : ChatColor.AQUA.toString() ),
-                        Database.Host
+                        String.format( "%-15s %s", gs.getString( "name" ), Database.Host )
                 );
+            } else {
+                message = Utility.StringBuild( message, gs.getString( "name" ) );
             }
 
         } catch ( SQLException e ) {
