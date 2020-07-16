@@ -51,7 +51,7 @@ public class DatabaseControl {
         config.setJdbcUrl( "jdbc:mysql://" + Config.host + ":" + Config.port + "/" + Config.database );
         config.setPoolName( Config.database );
         config.setAutoCommit( true );
-        config.setConnectionInitSql( "SET SESSION query_cache_type=0" );
+        config.setConnectionInitSql( "SELECT 1" );
         config.setMaximumPoolSize( Config.MaximumPoolSize );
         config.setMinimumIdle( Config.MinimumIdle );
         config.setMaxLifetime( TimeUnit.MINUTES.toMillis( 15 ) );
