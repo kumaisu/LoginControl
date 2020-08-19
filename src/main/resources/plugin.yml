@@ -1,6 +1,6 @@
 main: com.mycompany.logincontrol.LoginControl
 name: LoginControl
-version: 1.0.7
+version: 1.0.8
 description: login history plugins
 author: Kumaisu
 database: true

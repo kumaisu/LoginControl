@@ -152,8 +152,13 @@ public class ConfigManager {
         );
         Tools.Prt( p, ChatColor.WHITE + "Unknown IP Check : " + ChatColor.YELLOW + ( Config.CheckIPAddress ? "True":"False" ), programCode );
         if ( Config.MotDControl ) {
-            Tools.Prt( p, ChatColor.WHITE + "Ping Broadcast   : " + ChatColor.YELLOW + ( Config.playerPingB ? "True":"False" ), programCode );
-            Tools.Prt( p, ChatColor.WHITE + "Ping Alram Count : " + ChatColor.YELLOW + String.valueOf( Config.AlarmCount ), programCode );
+            Tools.Prt( p,
+                ChatColor.WHITE + "Ping Broadcast   : " +
+                ChatColor.YELLOW + ( Config.playerPingB ? "True":"False" ) +
+                ChatColor.WHITE + " -- Alram Count : " +
+                ChatColor.YELLOW + String.valueOf( Config.AlarmCount ),
+                programCode
+            );
         } else {
             Tools.Prt( p, "MotD Mode : none", programCode );
         }
