@@ -1,4 +1,5 @@
 # MotD Message YAML
+# Config.MotDCont が false の場合、すべて無効になります
 
 # Reference count
 MotD2nd-Ping-Count: 100

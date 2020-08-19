@@ -9,6 +9,7 @@ import com.mycompany.logincontrol.listener.LoginListener;
 import com.mycompany.logincontrol.listener.ServerListener;
 import com.mycompany.logincontrol.command.LoginlistCommand;
 import com.mycompany.logincontrol.command.AdminCommand;
+import com.mycompany.logincontrol.config.Config;
 import com.mycompany.logincontrol.config.ConfigManager;
 import com.mycompany.logincontrol.config.MotDControl;
 import com.mycompany.logincontrol.database.DatabaseControl;
@@ -31,7 +32,10 @@ public class LoginControl extends JavaPlugin implements Listener {
         DatabaseControl.TableUpdate();
 
         new LoginListener( this );
-        new ServerListener( this );
+        
+        if ( Config.MotDControl ) {
+            new ServerListener( this );
+        }
 
         getCommand( "loginlist" ).setExecutor( new LoginlistCommand( this ) );
         getCommand( "loginctl" ).setExecutor( new AdminCommand( this ) );
