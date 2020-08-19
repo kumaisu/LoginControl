@@ -49,6 +49,8 @@ public class ServerListener implements Listener {
      */
     @EventHandler
     public void onServerListPing( ServerListPingEvent event ) throws UnknownHostException, ClassNotFoundException {
+        if ( !Config.MotDControl ) { return; }
+
         String Names = "Unknown";
         // ConsoleLog Flag 2:Full 1:Normal(Playerのみ)
 	Tools.consoleMode PrtStatus = Tools.consoleMode.full;

@@ -24,17 +24,24 @@ Ignore-Names:
 Ignore-IP:
     - 127.0.0.0
 
+# MotD Control
+# 照会に対し処理を実行するかどうか
+MotDCont: true
+
 # Player Ping のBroadcastアナウンスを行う
+# MotDCont が false の場合無効
 PlayerPingBroadcast: false
 
 # Unknown IP Address Check Flag
 # ネットワークDNSからの名前解決を実施するか
+# MotDCont が false の場合無効
 CheckIP: false
 
 # Ping Alarm Count
 #   規定カウントを越えた場合にアラーム警告
 #   ゼロならば動作しない
 #   Debugの設定に関わらず表示する
+#   MotDCont が false の場合無効
 AlarmCount: 5000
 
 # First Login TP

@@ -40,6 +40,7 @@ public class Config {
     public static List<String> IgnoreReportName;
     public static List<String> IgnoreReportIP;
 
+    public static boolean MotDControl;
     public static int AlarmCount;
 
     public static String LogFull;

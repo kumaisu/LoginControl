@@ -75,6 +75,7 @@ public class ConfigManager {
         Config.IgnoreReportName = config.getStringList( "Ignore-Names" );
         Config.IgnoreReportIP = config.getStringList( "Ignore-IP" );
         Config.CheckIPAddress = config.getBoolean( "CheckIP" );
+        Config.MotDControl = config.getBoolean( "MotDCont", true );
         Config.AlarmCount = config.getInt( "AlarmCount" );
         Config.playerPingB = config.getBoolean( "PlayerPingBroadcast" );
 
@@ -150,7 +151,12 @@ public class ConfigManager {
             programCode
         );
         Tools.Prt( p, ChatColor.WHITE + "Unknown IP Check : " + ChatColor.YELLOW + ( Config.CheckIPAddress ? "True":"False" ), programCode );
-        Tools.Prt( p, ChatColor.WHITE + "Ping Broadcast   : " + ChatColor.YELLOW + ( Config.playerPingB ? "True":"False" ), programCode );
+        if ( Config.MotDControl ) {
+            Tools.Prt( p, ChatColor.WHITE + "Ping Broadcast   : " + ChatColor.YELLOW + ( Config.playerPingB ? "True":"False" ), programCode );
+            Tools.Prt( p, ChatColor.WHITE + "Ping Alram Count : " + ChatColor.YELLOW + String.valueOf( Config.AlarmCount ), programCode );
+        } else {
+            Tools.Prt( p, "MotD Mode : none", programCode );
+        }
         Tools.Prt( p, ChatColor.GREEN + "==========================", programCode );
     }
 
